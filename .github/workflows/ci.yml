@@ -56,16 +56,21 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          go install golang.org/x/mobile/cmd/gomobile@$GOMOBILE_VERSION
-          go install golang.org/x/mobile/cmd/gobind@$GOMOBILE_VERSION
-          go get golang.org/x/mobile/bind@$GOMOBILE_VERSION
-          export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
-          echo "NDK: $ANDROID_NDK_HOME"
-          gomobile init
-          gomobile bind -v -target=android/arm64,android/arm -androidapi 24 \
-            -javapkg=com.eirahoutmoss.nexnews.go -trimpath -ldflags="-s -w" \
-            -o android/app/libs/nexcore.aar ./mobile 2>&1 | tee gomobile.log
-          ls -la android/app/libs
+          {
+            set -ex
+            go version
+            go install golang.org/x/mobile/cmd/gomobile@$GOMOBILE_VERSION
+            go install golang.org/x/mobile/cmd/gobind@$GOMOBILE_VERSION
+            go get golang.org/x/mobile/bind@$GOMOBILE_VERSION
+            export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
+            echo "NDK: $ANDROID_NDK_HOME"; ls "$ANDROID_NDK_HOME" | head
+            export PATH="$PATH:$(go env GOPATH)/bin"
+            gomobile init
+            gomobile bind -v -target=android/arm64,android/arm -androidapi 24 \
+              -javapkg=com.eirahoutmoss.nexnews.go -trimpath -ldflags="-s -w" \
+              -o android/app/libs/nexcore.aar ./mobile
+            ls -la android/app/libs
+          } 2>&1 | tee gomobile.log
 
       - name: İmza anahtarı
         shell: bash

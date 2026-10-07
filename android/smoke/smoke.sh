@@ -15,6 +15,7 @@ dis() {
     sleep 2
   fi
 }
+fg() { adb shell am start -n $PKG/.MainActivity >/dev/null 2>&1; sleep 2; }
 tapd() { dis; python3 android/smoke/tap.py "$@"; }
 shot() { sleep ${2:-3}; dis; adb exec-out screencap -p > "$OUT/$1.png"; }
 files() { { adb shell "run-as $PKG ls -la files/NexNews"; adb shell "run-as $PKG cat files/NexNews/$1" | head -c ${2:-3000}; } > "$OUT/$3.txt" 2>&1; }
@@ -38,29 +39,29 @@ adb shell input swipe 540 1800 540 700 300; shot 02-akis-asagi
 adb shell input swipe 540 1800 540 700 300; shot 03-akis-asagi2
 adb shell input swipe 540 700 540 2000 200; adb shell input swipe 540 700 540 2000 200; sleep 2
 # çok kaynaklı ilk habere dokun (olay sayfası)
-$T "bağımsız kaynak" 0 contains || $T " kaynak" 0 contains
+$T " +2" 0 contains || $T " +1" 0 contains
 shot 04-olay 6
 adb shell input swipe 540 1800 540 600 300; shot 05-olay-asagi
-adb shell input keyevent KEYCODE_BACK; sleep 2
+adb shell input keyevent KEYCODE_BACK; sleep 2; fg
 $T "Kategoriler" 0; shot 06-kategoriler
 $T "Türkiye" 0; shot 07-kategori 5
-adb shell input keyevent KEYCODE_BACK; sleep 2
+adb shell input keyevent KEYCODE_BACK; sleep 2; fg
 $T "Keşfet" 0; shot 08-radyo 12
 $T "Çal" 0; shot 09-radyo-caliyor 15
 $T "Canlı TV" 0; shot 10-tv 4
 $T "TRT Haber" 0; shot 11-tv-oynatici 20
-adb shell input keyevent KEYCODE_BACK; shot 12-mini-oynatici 4
+adb shell input keyevent KEYCODE_BACK; sleep 1; fg; shot 12-mini-oynatici 4
 $T "Hava" 0; shot 13-hava 15
 $T "Piyasa" 0; shot 14-piyasa 20
-$T "Kaydedilen" 0; shot 15-kaydedilen
+fg; $T "Kaydedilen" 0; shot 15-kaydedilen
 $T "Ayarlar" 0; shot 16-ayarlar
 adb shell input swipe 540 1800 540 500 300; shot 17-ayarlar-asagi
 $T "Kaynaklar" 0; shot 18-kaynaklar 5
-adb shell input keyevent KEYCODE_BACK; sleep 2
+adb shell input keyevent KEYCODE_BACK; sleep 2; fg
 $T "Akış" 0; sleep 2
 $T "Ara" 0; sleep 2
 adb shell input text "deprem"; adb shell input keyevent KEYCODE_ENTER; shot 19-arama 5
-adb shell input keyevent KEYCODE_BACK; sleep 1; adb shell input keyevent KEYCODE_BACK; sleep 2
+adb shell input keyevent KEYCODE_BACK; sleep 1; adb shell input keyevent KEYCODE_BACK; sleep 2; fg
 adb shell cmd uimode night yes; shot 20-koyu 6
 adb shell cmd uimode night no; sleep 2
 # ana ekran widget'ı için yapılandırma bilgisi

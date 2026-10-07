@@ -84,6 +84,9 @@ object Core {
 
     fun lastFetch(): Long = if (ready) Nexcore.lastFetch() else 0L
 
+    /** Hiç başlık yok mu (ilk açılış ya da tüm kaynaklar başarısız)? */
+    fun isEmpty(): Boolean = _overview.value?.categories?.all { it.items.isEmpty() } ?: true
+
     suspend fun category(name: String): CategoryPage = io { NexJson.decodeFromString<CategoryPage>(Nexcore.category(name)) }
     suspend fun story(link: String): StoryDetail = io { NexJson.decodeFromString<StoryDetail>(Nexcore.story(link)) }
     suspend fun search(q: String): SearchResult = io { NexJson.decodeFromString<SearchResult>(Nexcore.search(q)) }

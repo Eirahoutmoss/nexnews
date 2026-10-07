@@ -112,19 +112,26 @@ jobs:
         run: |
           for f in go-test.log gomobile.log gradle-apk.log; do
             [ -f "$f" ] || continue
-            body=$(grep -E "^e: |error:|Error:|What went wrong|Could not|Unresolved|FAILED|Exception|^> |cannot|undefined" "$f" | head -80 | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
-            [ -n "$body" ] && echo "::error title=$f::$body"
+            body=$( { grep -E "^e: |error:|Error:|What went wrong|Could not|Unresolved|FAILED|Exception|^> |cannot|undefined|gomobile:|go: " "$f" || true; } | head -80 | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            [ -n "$body" ] && echo "::error title=$f::$body" || true
           done
-          exit 0
 
-      - name: Derleme günlükleri
+      # Günlükler ayrı bir dala da yazılır (ci-logs): Actions günlük indirmesi
+      # erişilemeyen ortamlardan da git ile okunabilsin diye.
+      - name: Günlükleri ci-logs dalına yaz
         if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: logs
-          path: |
-            *.log
-          if-no-files-found: ignore
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci"
+          cp -f *.log "$RUNNER_TEMP/ci/" 2>/dev/null || true
+          echo "run=$GITHUB_RUN_NUMBER sha=$GITHUB_SHA status=${{ job.status }}" > "$RUNNER_TEMP/ci/OZET.txt"
+          cd "$RUNNER_TEMP/ci"
+          git init -q && git checkout -q -b ci-logs
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "CI günlükleri #$GITHUB_RUN_NUMBER"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-logs || true
 
       - name: Çıktıları sakla
         if: success()

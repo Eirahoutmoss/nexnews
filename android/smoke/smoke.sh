@@ -5,9 +5,19 @@ OUT=smoke
 mkdir -p $OUT
 PKG=com.eirahoutmoss.nexnews
 APK=android/app/build/outputs/apk/debug/app-debug.apk
-T="python3 android/smoke/tap.py"
-shot() { sleep ${2:-3}; adb exec-out screencap -p > "$OUT/$1.png"; }
-files() { adb shell run-as $PKG sh -c "cd files/NexNews && ls -la && head -c ${2:-3000} $1" > "$OUT/$3.txt" 2>&1; }
+T="tapd"
+# Sistem "yanıt vermiyor" pencerelerini kapat (emülatör açılışında launcher ANR veriyor)
+dis() {
+  adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1
+  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+  if adb shell cat /sdcard/ui.xml 2>/dev/null | grep -q "isn't responding\|yanıt vermiyor"; then
+    python3 android/smoke/tap.py "Wait" 0 || python3 android/smoke/tap.py "Bekle" 0 || adb shell input keyevent KEYCODE_BACK
+    sleep 2
+  fi
+}
+tapd() { dis; python3 android/smoke/tap.py "$@"; }
+shot() { sleep ${2:-3}; dis; adb exec-out screencap -p > "$OUT/$1.png"; }
+files() { { adb shell "run-as $PKG ls -la files/NexNews"; adb shell "run-as $PKG cat files/NexNews/$1" | head -c ${2:-3000}; } > "$OUT/$3.txt" 2>&1; }
 
 adb shell wm size > $OUT/ekran.txt
 # Ağ hazır olana kadar bekle (açılışta emülatör DNS'i bir süre çalışmıyor)
@@ -15,6 +25,8 @@ for i in $(seq 1 30); do
   adb shell ping -c 1 -W 2 feeds.bbci.co.uk >/dev/null 2>&1 && { echo "ağ hazır ($i)"; break; }
   sleep 3
 done
+# Launcher'ın açılış ANR'ı geçsin
+sleep 30; dis; adb shell input keyevent KEYCODE_HOME; sleep 5; dis
 adb install -r "$APK" || exit 0
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
 adb logcat -c
@@ -55,7 +67,7 @@ adb shell cmd uimode night no; sleep 2
 adb shell dumpsys appwidget | grep -i -A3 nexnews | head -20 > $OUT/widget.txt
 adb shell dumpsys jobscheduler | grep -i -A2 nexnews | head -40 > $OUT/jobs.txt
 files config.json 1500 config
-adb shell run-as $PKG sh -c "cd files/NexNews && ls -la" > $OUT/dosyalar.txt 2>&1
+adb shell "run-as $PKG ls -la files/NexNews" > $OUT/dosyalar.txt 2>&1
 adb logcat -d > $OUT/logcat-tam.txt
 grep -E "FATAL EXCEPTION|AndroidRuntime|GoLog|$PKG" $OUT/logcat-tam.txt | grep -v "WindowManager\|ActivityTaskManager\|CoreBackPreview" | head -400 > $OUT/logcat-ozet.txt
 grep -c "FATAL EXCEPTION" $OUT/logcat-tam.txt > $OUT/cokme-sayisi.txt || true

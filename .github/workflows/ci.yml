@@ -65,7 +65,7 @@ jobs:
             export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
             echo "NDK: $ANDROID_NDK_HOME"; ls "$ANDROID_NDK_HOME" | head
             export PATH="$PATH:$(go env GOPATH)/bin"
-            gomobile init
+            # gomobile init yalnızca gobind@latest kurar (Go 1.26 ister); gobind yukarıda sabit sürümle kuruldu.
             gomobile bind -v -target=android/arm64,android/arm -androidapi 24 \
               -javapkg=com.eirahoutmoss.nexnews.go -trimpath -ldflags="-s -w" \
               -o android/app/libs/nexcore.aar ./mobile

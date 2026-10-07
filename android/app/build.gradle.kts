@@ -20,7 +20,6 @@ android {
         targetSdk = 35
         versionCode = nexVersionCode
         versionName = nexVersionName
-        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
     signingConfigs {
@@ -35,7 +34,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Emülatör testleri için x86_64 da dahil
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
+        }
         release {
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

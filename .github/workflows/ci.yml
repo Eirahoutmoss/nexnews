@@ -66,7 +66,7 @@ jobs:
             echo "NDK: $ANDROID_NDK_HOME"; ls "$ANDROID_NDK_HOME" | head
             export PATH="$PATH:$(go env GOPATH)/bin"
             # gomobile init yalnızca gobind@latest kurar (Go 1.26 ister); gobind yukarıda sabit sürümle kuruldu.
-            gomobile bind -v -target=android/arm64,android/arm -androidapi 24 \
+            gomobile bind -v -target=android/arm64,android/arm,android/amd64 -androidapi 24 \
               -javapkg=com.eirahoutmoss.nexnews.go -trimpath -ldflags="-s -w" \
               -o android/app/libs/nexcore.aar ./mobile
             ls -la android/app/libs
@@ -90,7 +90,7 @@ jobs:
         run: |
           set -o pipefail
           chmod +x gradlew
-          ./gradlew :app:assembleRelease --no-daemon --stacktrace 2>&1 | tee ../gradle-apk.log
+          ./gradlew :app:assembleRelease :app:assembleDebug --no-daemon --stacktrace 2>&1 | tee ../gradle-apk.log
           if [ "$IMZA" = "gercek" ]; then
             NAME="NexNews-${NEXNEWS_VERSION_NAME}.apk"
           else
@@ -121,23 +121,6 @@ jobs:
             [ -n "$body" ] && echo "::error title=$f::$body" || true
           done
 
-      # Günlükler ayrı bir dala da yazılır (ci-logs): Actions günlük indirmesi
-      # erişilemeyen ortamlardan da git ile okunabilsin diye.
-      - name: Günlükleri ci-logs dalına yaz
-        if: always()
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/ci"
-          cp -f *.log "$RUNNER_TEMP/ci/" 2>/dev/null || true
-          echo "run=$GITHUB_RUN_NUMBER sha=$GITHUB_SHA status=${{ job.status }}" > "$RUNNER_TEMP/ci/OZET.txt"
-          cd "$RUNNER_TEMP/ci"
-          git init -q && git checkout -q -b ci-logs
-          git -c user.name=ci -c user.email=ci@users.noreply.github.com add -A
-          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "CI günlükleri #$GITHUB_RUN_NUMBER"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-logs || true
-
       - name: Çıktıları sakla
         if: success()
         uses: actions/upload-artifact@v5
@@ -167,3 +150,42 @@ jobs:
             [ -f "$NOTES" ] || { echo "NexNews deneme derlemesi" > "$RUNNER_TEMP/notes.md"; NOTES="$RUNNER_TEMP/notes.md"; }
             gh release create deneme dist/* --target "$GITHUB_SHA" --prerelease --title "NexNews deneme ($NEXNEWS_VERSION_NAME, #$GITHUB_RUN_NUMBER)" --notes-file "$NOTES"
           fi
+
+      - name: KVM (emülatör hızlandırma)
+        if: success()
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Emülatörde duman testi
+        if: success()
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash android/smoke/smoke.sh
+
+      # Günlükler ayrı bir dala da yazılır (ci-logs): Actions günlük indirmesi
+      # erişilemeyen ortamlardan da git ile okunabilsin diye.
+      - name: Günlükleri ci-logs dalına yaz
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci"
+          cp -f *.log "$RUNNER_TEMP/ci/" 2>/dev/null || true
+          cp -rf smoke "$RUNNER_TEMP/ci/" 2>/dev/null || true
+          echo "run=$GITHUB_RUN_NUMBER sha=$GITHUB_SHA status=${{ job.status }}" > "$RUNNER_TEMP/ci/OZET.txt"
+          cd "$RUNNER_TEMP/ci"
+          git init -q && git checkout -q -b ci-logs
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "CI günlükleri #$GITHUB_RUN_NUMBER"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-logs || true
+

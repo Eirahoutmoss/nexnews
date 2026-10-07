@@ -247,6 +247,11 @@ private fun WeatherTab(bp: PaddingValues) {
     }
 }
 
+private val marketNames = mapOf(
+    "^XU100" to "BIST 100", "^XU030" to "BIST 30", "THYAO.IS" to "Türk Hava Yolları", "ASELS.IS" to "Aselsan",
+    "GARAN.IS" to "Garanti BBVA", "BIMAS.IS" to "BİM", "USDTRY=X" to "Dolar / TL", "EURTRY=X" to "Euro / TL", "GC=F" to "Altın (ons)",
+)
+
 @Composable
 private fun FinanceTab(bp: PaddingValues) {
     var f by remember { mutableStateOf<FinanceBoard?>(null) }
@@ -257,17 +262,33 @@ private fun FinanceTab(bp: PaddingValues) {
         items(b.quotes, key = { it.symbol }) { q ->
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(q.name.ifBlank { q.symbol }, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Text(marketNames[q.symbol.uppercase()] ?: q.name.ifBlank { q.symbol }, fontWeight = FontWeight.SemiBold, maxLines = 1)
                     Text(q.symbol, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(String.format(Locale("tr"), "%,.2f %s", q.price, q.currency), fontWeight = FontWeight.SemiBold)
-                    val up = q.changePct >= 0
-                    Text(String.format(Locale("tr"), "%s%%%.2f", if (up) "▲ " else "▼ ", kotlin.math.abs(q.changePct)),
-                        color = if (up) Color(0xFF36C98F) else Color(0xFFFF6B7A), style = MaterialTheme.typography.labelSmall)
+                    if (q.error.isNotBlank() || q.price == 0.0) {
+                        Text("—", fontWeight = FontWeight.SemiBold)
+                        Text("veri alınamadı", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else {
+                        Text(String.format(Locale("tr"), "%,.2f %s", q.price, q.currency), fontWeight = FontWeight.SemiBold)
+                        val up = q.changePct >= 0
+                        Text(String.format(Locale("tr"), "%s%%%.2f", if (up) "▲ " else "▼ ", kotlin.math.abs(q.changePct)),
+                            color = if (q.changePct == 0.0) MaterialTheme.colorScheme.onSurfaceVariant else if (up) Color(0xFF36C98F) else Color(0xFFFF6B7A),
+                            style = MaterialTheme.typography.labelSmall)
+                    }
                 }
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+        }
+        if (b.gold.isNotEmpty()) {
+            item { Text("ALTIN (teorik)", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 4.dp)) }
+            items(b.gold, key = { "g-" + it.name }) { g ->
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(g.name, Modifier.weight(1f))
+                    Text(String.format(Locale("tr"), "%,.0f TRY", g.valueTry), fontWeight = FontWeight.SemiBold)
+                }
+            }
+            item { Text(b.gold.first().note, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp)) }
         }
         item { Text("Veriler gecikmeli olabilir; yatırım tavsiyesi değildir. Takip listesi Ayarlar'dan değişir.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp)) }
     }

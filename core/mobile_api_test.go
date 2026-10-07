@@ -25,7 +25,10 @@ func TestMobileAPIEndToEnd(t *testing.T) {
 	defer srv.Close()
 
 	oldStore, oldCfg, oldFavs, oldFollows := store, cfg, favs, follows
-	defer func() { store, cfg, favs, follows = oldStore, oldCfg, oldFavs, oldFollows; dataDirOverride, sysLangOverride = "", "" }()
+	defer func() {
+		store, cfg, favs, follows = oldStore, oldCfg, oldFavs, oldFollows
+		dataDirOverride, sysLangOverride = "", ""
+	}()
 	store, cfg = nil, nil
 
 	dir := t.TempDir()

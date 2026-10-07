@@ -256,7 +256,10 @@ data class Quote(
 )
 
 @Serializable
-data class FinanceBoard(val ok: Boolean = false, val updated: Long = 0, val quotes: List<Quote> = emptyList(), val error: String = "")
+data class FinanceBoard(val ok: Boolean = false, val updated: Long = 0, val quotes: List<Quote> = emptyList(), val gold: List<GoldQuote> = emptyList(), val error: String = "")
+
+@Serializable
+data class GoldQuote(val name: String = "", val valueTry: Double = 0.0, val change5dPct: Double = 0.0, val note: String = "")
 
 @Serializable
 data class Game(

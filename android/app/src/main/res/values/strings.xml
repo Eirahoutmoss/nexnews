@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NexNews</string>
+    <string name="widget_name">NexNews başlıklar</string>
+    <string name="widget_desc">Son dakika ve önemli başlıklar</string>
+</resources>

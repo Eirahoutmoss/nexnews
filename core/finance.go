@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -66,7 +67,12 @@ func financeSymbols(cfg *Config) []string {
 
 func yahooChart(ctx context.Context, symbol string) marketQuote {
 	q := marketQuote{Symbol: symbol, Name: symbol}
-	endpoint := "https://query1.finance.yahoo.com/v8/finance/chart/" + url.PathEscape(symbol) + "?range=5d&interval=1d"
+	fetchSym := symbol
+	// Yahoo BIST endeksleri ".IS" ekiyle yayınlıyor; eski "^XU100" biçimi boş fiyat döndürüyor.
+	if a, ok := map[string]string{"^XU100": "XU100.IS", "^XU030": "XU030.IS", "^XBANK": "XBANK.IS"}[strings.ToUpper(symbol)]; ok {
+		fetchSym = a
+	}
+	endpoint := "https://query1.finance.yahoo.com/v8/finance/chart/" + url.PathEscape(fetchSym) + "?range=5d&interval=1d"
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	req.Header.Set("User-Agent", "NexNews/1.0")
 	resp, err := financeClient.Do(req)
@@ -93,6 +99,7 @@ func yahooChart(ctx context.Context, symbol string) marketQuote {
 					ShortName            string  `json:"shortName"`
 					RegularMarketPrice   float64 `json:"regularMarketPrice"`
 					PreviousClose        float64 `json:"previousClose"`
+					ChartPreviousClose   float64 `json:"chartPreviousClose"`
 					RegularMarketTime    int64   `json:"regularMarketTime"`
 					RegularMarketDayHigh float64 `json:"regularMarketDayHigh"`
 					RegularMarketDayLow  float64 `json:"regularMarketDayLow"`
@@ -115,7 +122,7 @@ func yahooChart(ctx context.Context, symbol string) marketQuote {
 		return q
 	}
 	m := raw.Chart.Result[0].Meta
-	q.Symbol = m.Symbol
+	q.Symbol = symbol
 	q.Name = m.ShortName
 	q.Currency = m.Currency
 	q.Price = m.RegularMarketPrice
@@ -128,9 +135,16 @@ func yahooChart(ctx context.Context, symbol string) marketQuote {
 		c := raw.Chart.Result[0].Indicators.Quote[0].Close
 		vals := make([]float64, 0, len(c))
 		for _, v := range c {
-			if v != nil {
+			if v != nil && *v > 0 {
 				vals = append(vals, *v)
 			}
+		}
+		if q.Price == 0 && len(vals) > 0 {
+			q.Price = vals[len(vals)-1]
+		}
+		// range=5d yanıtlarında previousClose çoğu zaman yok: önceki günün kapanışını kullan.
+		if q.Prev == 0 && len(vals) >= 2 {
+			q.Prev = vals[len(vals)-2]
 		}
 		if len(vals) >= 2 && vals[0] != 0 {
 			q.Change5dPct = (vals[len(vals)-1] - vals[0]) / vals[0] * 100
@@ -140,7 +154,13 @@ func yahooChart(ctx context.Context, symbol string) marketQuote {
 			q.History = vals
 		}
 	}
-	if q.Prev != 0 {
+	if q.Prev == 0 {
+		q.Prev = m.ChartPreviousClose
+	}
+	if q.Price == 0 && q.Error == "" {
+		q.Error = "fiyat yok"
+	}
+	if q.Prev != 0 && q.Price != 0 {
 		q.Change = q.Price - q.Prev
 		q.ChangePct = q.Change / q.Prev * 100
 	}
@@ -221,6 +241,13 @@ func financeJSON(ctx context.Context, cfg *Config) []byte {
 		}()
 	}
 	wg.Wait()
+	order := map[string]int{}
+	for i, s := range symbols {
+		order[strings.ToUpper(strings.TrimSpace(s))] = i
+	}
+	sort.SliceStable(board.Quotes, func(i, j int) bool {
+		return order[strings.ToUpper(board.Quotes[i].Symbol)] < order[strings.ToUpper(board.Quotes[j].Symbol)]
+	})
 	board.Gold = buildGoldQuotes(board.Quotes)
 	if len(board.Quotes) == 0 {
 		board.OK = false

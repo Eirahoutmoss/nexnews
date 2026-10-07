@@ -53,6 +53,7 @@ $T "TRT Haber" 0; shot 11-tv-oynatici 20
 adb shell input keyevent KEYCODE_BACK; sleep 1; fg; shot 12-mini-oynatici 4
 $T "Hava" 0; shot 13-hava 15
 $T "Piyasa" 0; shot 14-piyasa 20
+adb shell input swipe 540 1800 540 500 300; shot 14b-altin
 fg; $T "Kaydedilen" 0; shot 15-kaydedilen
 $T "Ayarlar" 0; shot 16-ayarlar
 adb shell input swipe 540 1800 540 500 300; shot 17-ayarlar-asagi
@@ -60,7 +61,7 @@ $T "Kaynaklar" 0; shot 18-kaynaklar 5
 adb shell input keyevent KEYCODE_BACK; sleep 2; fg
 $T "Akış" 0; sleep 2
 $T "Ara" 0; sleep 2
-adb shell input text "deprem"; adb shell input keyevent KEYCODE_ENTER; shot 19-arama 5
+adb shell input text "Trump"; adb shell input keyevent KEYCODE_ENTER; shot 19-arama 5
 adb shell input keyevent KEYCODE_BACK; sleep 1; adb shell input keyevent KEYCODE_BACK; sleep 2; fg
 adb shell cmd uimode night yes; shot 20-koyu 6
 adb shell cmd uimode night no; sleep 2

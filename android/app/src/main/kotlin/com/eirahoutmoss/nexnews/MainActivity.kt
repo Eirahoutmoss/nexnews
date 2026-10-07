@@ -75,9 +75,15 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             Core.ensureInit(this@MainActivity)
-            // Açılışta veri 10 dakikadan eskiyse yenile.
+            // Açılışta veri 10 dakikadan eskiyse yenile. Hiç başlık gelmezse
+            // (ör. ağ yeni bağlanıyorsa) artan aralıklarla birkaç kez yeniden dene.
             val age = System.currentTimeMillis() / 1000 - Core.lastFetch()
-            if (age > 600) Core.refresh(this@MainActivity)
+            if (age > 600 || Core.isEmpty()) Core.refresh(this@MainActivity)
+            for (wait in listOf(15_000L, 30_000L, 60_000L)) {
+                if (!Core.isEmpty()) break
+                kotlinx.coroutines.delay(wait)
+                if (Core.isEmpty()) Core.refresh(this@MainActivity)
+            }
         }
 
         setContent {

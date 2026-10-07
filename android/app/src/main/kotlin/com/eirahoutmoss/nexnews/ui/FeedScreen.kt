@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -90,12 +91,18 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
             modifier = Modifier.fillMaxSize().padding(top = pad.calculateTopPadding())
         ) {
             val o = ov
-            if (o == null || (o.categories.all { it.items.isEmpty() } && o.updatedTs == 0L)) {
+            val empty = o == null || o.categories.all { it.items.isEmpty() }
+            if (empty && (refreshing || o == null || o.updatedTs == 0L)) {
                 Column(Modifier.fillMaxSize()) {
-                    Loading(if (refreshing) "Başlıklar indiriliyor… İlk açılış biraz sürebilir." else "Aşağı çekerek yenileyin")
+                    Loading(if (refreshing) "Başlıklar indiriliyor… İlk açılış biraz sürebilir." else "Hazırlanıyor…")
                 }
                 return@PullToRefreshBox
             }
+            if (empty) {
+                NoNewsState { Core.refreshAsync(ctx) }
+                return@PullToRefreshBox
+            }
+            o!!
             val row: @Composable (NewsItem) -> Unit = { item ->
                 NewsRow(
                     item = item, read = item.read || item.link in read, fav = item.link in favs, dense = dense,
@@ -145,6 +152,36 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
         }
     }
     sheetItem?.let { ItemActionsSheet(it, nav) { sheetItem = null } }
+}
+
+/** Hiç başlık alınamadıysa: bağlantı uyarısı, kaynak durumu ve yeniden dene. */
+@Composable
+private fun NoNewsState(onRetry: () -> Unit) {
+    var info by remember { mutableStateOf("") }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        val h = runCatching { Core.sourceHealth() }.getOrDefault(emptyList())
+        val bad = h.count { it.status != "healthy" }
+        val err = h.firstOrNull { it.lastError.isNotBlank() }?.lastError ?: ""
+        info = if (h.isEmpty()) "" else "${h.size} kaynaktan $bad tanesine ulaşılamadı." + if (err.isNotBlank()) "\nÖrnek hata: $err" else ""
+    }
+    androidx.compose.foundation.rememberScrollState().let { sc ->
+        Column(
+            Modifier.fillMaxSize().verticalScroll(sc).padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(Modifier.height(60.dp))
+            Text("Başlık alınamadı", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Text("İnternet bağlantını kontrol edip yeniden dene. Uygulama bir süre sonra kendisi de yeniden deneyecek.",
+                textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (info.isNotBlank()) {
+                Spacer(Modifier.height(10.dp))
+                Text(info, textAlign = TextAlign.Center, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.height(16.dp))
+            androidx.compose.material3.Button(onClick = onRetry) { Text("Yeniden dene") }
+        }
+    }
 }
 
 @Composable

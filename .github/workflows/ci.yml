@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  GOMOBILE_VERSION: v0.0.0-20260203041319-574ceaa2f723
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      KEYSTORE_B64: ${{ secrets.NEXNEWS_KEYSTORE_B64 }}
+      NEXNEWS_KEYSTORE_PASSWORD: ${{ secrets.NEXNEWS_KEYSTORE_PASSWORD }}
+      NEXNEWS_KEY_ALIAS: ${{ secrets.NEXNEWS_KEY_ALIAS }}
+      NEXNEWS_VERSION_CODE: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.24.x'
+          cache: true
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Sürüm adı
+        run: echo "NEXNEWS_VERSION_NAME=$(tr -d '[:space:]' < android/SURUM)" >> "$GITHUB_ENV"
+
+      - name: Go testleri
+        shell: bash
+        run: |
+          set -o pipefail
+          go vet ./... 2>&1 | tee go-test.log
+          GOOS=windows go vet ./... 2>&1 | tee -a go-test.log
+          go test -count=1 ./... 2>&1 | tee -a go-test.log
+
+      - name: Windows masaüstü (NexNews.exe)
+        shell: bash
+        run: |
+          mkdir -p dist
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags='-s -w -H=windowsgui' -o dist/NexNews.exe ./cmd/nexnews
+
+      - name: Go çekirdeği → Android kütüphanesi (gomobile)
+        shell: bash
+        run: |
+          set -o pipefail
+          go install golang.org/x/mobile/cmd/gomobile@$GOMOBILE_VERSION
+          go install golang.org/x/mobile/cmd/gobind@$GOMOBILE_VERSION
+          go get golang.org/x/mobile/bind@$GOMOBILE_VERSION
+          export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
+          echo "NDK: $ANDROID_NDK_HOME"
+          gomobile init
+          gomobile bind -v -target=android/arm64,android/arm -androidapi 24 \
+            -javapkg=com.eirahoutmoss.nexnews.go -trimpath -ldflags="-s -w" \
+            -o android/app/libs/nexcore.aar ./mobile 2>&1 | tee gomobile.log
+          ls -la android/app/libs
+
+      - name: İmza anahtarı
+        shell: bash
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/nexnews.jks"
+            echo "NEXNEWS_KEYSTORE_FILE=$RUNNER_TEMP/nexnews.jks" >> "$GITHUB_ENV"
+            echo "IMZA=gercek" >> "$GITHUB_ENV"
+          else
+            echo "IMZA=deneme" >> "$GITHUB_ENV"
+            echo "::warning title=İmza::NEXNEWS_KEYSTORE_B64 tanımlı değil; APK deneme imzasıyla derleniyor (güncellemelerde yeniden kurulum gerekebilir)."
+          fi
+
+      - name: APK
+        shell: bash
+        working-directory: android
+        run: |
+          set -o pipefail
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease --no-daemon --stacktrace 2>&1 | tee ../gradle-apk.log
+          if [ "$IMZA" = "gercek" ]; then
+            NAME="NexNews-${NEXNEWS_VERSION_NAME}.apk"
+          else
+            NAME="NexNews-${NEXNEWS_VERSION_NAME}-deneme.apk"
+          fi
+          cp app/build/outputs/apk/release/app-release.apk "../dist/$NAME"
+          echo "APK_NAME=$NAME" >> "$GITHUB_ENV"
+
+      - name: APK denetimi
+        shell: bash
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          APK="dist/$APK_NAME"
+          size=$(stat -c %s "$APK")
+          perms=$("$BT/aapt" dump permissions "$APK" | grep -o "name='[^']*'" | sed "s/name='//;s/'//" | paste -sd, -)
+          cert=$("$BT/apksigner" verify --print-certs "$APK" | grep -m1 "SHA-256 digest" | sed 's/.*: //')
+          ver=$("$BT/aapt" dump badging "$APK" | head -1)
+          libs=$(unzip -l "$APK" | grep -o 'lib/[^ ]*\.so' | paste -sd, -)
+          echo "::notice title=APK::$APK_NAME | ${size} bayt | izinler: ${perms} | sertifika SHA-256: ${cert} | ${ver} | ${libs}"
+
+      - name: Hata özeti
+        if: failure()
+        shell: bash
+        run: |
+          for f in go-test.log gomobile.log gradle-apk.log; do
+            [ -f "$f" ] || continue
+            body=$(grep -E "^e: |error:|Error:|What went wrong|Could not|Unresolved|FAILED|Exception|^> |cannot|undefined" "$f" | head -80 | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            [ -n "$body" ] && echo "::error title=$f::$body"
+          done
+          exit 0
+
+      - name: Derleme günlükleri
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: logs
+          path: |
+            *.log
+          if-no-files-found: ignore
+
+      - name: Çıktıları sakla
+        if: success()
+        uses: actions/upload-artifact@v5
+        with:
+          name: nexnews
+          path: dist/*
+
+      - name: Sürüm yayınla
+        if: success() && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$IMZA" = "gercek" ]; then
+            TAG="android-v$NEXNEWS_VERSION_NAME"
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              echo "::notice title=Sürüm::$TAG zaten yayınlı; yeni sürüm için android/SURUM dosyasını artırın."
+              exit 0
+            fi
+            NOTES="android/surum-notlari/v$NEXNEWS_VERSION_NAME.md"
+            [ -f "$NOTES" ] || { echo "NexNews Android $NEXNEWS_VERSION_NAME" > "$RUNNER_TEMP/notes.md"; NOTES="$RUNNER_TEMP/notes.md"; }
+            gh release create "$TAG" dist/* --target "$GITHUB_SHA" --title "NexNews Android $NEXNEWS_VERSION_NAME" --notes-file "$NOTES"
+          else
+            # Deneme sürümü: tek bir "deneme" ön sürümü her derlemede yenilenir (telefondan kolay indirme).
+            gh release delete deneme --cleanup-tag -y >/dev/null 2>&1 || true
+            NOTES="android/surum-notlari/v$NEXNEWS_VERSION_NAME.md"
+            [ -f "$NOTES" ] || { echo "NexNews deneme derlemesi" > "$RUNNER_TEMP/notes.md"; NOTES="$RUNNER_TEMP/notes.md"; }
+            gh release create deneme dist/* --target "$GITHUB_SHA" --prerelease --title "NexNews deneme ($NEXNEWS_VERSION_NAME, #$GITHUB_RUN_NUMBER)" --notes-file "$NOTES"
+          fi

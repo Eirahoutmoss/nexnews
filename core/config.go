@@ -608,7 +608,9 @@ func (c *Config) normalizeV11() {
 		c.QuietTo = "07:00"
 	}
 	switch c.RightTab {
-	case "ozet", "piyasa", "analiz":
+	case "ozet", "borsa", "spor", "analiz":
+	case "piyasa": // RC82 öncesi birleşik sekme
+		c.RightTab = "borsa"
 	default:
 		c.RightTab = "ozet"
 	}

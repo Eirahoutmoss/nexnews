@@ -256,7 +256,10 @@ data class Quote(
 )
 
 @Serializable
-data class FinanceBoard(val ok: Boolean = false, val updated: Long = 0, val quotes: List<Quote> = emptyList(), val gold: List<GoldQuote> = emptyList(), val error: String = "")
+data class FinanceBoard(val ok: Boolean = false, val updated: Long = 0, val quotes: List<Quote> = emptyList(), val gold: List<GoldQuote> = emptyList(), val news: List<MarketNews> = emptyList(), val error: String = "")
+
+@Serializable
+data class MarketNews(val title: String = "", val link: String = "", val source: String = "", val published: Long = 0, val tag: String = "")
 
 @Serializable
 data class GoldQuote(val name: String = "", val valueTry: Double = 0.0, val change5dPct: Double = 0.0, val note: String = "")
@@ -273,6 +276,22 @@ data class Game(
     val statusDetail: String = "",
     val start: Long = 0,
 )
+
+@Serializable
+data class StandingRow(
+    val pos: Int = 0, val team: String = "", val played: Int = 0, val won: Int = 0, val drawn: Int = 0,
+    val lost: Int = 0, val diff: Int = 0, val points: Int = 0, val note: String = "",
+)
+
+@Serializable
+data class StandingTable(
+    val key: String = "", val title: String = "", val season: String = "", val source: String = "",
+    val sourceUrl: String = "", val asOf: String = "", val hasDraws: Boolean = false,
+    val rows: List<StandingRow> = emptyList(), val error: String = "",
+)
+
+@Serializable
+data class StandingsBoard(val ok: Boolean = false, val updated: Long = 0, val tables: List<StandingTable> = emptyList(), val favorites: List<String> = emptyList())
 
 @Serializable
 data class SportsBoard(val ok: Boolean = false, val games: List<Game> = emptyList(), val favorites: List<String> = emptyList(), val error: String = "")

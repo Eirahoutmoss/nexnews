@@ -120,7 +120,7 @@
   .market-empty{font-size:11.5px;color:var(--txt-faint);padding:8px 0}.market-detail{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}.market-detail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.market-detail-title{font-size:15px}.market-detail-close{border:1px solid var(--line);background:transparent;color:var(--txt-dim);border-radius:7px;padding:5px 9px;cursor:pointer}.market-detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.market-detail-stat{padding:8px;border:1px solid var(--line);border-radius:8px}.market-detail-stat span{display:block;font-size:11px;color:var(--txt-faint);text-transform:uppercase}.market-detail-stat b{display:block;margin-top:3px;font-size:11.5px}.market-detail-chart{margin:10px 0;padding:9px;border:1px solid var(--line);border-radius:9px}.market-detail-chart svg{width:100%;height:110px;display:block}.market-detail-note{font-size:11px;color:var(--txt-faint);line-height:1.5;margin-top:9px}@media(max-width:720px){.market-detail-grid{grid-template-columns:repeat(2,1fr)}}
   .gold-detail{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.gold-detail-row{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}.gold-detail-row b{display:block;font-size:11px}.gold-detail-row span{display:block;font-size:11px;color:var(--txt-faint);margin-top:3px}.gold-detail-note{margin-top:9px;font-size:11px;color:var(--txt-faint);line-height:1.5}.gold-detail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}.gold-detail-head strong{font-size:13px}.gold-detail-close{border:1px solid var(--line);background:transparent;border-radius:7px;padding:4px 8px;color:var(--txt-faint);cursor:pointer}
 
-  .market-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0 10px}.market-stat{padding:8px 9px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}.market-stat span{display:block;font-size:11px;color:var(--txt-faint);text-transform:uppercase;letter-spacing:.05em}.market-stat b{display:block;margin-top:3px;font-size:12px}.market-tabs{display:flex;gap:5px;margin-bottom:7px}.market-tab{flex:1;padding:5px 7px;border:1px solid var(--line);background:transparent;color:var(--txt-dim);border-radius:7px;font-size:11px;cursor:pointer}.market-tab.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .market-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin:8px 0 10px}.market-stat{padding:8px 9px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}.market-stat span{display:block;font-size:11px;color:var(--txt-faint);text-transform:uppercase;letter-spacing:.05em}.market-stat b{display:block;margin-top:3px;font-size:12px}.market-tabs{display:flex;gap:5px;margin-bottom:7px}.market-tab{flex:1;padding:5px 7px;border:1px solid var(--line);background:transparent;color:var(--txt-dim);border-radius:7px;font-size:11px;cursor:pointer}.market-tab.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
   
 .briefing-card{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));backdrop-filter:blur(16px)}
 .briefing-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.briefing-head h3{margin:0;font-size:15px}.briefing-upd{font-size:11px;opacity:.55}.briefing-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800;margin-top:10px}.briefing-headline{font-size:15px;font-weight:800;line-height:1.35;margin-top:5px}.briefing-summary{font-size:11px;opacity:.62;line-height:1.45;margin:7px 0}.briefing-items{border-top:1px solid var(--line);margin-top:10px}.briefing-item{padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}.briefing-item:last-child{border-bottom:0}.briefing-item:hover{background:rgba(255,255,255,.035)}.briefing-title{display:flex;gap:7px;font-size:11px;font-weight:700;line-height:1.35}.briefing-rank{color:var(--accent);font-weight:900;min-width:16px}.briefing-meta{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.briefing-pill{font-size:11px;padding:3px 6px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);opacity:.82}.briefing-reason{font-size:11px;opacity:.53;margin-top:5px;line-height:1.35}.briefing-foot{font-size:11px;opacity:.45;border-top:1px solid var(--line);padding-top:9px;margin-top:2px}
@@ -807,8 +807,29 @@
   .rp-tab:hover{color:var(--txt);background:var(--surface-2)}
   .rp-tab.active{color:var(--accent);background:var(--accent-soft)}
   .rightpanel > [data-rgroup]{display:none}
+  .st-meta{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--txt-faint);margin:2px 0 6px}
+  .st-table{width:100%;border-collapse:collapse;font-size:11.5px;font-variant-numeric:tabular-nums}
+  .st-table th{font-size:10.5px;font-weight:700;color:var(--txt-faint);text-align:right;padding:4px 3px;border-bottom:1px solid var(--line)}
+  .st-table td{text-align:right;padding:4px 3px;border-bottom:1px solid var(--line);color:var(--txt-dim)}
+  .st-table th.st-team,.st-table td.st-team{text-align:left;width:100%;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+  .st-table td.st-pos{text-align:center;width:22px;color:var(--txt-faint);border-left:3px solid transparent}
+  .st-table td.st-pts{font-weight:800;color:var(--txt)}
+  .st-table tr.st-fav td{background:var(--accent-soft)}
+  .st-table tr.st-fav td.st-team{font-weight:700}
+  .st-q-sl td.st-pos{border-left-color:#2e9e5b}.st-q-al td.st-pos{border-left-color:#3d7bd9}.st-q-kl td.st-pos{border-left-color:#22a6a6}.st-q-po td.st-pos{border-left-color:var(--accent)}.st-q-kd td.st-pos{border-left-color:#d64545}
+  .st-legend{display:flex;flex-wrap:wrap;gap:8px;font-size:10.5px;color:var(--txt-faint);margin-top:7px}.st-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle}
+  .st-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:10.5px;color:var(--txt-faint)}
+  .st-foot a{color:var(--accent);text-decoration:none;cursor:pointer;white-space:nowrap}
+  .mnews-head{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--txt-faint);margin:12px 0 4px}
+  .mnews-item{display:block;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
+  .mnews-item:first-child{border-top:0}
+  .mnews-item b{display:block;font-size:12px;font-weight:600;color:var(--txt);line-height:1.35}
+  .mnews-item span{font-size:10.5px;color:var(--txt-faint)}
+  .mnews-tag{display:inline-block;font-size:10px;font-weight:700;color:var(--accent);margin-right:5px}
+  .mnews-item:hover b{color:var(--accent)}
   .rightpanel[data-tab="ozet"] > [data-rgroup="ozet"],
-  .rightpanel[data-tab="piyasa"] > [data-rgroup="piyasa"],
+  .rightpanel[data-tab="borsa"] > [data-rgroup="borsa"],
+  .rightpanel[data-tab="spor"] > [data-rgroup="spor"],
   .rightpanel[data-tab="analiz"] > [data-rgroup="analiz"],
   .rightpanel[data-tab="olay"] > [data-rgroup="olay"]{display:block}
 
@@ -971,11 +992,12 @@
     <aside class="rightpanel" id="rightpanel">
       <div class="rp-tabs" role="tablist" aria-label="Sağ panel">
         <button class="rp-tab" role="tab" data-rtab="ozet" onclick="setRightTab('ozet')">Özet</button>
-        <button class="rp-tab" role="tab" data-rtab="piyasa" onclick="setRightTab('piyasa')">Piyasa · Spor</button>
+        <button class="rp-tab" role="tab" data-rtab="borsa" onclick="setRightTab('borsa')">Borsa Analiz</button>
+        <button class="rp-tab" role="tab" data-rtab="spor" onclick="setRightTab('spor')">Spor</button>
         <button class="rp-tab" role="tab" data-rtab="analiz" onclick="setRightTab('analiz')">Analiz</button>
         <button class="rp-tab hide" role="tab" data-rtab="olay" id="rpTabOlay" onclick="setRightTab('olay')">Olay</button>
       </div>
-      <div id="marketPanel" class="market-card collapsed"><div class="market-head" onclick="toggleMarketPanel()"><h3>Piyasalar</h3><span class="market-collapse-hint">ayrıntılar</span><span class="market-upd" id="marketUpdated">yükleniyor…</span></div><div class="market-collapsible"><div class="market-summary" id="marketSummary"></div><div id="marketMovers" class="market-movers"></div><div class="market-tabs"><button class="market-tab active" data-mtab="borsa" onclick="setMarketTab('borsa')">Borsa</button><button class="market-tab" data-mtab="fx" onclick="setMarketTab('fx')">Döviz</button><button class="market-tab" data-mtab="emtia" onclick="setMarketTab('emtia')">Altın / Emtia</button></div><div id="marketList" class="market-empty">Piyasa verileri yükleniyor…</div><div class="market-foot"><button class="mini" onclick="openGoldDetail()">🪙 Altın detayları</button><button class="mini" onclick="openSettings()">Takip listesini düzenle</button></div></div></div>
+      <div id="marketPanel" class="market-card"><div class="market-head"><h3>Borsa Analiz</h3><span class="market-upd" id="marketUpdated">yükleniyor…</span></div><div class="market-collapsible"><div class="market-summary" id="marketSummary"></div><div id="marketMovers" class="market-movers"></div><div class="market-tabs"><button class="market-tab active" data-mtab="borsa" onclick="setMarketTab('borsa')">Borsa</button><button class="market-tab" data-mtab="fx" onclick="setMarketTab('fx')">Döviz</button><button class="market-tab" data-mtab="emtia" onclick="setMarketTab('emtia')">Altın / Emtia</button></div><div id="marketList" class="market-empty">Piyasa verileri yükleniyor…</div><div class="mnews-head">Piyasayı ilgilendiren gündem</div><div id="marketNews" class="mnews-list"><div class="market-empty">Haberler taranıyor…</div></div><div class="market-foot"><button class="mini" onclick="openGoldDetail()">🪙 Altın detayları</button><button class="mini" onclick="openSettings()">Takip listesini düzenle</button></div></div></div>
       <style>
 
 
@@ -1031,12 +1053,13 @@
   html[data-theme="acik"] .rightpanel [class*="-stat"],html[data-theme="acik"] .rightpanel [class*="-pill"],html[data-theme="acik"] .rightpanel .deep-chip{background:var(--surface-2)!important;color:var(--txt)!important;border-color:var(--line2)!important}
   html[data-theme="acik"] .rightpanel [class*="-foot"],html[data-theme="acik"] .rightpanel [class*="-upd"],html[data-theme="acik"] .rightpanel [class*="-note"],html[data-theme="acik"] .rightpanel [class*="-reason"]{color:var(--txt-faint)!important;opacity:1!important}
 </style>
-<div id="smartAlertPanel" class="smart-alert-card collapsed"><div class="smart-alert-head" onclick="toggleSmartAlertPanel()"><h3>Akıllı Uyarılar</h3><span class="smart-alert-upd" id="smartAlertUpdated">izleniyor…</span></div><div class="smart-alert-collapsible"><div id="smartAlertStats" class="smart-alert-stats"></div><div id="smartAlertList"></div><div class="smart-alert-foot">Olayın hızı, doğrulanma düzeyi ve önemine göre üretilir.</div></div></div>
+<div id="smartAlertPanel" class="smart-alert-card"><div class="smart-alert-head"><h3>Akıllı Uyarılar</h3><span class="smart-alert-upd" id="smartAlertUpdated">izleniyor…</span></div><div class="smart-alert-collapsible"><div id="smartAlertStats" class="smart-alert-stats"></div><div id="smartAlertList"></div><div class="smart-alert-foot">Olayın hızı, doğrulanma düzeyi ve önemine göre üretilir.</div></div></div>
 <div id="personalPanel" class="personal-card"><div class="personal-head"><h3>Kişisel Öncelikler</h3><span id="personalUpdated">hazırlanıyor…</span></div><div class="personal-score"><strong id="personalScore">--</strong><span>Kişisel öncelik</span></div><div class="personal-explicit" id="personalExplicit"></div><div class="personal-grid"><div><b>Konular</b><div id="personalTopics"></div></div><div><b>Kategoriler</b><div id="personalCategories"></div></div><div><b>İlgili varlıklar</b><div id="personalEntities"></div></div></div><div class="personal-reasons" id="personalReasons"></div><div id="personalStories" class="personal-stories"></div><div class="personal-foot">Genel önem skoru korunur; kişisel ilgi yalnızca önceliklendirmeye ek ağırlık verir.</div></div><div id="briefingPanel" class="briefing-card"><div class="briefing-head"><h3>Bugünün Dünyası</h3><span class="briefing-upd" id="briefingUpdated">hazırlanıyor…</span></div><div class="briefing-kicker" id="briefingWindow"></div><div class="briefing-headline" id="briefingHeadline">Yükleniyor…</div><div class="briefing-summary" id="briefingSummary"></div><div id="briefingItems" class="briefing-items"></div><div class="briefing-foot">Olay analizi ve gelişme eğilimine göre sıralanır.</div></div>
 
 <div id="contentIntelPanel" class="content-intel-card"><div class="content-intel-head"><h3>İçerik Süzgeci</h3><span id="contentIntelUpdated">izleniyor…</span></div><div id="contentIntelStats" class="content-intel-stats"></div><div id="contentIntelClasses" class="content-intel-classes"></div><div class="content-intel-foot">Canlı bülten ve liste/veri sayfaları akışta kalır ama olay gruplamasına alınmaz.</div></div><div id="sourceHealthPanel" class="source-health-card"><div class="source-health-head"><h3>Kaynak Sağlığı</h3><span id="sourceHealthUpdated">izleniyor…</span></div><div id="sourceHealthStats" class="source-health-stats"></div><div class="source-health-bar"><i id="sourceHealthBar" style="--w:0%"></i></div><div id="sourceHealthFailures"></div><div class="source-health-foot">Kaynak sayısı yalnızca config rakamı değildir: erişim, HTTP ve feed ayrıştırma durumu ayrıca ölçülür.</div></div><div id="officialPanel" class="official-card"><div class="official-head"><h3>Resmî Yayınlar</h3><span id="officialUpdated">hazırlanıyor…</span></div><div class="official-country" id="officialCountry"><b>Yerel resmî yayınlar</b><small>birincil kaynak</small></div><div id="officialList" class="official-list"></div><div id="officialPortals" class="official-portals"></div><div class="official-foot">Resmî yayınlar haber kaynağı sayısına dahil değildir. Birincil kaynak olarak ayrıca işaretlenir.</div></div>
 <div id="worldPanel" class="world-card"><div class="world-head"><h3>Dünya Nabzı</h3><span class="world-upd" id="worldUpdated">yükleniyor…</span></div><div id="worldSummary" class="world-summary"></div><div class="world-map-wrap"><div class="world-map-title"><span>Canlı olay katmanı</span><span id="worldFilterLabel">Tümü</span></div><svg id="worldMap" class="world-map" viewBox="0 0 720 340" role="img" aria-label="Dünya olay haritası"></svg><div id="worldMapLegend" class="world-map-legend"><button class="world-filter active" data-wfilter="all">Tümü</button><button class="world-filter" data-wfilter="yüksek">Yüksek</button><button class="world-filter" data-wfilter="gelişen">Gelişen</button><button class="world-filter" data-wfilter="ekonomi">Ekonomi</button></div></div><div id="worldRegions" class="world-regions"></div><div id="worldEvents" class="world-events"></div><div class="world-foot"><span class="market-upd">Bölgesel sinyal · olay mutabakatı</span></div></div>
-      <div id="sportPanel" class="sport-card"><div class="sport-head"><h3>Spor</h3><span class="sport-upd" id="sportUpdated">yükleniyor…</span></div><div class="sport-tools"><button class="sport-filter active" data-sfilter="all" onclick="setSportFilter('all')">Tümü</button><button class="sport-filter" data-sfilter="live" onclick="setSportFilter('live')">🔴 Canlı</button><button class="sport-filter" data-sfilter="upcoming" onclick="setSportFilter('upcoming')">Yaklaşan</button><button class="sport-filter" data-sfilter="post" onclick="setSportFilter('post')">Sonuç</button></div><div id="sportCounts" class="sport-counts"></div><div id="sportList" class="sport-empty">Spor karşılaşmaları yükleniyor…</div><div class="sport-foot"><span class="market-upd">Futbol · Basketbol</span><button class="mini" onclick="openSettings()">Sporları düzenle</button></div></div>
+      <div id="standingsPanel" class="sport-card"><div class="sport-head"><h3>Puan Durumu</h3><span class="sport-upd" id="standingsUpdated">yükleniyor…</span></div><div class="sport-tools" id="standingsTabs"><button class="sport-filter active" data-league="futbol" onclick="setStandingsLeague('futbol')">⚽ Süper Lig</button><button class="sport-filter" data-league="basketbol" onclick="setStandingsLeague('basketbol')">🏀 Basketbol Süper Ligi</button></div><div id="standingsBody" class="sport-empty">Puan durumu yükleniyor…</div></div>
+      <div id="sportPanel" class="sport-card"><div class="sport-head"><h3>Maçlar</h3><span class="sport-upd" id="sportUpdated">yükleniyor…</span></div><div class="sport-tools"><button class="sport-filter active" data-sfilter="all" onclick="setSportFilter('all')">Tümü</button><button class="sport-filter" data-sfilter="live" onclick="setSportFilter('live')">🔴 Canlı</button><button class="sport-filter" data-sfilter="upcoming" onclick="setSportFilter('upcoming')">Yaklaşan</button><button class="sport-filter" data-sfilter="post" onclick="setSportFilter('post')">Sonuç</button></div><div id="sportCounts" class="sport-counts"></div><div id="sportList" class="sport-empty">Spor karşılaşmaları yükleniyor…</div><div class="sport-foot"><span class="market-upd">Futbol · Basketbol</span><button class="mini" onclick="openSettings()">Sporları düzenle</button></div></div>
       <div id="intel2Panel" class="intel2-card"><div class="intel2-head"><h3>Olay Analizi</h3><span class="intel2-upd" id="intel2Updated">yükleniyor…</span></div><div id="intel2Stats" class="intel2-stats"></div><div id="intel2Events"></div></div>
       <div id="predictPanel" class="predict-card"><div class="predict-head"><h3>Gelişme Eğilimi</h3><span class="predict-upd" id="predictUpdated">yükleniyor…</span></div><div id="predictStats" class="predict-stats"></div><div id="predictEvents"></div></div>
       <div id="entityPanel" class="entity-card"><div class="entity-head"><h3>Kişi ve Kurumlar</h3><span class="entity-upd" id="entityUpdated">yükleniyor…</span></div><div id="entityStats" class="entity-stats"></div><div id="entityCloud" class="entity-cloud"></div><div id="entityRelations" class="entity-relations"></div></div>
@@ -2966,12 +2989,20 @@
     if(up) up.textContent=board&&board.updated?('güncellendi '+agoText(board.updated)):'veri yok';
     const qs=(board&&board.quotes)||[];
     if(sum){ const bist=qs.filter(q=>financeGroup(q)==='borsa'&&!q.error), fx=qs.filter(q=>financeGroup(q)==='fx'&&!q.error), em=qs.filter(q=>financeGroup(q)==='emtia'&&!q.error); const xu100=bist.find(q=>(q.symbol||'').toUpperCase()==='^XU100'); const xu030=bist.find(q=>(q.symbol||'').toUpperCase()==='^XU030'); const avg=a=>a.length?(a.reduce((x,q)=>x+Number(q.changePct||0),0)/a.length):0; sum.innerHTML=[['BIST 100',xu100?.changePct??avg(bist)],['BIST 30',xu030?.changePct??avg(bist)],['Döviz',avg(fx)],['Emtia',avg(em)]].map(x=>'<div class="market-stat"><span>'+x[0]+'</span><b class="'+(x[1]>0?'market-pos':x[1]<0?'market-neg':'market-flat')+'">'+(x[1]>=0?'+':'')+Number(x[1]).toFixed(2)+'%</b></div>').join(''); }
-    if(movers){ const g=(board&&board.gainers)||[], l=(board&&board.losers)||[]; const parse=x=>{const a=String(x).split('|');return {n:a[0]||'',p:Number(a[1]||0)}}; const top=g.length?parse(g[0]):null, low=l.length?parse(l[0]):null; movers.innerHTML=(top?'<div class="market-mover"><span>En çok yükselen</span><b class="market-pos">'+esc(top.n)+' +'+top.p.toFixed(2)+'%</b></div>':'')+(low?'<div class="market-mover"><span>En çok düşen</span><b class="market-neg">'+esc(low.n)+' '+low.p.toFixed(2)+'%</b></div>':''); }
+    if(movers){ const g=(board&&board.gainers)||[], l=(board&&board.losers)||[]; const parse=x=>{const a=String(x).split('|');return {n:a[0]||'',p:Number(a[1]||0)}}; const top=g.length?parse(g[0]):null, low=l.length?parse(l[0]):null; const mv=(lbl,x)=>'<div class="market-mover"><span>'+lbl+'</span><b class="'+(x.p>0?'market-pos':x.p<0?'market-neg':'market-flat')+'">'+esc(x.n)+' '+(x.p>0?'+':'')+x.p.toFixed(2)+'%</b></div>'; movers.innerHTML=(top?mv(top.p>=0?'En çok yükselen':'En az düşen',top):'')+(low?mv(low.p<0?'En çok düşen':'En az yükselen',low):''); }
     const filtered=qs.filter(q=>financeGroup(q)===marketTab);
-    if(!filtered.length){ list.innerHTML='<div class="market-empty">Bu grupta veri yok.</div>'; return; }
+    if(!filtered.length){ list.innerHTML='<div class="market-empty">Bu grupta veri yok.</div>'; renderMarketNews(board); return; }
     list.innerHTML=filtered.slice(0,7).map(q=>'<div class="market-row" data-market-symbol="'+esc(q.symbol||'')+'" style="cursor:pointer"><div class="market-name"><b>'+esc(financeLabel(q))+(q.symbol==='^XU100'||q.symbol==='^XU030'?'<span class="market-badge">endeks</span>':'')+'</b><span>'+esc(q.symbol||'')+' · ayrıntılar</span></div>'+marketMoney(q)+'</div>').join('');
     list.querySelectorAll('[data-market-symbol]').forEach(el=>el.addEventListener('click',()=>openMarketDetail(el.dataset.marketSymbol)));
+    renderMarketNews(board);
   }
+  function renderMarketNews(board){
+    const box=document.getElementById('marketNews'); if(!box)return; const n=(board&&board.news)||[];
+    if(!n.length){ box.innerHTML='<div class="market-empty">Son 36 saatte piyasayla ilgili başlık bulunamadı.</div>'; return; }
+    box.innerHTML=n.map(x=>'<div class="mnews-item" data-link="'+esc(x.link||'')+'"><b><span class="mnews-tag">'+esc(x.tag||'')+'</span>'+esc(x.title||'')+'</b><span>'+esc(x.source||'')+(x.published?' · '+agoText(x.published):'')+'</span></div>').join('');
+    box.querySelectorAll('.mnews-item').forEach(el=>el.addEventListener('click',()=>openMarketNews(el.dataset.link)));
+  }
+  async function openMarketNews(link){ let e=null; try{ e=JSON.parse(await window.nnStory(link)); }catch(err){} if(e&&e.found) openEvent(link); else openItem(link); }
   window.nnOnFinance=function(board){ renderFinance(board); }; async function loadFinance(){ try{ window.nnFinance(); }catch(e){} }
 
   // ---------- smart alerts ----------
@@ -3218,6 +3249,28 @@
   function sportFavorite(g, board){ const fav=(board&&board.favorites)||[]; const a=(g.home||'')+' '+(g.away||''); return fav.some(x=>x&&a.toLocaleLowerCase('tr-TR').includes(String(x).toLocaleLowerCase('tr-TR'))); }
   function countdown(start){ const d=(Number(start||0)*1000)-Date.now(); if(d<=0)return ''; const m=Math.floor(d/60000), h=Math.floor(m/60), mm=m%60; return h>0?(h+'s '+String(mm).padStart(2,'0')+'dk'):(m+' dk'); }
   function renderSports(board){ const list=document.getElementById('sportList'), up=document.getElementById('sportUpdated'), counts=document.getElementById('sportCounts'); if(!list)return; window._sportsBoard=board; if(up)up.textContent=board&&board.updated?('güncellendi '+agoText(board.updated)):'veri yok'; const games=[...((board&&board.games)||[])]; const live=games.filter(g=>g.status==='in').length, post=games.filter(g=>g.status==='post').length, upcoming=games.length-live-post; if(counts)counts.innerHTML='<span>Toplam <b>'+games.length+'</b></span><span>🔴 <b>'+live+'</b> canlı</span><span>Yaklaşan <b>'+upcoming+'</b></span><span>Sonuç <b>'+post+'</b></span>'; const filtered=games.filter(g=>sportFilter==='all'||(sportFilter==='live'&&g.status==='in')||(sportFilter==='upcoming'&&g.status==='prematch')||(sportFilter==='post'&&g.status==='post')); if(!filtered.length){list.innerHTML='<div class="sport-empty">Bu filtrede karşılaşma bulunamadı.</div>';return;} const rank={in:0,prematch:1,post:2}; filtered.sort((a,b)=>(sportFavorite(b,board)?-1:0)-(sportFavorite(a,board)?-1:0)||(rank[a.status]??1)-(rank[b.status]??1)||(a.start||0)-(b.start||0)); list.innerHTML=filtered.slice(0,7).map(g=>{const fav=sportFavorite(g,board); const cd=g.status==='prematch'?countdown(g.start):''; return '<div class="sport-row"><div class="sport-league">'+esc(g.leagueName||g.league||'Spor')+(fav?'<span class="sport-fav">⭐ FAVORİ</span>':'')+'</div><div class="sport-teams"><span class="sport-team">'+esc(g.away||'')+'</span><span class="sport-score">'+(g.homeScore||g.awayScore?(esc(g.awayScore||'0')+' - '+esc(g.homeScore||'0')):'vs')+'</span><span class="sport-team">'+esc(g.home||'')+'</span></div><div class="sport-status">'+esc(sportStatus(g))+(cd?'<span class="sport-countdown">· '+cd+'</span>':'')+'</div></div>';}).join(''); }
+  // ---------- puan durumu ----------
+  let standingsLeague='futbol'; try{ standingsLeague=localStorage.getItem('nexnews.standings')||'futbol'; }catch(e){}
+  function setStandingsLeague(k){ standingsLeague=k; try{localStorage.setItem('nexnews.standings',k);}catch(e){} if(window._standings) renderStandings(window._standings); }
+  const ST_Q={'Şampiyonlar Ligi':'sl','Avrupa Ligi':'al','Konferans Ligi':'kl','Play-off':'po','Küme düşme':'kd'};
+  function stFav(team,fav){ const t=String(team||'').toLocaleLowerCase('tr-TR'); return (fav||[]).some(x=>x&&t.includes(String(x).toLocaleLowerCase('tr-TR'))); }
+  function renderStandings(board){
+    window._standings=board; const body=document.getElementById('standingsBody'), up=document.getElementById('standingsUpdated'); if(!body)return;
+    document.querySelectorAll('#standingsTabs .sport-filter').forEach(b=>b.classList.toggle('active',b.dataset.league===standingsLeague));
+    if(up) up.textContent=board&&board.updated?('güncellendi '+agoText(board.updated)):'veri yok';
+    const t=((board&&board.tables)||[]).find(x=>x.key===standingsLeague);
+    if(!t||!(t.rows||[]).length){ body.innerHTML='<div class="sport-empty">Puan durumu şu an alınamadı'+(t&&t.error?' ('+esc(t.error)+')':'')+'. Biraz sonra yeniden denenecek.</div>'; return; }
+    const fav=board.favorites||[], d=t.hasDraws, used={};
+    const head='<tr><th style="text-align:center">#</th><th class="st-team">Takım</th><th title="Oynanan">O</th><th title="Galibiyet">G</th>'+(d?'<th title="Beraberlik">B</th>':'')+'<th title="Mağlubiyet">M</th><th title="Averaj">AV</th><th title="Puan">P</th></tr>';
+    const rows=t.rows.map(r=>{ const q=ST_Q[r.note]||''; if(q)used[r.note]=q; const cls=(q?'st-q-'+q:'')+(stFav(r.team,fav)?' st-fav':''); return '<tr class="'+cls+'"><td class="st-pos">'+r.pos+'</td><td class="st-team" title="'+esc(r.team)+'">'+esc(r.team)+'</td><td>'+r.played+'</td><td>'+r.won+'</td>'+(d?'<td>'+r.drawn+'</td>':'')+'<td>'+r.lost+'</td><td>'+(r.diff>0?'+':'')+r.diff+'</td><td class="st-pts">'+r.points+'</td></tr>'; }).join('');
+    const colors={sl:'#2e9e5b',al:'#3d7bd9',kl:'#22a6a6',po:'var(--accent)',kd:'#d64545'};
+    const legend=Object.keys(used).map(n=>'<span><i style="background:'+colors[used[n]]+'"></i>'+esc(n)+'</span>').join('');
+    const asOf=t.asOf?(' · '+esc(t.asOf)+' maçlarına kadar'):'';
+    body.innerHTML='<div class="st-meta"><span>'+esc(t.title)+' · '+esc(t.season||'')+'</span><span>'+t.rows.length+' takım</span></div><table class="st-table">'+head+rows+'</table>'+(legend?'<div class="st-legend">'+legend+'</div>':'')
+      +'<div class="st-foot"><span>Kaynak: '+esc(t.source||'')+asOf+'</span><a onclick="window.nnOpen(\''+esc(t.sourceUrl||'')+'\')">Ayrıntılar ↗</a></div>';
+  }
+  window.nnOnStandings=function(board){ renderStandings(board); }; function loadStandings(){ try{ window.nnStandings(); }catch(e){} }
+
   window.nnOnSports=function(board){renderSports(board)}; async function loadSports(){try{window.nnSports()}catch(e){}}
 
   document.addEventListener("click", function(e){
@@ -3237,7 +3290,7 @@
   // ---------- right cards: compact + collapsible ----------
   function initRightCardToggles(){
     const rp=document.getElementById('rightpanel'); if(!rp) return;
-    const ids=['marketPanel','smartAlertPanel','personalPanel','briefingPanel','contentIntelPanel','sourceHealthPanel','officialPanel','worldPanel','sportPanel','intel2Panel','predictPanel','entityPanel','eventGraphPanel'];
+    const ids=['standingsPanel','marketPanel','smartAlertPanel','personalPanel','briefingPanel','contentIntelPanel','sourceHealthPanel','officialPanel','worldPanel','sportPanel','intel2Panel','predictPanel','entityPanel','eventGraphPanel'];
     ids.forEach(id=>{
       const p=document.getElementById(id); if(!p || p.dataset.rcToggleReady==='1') return;
       const head=p.querySelector(':scope > .market-head, :scope > .smart-alert-head, :scope > .personal-head, :scope > .briefing-head, :scope > .content-intel-head, :scope > .source-health-head, :scope > .official-head, :scope > .world-head, :scope > .sport-head, :scope > .intel2-head, :scope > .predict-head, :scope > .entity-head, :scope > .eg-head');
@@ -3276,13 +3329,15 @@
   // =====================================================================
   const RIGHT_GROUPS = {
     ozet:   ['smartAlertPanel','briefingPanel','personalPanel','worldPanel','officialPanel'],
-    piyasa: ['marketPanel','sportPanel'],
+    borsa:  ['marketPanel'],
+    spor:   ['standingsPanel','sportPanel'],
     analiz: ['intel2Panel','predictPanel','entityPanel','eventGraphPanel','contentIntelPanel','sourceHealthPanel'],
     olay:   ['eventPanel']
   };
   const RIGHT_LOADERS = {
     ozet:   ()=>{ loadSmartAlerts(); loadBriefing(); loadPersonalIntelligence(); loadWorldPulse(); loadOfficialPublications(); },
-    piyasa: ()=>{ loadFinance(); loadSports(); },
+    borsa:  ()=>{ loadFinance(); },
+    spor:   ()=>{ loadStandings(); loadSports(); },
     analiz: ()=>{ loadEventIntelligence(); loadPredictive(); loadEntityIntelligence(); loadEventGraph(); loadContentIntelligence(); loadSourceHealth(); },
     olay:   ()=>{}
   };
@@ -3554,8 +3609,9 @@
     // Zamanlayıcılar: pencere gizliyken ya da widget modundayken sağ panel
     // yoklanmaz; her sekme yalnızca görünürken yenilenir.
     setInterval(()=>{ if(!document.hidden) pollNet(); }, 2000);
-    everyVisible(loadFinance, 120000, 'piyasa');
-    everyVisible(loadSports, 90000, 'piyasa');
+    everyVisible(loadFinance, 120000, 'borsa');
+    everyVisible(loadSports, 90000, 'spor');
+    everyVisible(loadStandings, 30*60000, 'spor');
     everyVisible(()=>{ loadBriefing(); loadPersonalIntelligence(); loadSmartAlerts(); loadWorldPulse(); }, 60000, 'ozet');
     everyVisible(loadOfficialPublications, 300000, 'ozet');
     everyVisible(()=>{ loadEventIntelligence(); loadPredictive(); loadEntityIntelligence(); loadEventGraph(); }, 60000, 'analiz');

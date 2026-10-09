@@ -52,8 +52,10 @@ $T "Canlı TV" 0; shot 10-tv 4
 $T "TRT Haber" 0; shot 11-tv-oynatici 20
 adb shell input keyevent KEYCODE_BACK; sleep 1; fg; shot 12-mini-oynatici 4
 $T "Hava" 0; shot 13-hava 15
-$T "Piyasa" 0; shot 14-piyasa 20
+$T "Borsa" 0; shot 14-borsa 20
 adb shell input swipe 540 1800 540 500 300; shot 14b-altin
+$T "Spor" 0; shot 14c-spor-futbol 20
+$T "Basketbol" 0 contains; shot 14d-spor-basketbol 4
 fg; $T "Kaydedilen" 0; shot 15-kaydedilen
 $T "Ayarlar" 0; shot 16-ayarlar
 adb shell input swipe 540 1800 540 500 300; shot 17-ayarlar-asagi

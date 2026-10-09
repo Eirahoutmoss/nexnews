@@ -46,6 +46,13 @@ jobs:
           GOOS=windows go vet ./... 2>&1 | tee -a go-test.log
           go test -count=1 ./... 2>&1 | tee -a go-test.log
 
+      - name: Canlı kaynak kontrolü (puan durumu, piyasa)
+        shell: bash
+        continue-on-error: true
+        run: |
+          echo "=== CANLI ===" >> go-test.log
+          NEXNEWS_LIVE=1 go test -count=1 -v -run 'TestLive' ./core 2>&1 | tee -a go-test.log
+
       - name: Windows masaüstü (NexNews.exe)
         shell: bash
         run: |

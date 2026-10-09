@@ -99,6 +99,7 @@ object Core {
     suspend fun weather(place: String): WeatherBoard = io { NexJson.decodeFromString<WeatherBoard>(Nexcore.weather(place)) }
     suspend fun finance(): FinanceBoard = io { NexJson.decodeFromString<FinanceBoard>(Nexcore.finance()) }
     suspend fun sports(): SportsBoard = io { NexJson.decodeFromString<SportsBoard>(Nexcore.sports()) }
+    suspend fun standings(): StandingsBoard = io { NexJson.decodeFromString<StandingsBoard>(Nexcore.standings()) }
     suspend fun sourceHealth(): List<SourceHealth> = io { NexJson.decodeFromString<List<SourceHealth>>(Nexcore.sourceHealth()) }
     suspend fun discover(site: String): DiscoverResult = io { NexJson.decodeFromString<DiscoverResult>(Nexcore.discover(site)) }
     suspend fun netStats(): NetStats = io { NexJson.decodeFromString<NetStats>(Nexcore.netStats()) }

@@ -579,6 +579,16 @@ func bindAll() {
 		return "started", nil
 	}))
 
+	must(ui.Bind("nnStandings", func() (string, error) {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 40*time.Second)
+			defer cancel()
+			b := standingsJSON(ctx, cfg)
+			ui.Dispatch(func() { ui.Eval("window.nnOnStandings && window.nnOnStandings(" + string(b) + ")") })
+		}()
+		return "started", nil
+	}))
+
 	must(ui.Bind("nnWeather", func() (string, error) {
 		go func() {
 			ctx, cancel := context.WithTimeout(context.Background(), 14*time.Second)

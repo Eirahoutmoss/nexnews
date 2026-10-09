@@ -55,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,6 +64,8 @@ import com.eirahoutmoss.nexnews.Core
 import com.eirahoutmoss.nexnews.FinanceBoard
 import com.eirahoutmoss.nexnews.RadioBoard
 import com.eirahoutmoss.nexnews.SportsBoard
+import com.eirahoutmoss.nexnews.StandingTable
+import com.eirahoutmoss.nexnews.StandingsBoard
 import com.eirahoutmoss.nexnews.TvChannel
 import com.eirahoutmoss.nexnews.WeatherBoard
 import com.eirahoutmoss.nexnews.media.PlayerHub
@@ -72,7 +75,7 @@ import java.util.Locale
 @Composable
 fun DiscoverScreen(nav: NexNav, bottomPad: PaddingValues) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    val tabs = listOf("Radyo", "Canlı TV", "Hava", "Piyasa", "Spor")
+    val tabs = listOf("Radyo", "Canlı TV", "Hava", "Borsa", "Spor")
     Scaffold(
         topBar = { TopAppBar(title = { Text("Keşfet", fontWeight = FontWeight.Bold) }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)) },
         containerColor = MaterialTheme.colorScheme.background
@@ -86,7 +89,7 @@ fun DiscoverScreen(nav: NexNav, bottomPad: PaddingValues) {
                 0 -> RadioTab(bp)
                 1 -> TvTab(nav, bp)
                 2 -> WeatherTab(bp)
-                3 -> FinanceTab(bp)
+                3 -> FinanceTab(nav, bp)
                 else -> SportsTab(bp)
             }
         }
@@ -253,7 +256,7 @@ private val marketNames = mapOf(
 )
 
 @Composable
-private fun FinanceTab(bp: PaddingValues) {
+private fun FinanceTab(nav: NexNav, bp: PaddingValues) {
     var f by remember { mutableStateOf<FinanceBoard?>(null) }
     LaunchedEffect(Unit) { f = runCatching { Core.finance() }.getOrNull() }
     val b = f ?: run { Loading("Piyasa verileri alınıyor…"); return }
@@ -280,6 +283,16 @@ private fun FinanceTab(bp: PaddingValues) {
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
         }
+        if (b.news.isNotEmpty()) {
+            item { Text("PİYASAYI İLGİLENDİREN GÜNDEM", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 4.dp)) }
+            items(b.news, key = { "n-" + it.link }) { n ->
+                Column(Modifier.fillMaxWidth().clickable { nav.story(n.link) }.padding(horizontal = 16.dp, vertical = 9.dp)) {
+                    Text(n.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, maxLines = 3)
+                    Text(n.tag + " · " + n.source, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            }
+        }
         if (b.gold.isNotEmpty()) {
             item { Text("ALTIN (teorik)", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 4.dp)) }
             items(b.gold, key = { "g-" + it.name }) { g ->
@@ -296,8 +309,93 @@ private fun FinanceTab(bp: PaddingValues) {
 
 @Composable
 private fun SportsTab(bp: PaddingValues) {
-    var s by remember { mutableStateOf<SportsBoard?>(null) }
-    LaunchedEffect(Unit) { s = runCatching { Core.sports() }.getOrNull() }
+    var view by rememberSaveable { mutableStateOf("futbol") }
+    var st by remember { mutableStateOf<StandingsBoard?>(null) }
+    var games by remember { mutableStateOf<SportsBoard?>(null) }
+    LaunchedEffect(Unit) { st = runCatching { Core.standings() }.getOrNull() ?: StandingsBoard() }
+    LaunchedEffect(view) { if (view == "maclar" && games == null) games = runCatching { Core.sports() }.getOrNull() ?: SportsBoard() }
+    Column(Modifier.fillMaxSize()) {
+        Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = view == "futbol", onClick = { view = "futbol" }, label = { Text("⚽ Süper Lig") })
+            FilterChip(selected = view == "basketbol", onClick = { view = "basketbol" }, label = { Text("🏀 Basketbol Süper Ligi") })
+            FilterChip(selected = view == "maclar", onClick = { view = "maclar" }, label = { Text("Maçlar") })
+        }
+        when (view) {
+            "maclar" -> GamesList(games, bp)
+            else -> {
+                val b = st ?: run { Loading("Puan durumu yükleniyor…"); return@Column }
+                val t = b.tables.firstOrNull { it.key == view }
+                if (t == null || t.rows.isEmpty()) Empty("Puan durumu şu an alınamadı" + (t?.error?.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: "") + ".")
+                else StandingsTable(t, b.favorites, bp)
+            }
+        }
+    }
+}
+
+private fun noteColor(note: String): Color? = when (note) {
+    "Şampiyonlar Ligi" -> Color(0xFF2E9E5B)
+    "Avrupa Ligi" -> Color(0xFF3D7BD9)
+    "Konferans Ligi" -> Color(0xFF22A6A6)
+    "Play-off" -> Color(0xFFE8A33D)
+    "Küme düşme" -> Color(0xFFD64545)
+    else -> null
+}
+
+@Composable
+private fun StandingsTable(t: StandingTable, favorites: List<String>, bp: PaddingValues) {
+    val uri = LocalUriHandler.current
+    val dim = MaterialTheme.colorScheme.onSurfaceVariant
+    @Composable
+    fun Num(v: String, bold: Boolean = false, color: Color = dim) =
+        Text(v, Modifier.width(30.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End,
+            fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal, color = color, style = MaterialTheme.typography.bodySmall)
+    LazyColumn(contentPadding = bp) {
+        item {
+            Text("${t.title} · ${t.season}", style = MaterialTheme.typography.labelMedium, color = dim, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("#", Modifier.width(26.dp), color = dim, style = MaterialTheme.typography.labelSmall)
+                Text("Takım", Modifier.weight(1f), color = dim, style = MaterialTheme.typography.labelSmall)
+                Num("O"); Num("G"); if (t.hasDraws) Num("B"); Num("M"); Num("AV"); Num("P", bold = true)
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        }
+        items(t.rows, key = { t.key + it.pos + it.team }) { r ->
+            val fav = favorites.any { f -> f.isNotBlank() && r.team.contains(f, ignoreCase = true) }
+            Row(
+                Modifier.fillMaxWidth()
+                    .background(if (fav) MaterialTheme.colorScheme.primary.copy(alpha = 0.10f) else Color.Transparent)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.width(3.dp).height(18.dp).background(noteColor(r.note) ?: Color.Transparent))
+                Text("${r.pos}", Modifier.width(23.dp).padding(start = 5.dp), color = dim, style = MaterialTheme.typography.bodySmall)
+                Text(r.team, Modifier.weight(1f), maxLines = 1, fontWeight = if (fav) FontWeight.Bold else FontWeight.Normal, style = MaterialTheme.typography.bodyMedium)
+                Num("${r.played}"); Num("${r.won}"); if (t.hasDraws) Num("${r.drawn}"); Num("${r.lost}")
+                Num((if (r.diff > 0) "+" else "") + r.diff)
+                Num("${r.points}", bold = true, color = MaterialTheme.colorScheme.onSurface)
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        }
+        item {
+            val notes = t.rows.map { it.note }.filter { noteColor(it) != null }.distinct()
+            if (notes.isNotEmpty()) Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                notes.forEach { n ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(8.dp).background(noteColor(n)!!)); Spacer(Modifier.width(4.dp))
+                        Text(n, style = MaterialTheme.typography.labelSmall, color = dim)
+                    }
+                }
+            }
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Kaynak: ${t.source}" + (if (t.asOf.isNotBlank()) " · ${t.asOf} maçlarına kadar" else ""), Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = dim)
+                if (t.sourceUrl.isNotBlank()) TextButton(onClick = { runCatching { uri.openUri(t.sourceUrl) } }) { Text("Ayrıntılar ↗") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GamesList(s: SportsBoard?, bp: PaddingValues) {
     val b = s ?: run { Loading("Maçlar yükleniyor…"); return }
     if (b.games.isEmpty()) { Empty(b.error.ifBlank { "Bugün için maç bulunamadı." }); return }
     LazyColumn(contentPadding = bp) {

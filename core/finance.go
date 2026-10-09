@@ -41,14 +41,15 @@ type goldQuote struct {
 }
 
 type financeBoard struct {
-	OK        bool          `json:"ok"`
-	Updated   int64         `json:"updated"`
-	Quotes    []marketQuote `json:"quotes"`
-	Watchlist []string      `json:"watchlist"`
-	Gainers   []string      `json:"gainers,omitempty"`
-	Losers    []string      `json:"losers,omitempty"`
-	Gold      []goldQuote   `json:"gold,omitempty"`
-	Error     string        `json:"error,omitempty"`
+	OK        bool             `json:"ok"`
+	Updated   int64            `json:"updated"`
+	Quotes    []marketQuote    `json:"quotes"`
+	Watchlist []string         `json:"watchlist"`
+	Gainers   []string         `json:"gainers,omitempty"`
+	Losers    []string         `json:"losers,omitempty"`
+	Gold      []goldQuote      `json:"gold,omitempty"`
+	News      []marketNewsItem `json:"news,omitempty"`
+	Error     string           `json:"error,omitempty"`
 }
 
 var financeMu sync.Mutex
@@ -216,6 +217,7 @@ func financeJSON(ctx context.Context, cfg *Config) []byte {
 	if time.Since(financeAt) < 2*time.Minute && len(financeCache.Quotes) > 0 {
 		out := financeCache
 		financeMu.Unlock()
+		out.News = store.marketNews(8)
 		b, _ := json.Marshal(out)
 		return b
 	}
@@ -286,6 +288,7 @@ func financeJSON(ctx context.Context, cfg *Config) []byte {
 	financeCache = board
 	financeAt = time.Now()
 	financeMu.Unlock()
+	board.News = store.marketNews(8)
 	b, _ := json.Marshal(board)
 	return b
 }

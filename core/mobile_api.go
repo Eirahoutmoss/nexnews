@@ -428,6 +428,16 @@ func MobileFinance() string {
 	return string(financeJSON(ctx, cfg))
 }
 
+// MobileStandings: Süper Lig ve Basketbol Süper Ligi puan durumları (30 dk önbellek).
+func MobileStandings() string {
+	if !mobileReady() {
+		return "{}"
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 40*time.Second)
+	defer cancel()
+	return string(standingsJSON(ctx, cfg))
+}
+
 func MobileSports() string {
 	if !mobileReady() {
 		return "{}"

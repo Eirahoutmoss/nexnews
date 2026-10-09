@@ -36,6 +36,7 @@ func LiveHeaders(streamURL string) string   { return core.MobileLiveHeaders(stre
 func Weather(place string) string           { return core.MobileWeather(place) }
 func Finance() string                       { return core.MobileFinance() }
 func Sports() string                        { return core.MobileSports() }
+func Standings() string                     { return core.MobileStandings() }
 func NetStats() string                      { return core.MobileNetStats() }
 func AddTraffic(bytes int64)                { core.MobileAddTraffic(bytes) }
 func Version() string                       { return core.MobileVersion() }

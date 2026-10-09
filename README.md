@@ -37,6 +37,13 @@ ve güncellemeler kaldırıp kurmadan yüklenir:
 - Ayarlar ve önbellek: `%APPDATA%\NexNews\` (`config.json`, `feed-cache.json`,
   `translations.json`, `favorites.json`, `history.json`, `follows.json`).
 
+## RC83 değişiklikleri (masaüstü)
+
+- Sağ panelde **Borsa Analiz** ve **Spor** ayrı sekmeler oldu.
+- Borsa kartının açılmama hatası giderildi (başlıkta iki aç/kapa mekanizması birbirini iptal ediyordu; Akıllı Uyarılar kartında da aynısı vardı).
+- Borsa Analiz: BIST endeksleri `XU100.IS`/`XU030.IS` üzerinden, günlük değişim önceki kapanıştan, "Piyasayı ilgilendiren gündem" başlıkları (indirilen haberlerden süzülür).
+- Spor: Süper Lig (ESPN, olmazsa Wikipedia) ve Basketbol Süper Ligi (Wikipedia) puan durumları; 30 dk önbellek, kaynak bağlantısı, Wikipedia'nın "şu tarihe kadar güncel" notu.
+
 ## RC82 değişiklikleri (masaüstü)
 
 - Radyo ve canlı TV, başka sayfalara geçildiğinde de çalmaya devam ediyor. TV

@@ -275,6 +275,7 @@ data class Game(
     val status: String = "",
     val statusDetail: String = "",
     val start: Long = 0,
+    val fav: Boolean = false,
 )
 
 @Serializable

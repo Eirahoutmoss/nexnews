@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -19,9 +20,10 @@ type sportsGame struct {
 	Away         string `json:"away"`
 	HomeScore    string `json:"homeScore"`
 	AwayScore    string `json:"awayScore"`
-	Status       string `json:"status"`
+	Status       string `json:"status"` // prematch | in | post
 	StatusDetail string `json:"statusDetail"`
 	Start        int64  `json:"start"`
+	Fav          bool   `json:"fav,omitempty"`
 }
 
 type sportsBoard struct {
@@ -45,7 +47,30 @@ var sportsEndpoints = map[string]string{
 	"nfl":        "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
 }
 
+// sportsWindow: dünden önceki günden 8 gün sonrasına kadar (Türkiye saati).
+// ESPN'in tarihsiz uç noktası yalnızca "bugünü" ya da ligin sıradaki gününü
+// verdiği için milli maç aralarında hep aynı maçlar görünüyordu.
+func sportsWindow(now time.Time) string {
+	loc, err := time.LoadLocation("Europe/Istanbul")
+	if err != nil {
+		loc = time.FixedZone("TRT", 3*3600)
+	}
+	n := now.In(loc)
+	return n.AddDate(0, 0, -2).Format("20060102") + "-" + n.AddDate(0, 0, 8).Format("20060102")
+}
+
 func espnScoreboard(ctx context.Context, key, endpoint string) ([]sportsGame, error) {
+	games, err := espnScoreboardURL(ctx, key, endpoint+"?limit=300&dates="+sportsWindow(time.Now()))
+	if err != nil || len(games) == 0 {
+		// Tarih aralığını desteklemeyen lig: günlük uç noktaya dön.
+		if g2, err2 := espnScoreboardURL(ctx, key, endpoint); err2 == nil && len(g2) > 0 {
+			return g2, nil
+		}
+	}
+	return games, err
+}
+
+func espnScoreboardURL(ctx context.Context, key, endpoint string) ([]sportsGame, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, err
@@ -69,7 +94,10 @@ func espnScoreboard(ctx context.Context, key, endpoint string) ([]sportsGame, er
 			Date   string `json:"date"`
 			Name   string `json:"name"`
 			Status struct {
-				Type struct {
+				DisplayClock string `json:"displayClock"`
+				Period       int    `json:"period"`
+				Type         struct {
+					Name        string `json:"name"`
 					ShortDetail string `json:"shortDetail"`
 					Detail      string `json:"detail"`
 					State       string `json:"state"`
@@ -97,14 +125,21 @@ func espnScoreboard(ctx context.Context, key, endpoint string) ([]sportsGame, er
 		var home, away, hs, as string
 		for _, c := range e.Competitions[0].Competitors {
 			if strings.EqualFold(c.HomeAway, "home") {
-				home, hs = c.Team.DisplayName, c.Score
+				home, hs = turkishTeamName(c.Team.DisplayName), c.Score
 			} else {
-				away, as = c.Team.DisplayName, c.Score
+				away, as = turkishTeamName(c.Team.DisplayName), c.Score
 			}
 		}
 		start, _ := time.Parse(time.RFC3339, e.Date)
 		league := key
-		games = append(games, sportsGame{ID: e.ID, League: league, LeagueName: sportsLeagueName(key), Home: home, Away: away, HomeScore: hs, AwayScore: as, Status: e.Status.Type.State, StatusDetail: firstNonEmpty(e.Status.Type.ShortDetail, e.Status.Type.Detail), Start: start.Unix()})
+		if start.IsZero() {
+			start, _ = time.Parse("2006-01-02T15:04Z", e.Date)
+		}
+		st, detail := sportsStatusTR(e.Status.Type.State, e.Status.Type.Name, firstNonEmpty(e.Status.Type.ShortDetail, e.Status.Type.Detail), e.Status.DisplayClock)
+		if st == "prematch" {
+			hs, as = "", ""
+		}
+		games = append(games, sportsGame{ID: e.ID, League: league, LeagueName: sportsLeagueName(key), Home: home, Away: away, HomeScore: hs, AwayScore: as, Status: st, StatusDetail: detail, Start: start.Unix()})
 	}
 	return games, nil
 }
@@ -126,6 +161,81 @@ func sportsLeagueName(k string) string {
 	}
 	return k
 }
+
+// sportsStatusTR: ESPN durumlarını Türkçeleştirir. "pre" maçlarda ayrıntı boş
+// bırakılır; arayüz başlama saatini kendisi yazar.
+func sportsStatusTR(state, name, short, clock string) (string, string) {
+	n := strings.ToUpper(name)
+	switch {
+	case strings.Contains(n, "POSTPONED"):
+		return "post", "Ertelendi"
+	case strings.Contains(n, "CANCELED") || strings.Contains(n, "CANCELLED"):
+		return "post", "İptal"
+	case strings.Contains(n, "ABANDONED") || strings.Contains(n, "SUSPENDED"):
+		return "post", "Yarıda kaldı"
+	}
+	switch strings.ToLower(state) {
+	case "pre":
+		return "prematch", ""
+	case "in":
+		switch {
+		case strings.Contains(n, "HALFTIME"):
+			return "in", "Devre arası"
+		case strings.TrimSpace(clock) != "" && clock != "0'" && clock != "0:00":
+			return "in", clock
+		}
+		return "in", "Oynanıyor"
+	case "post":
+		switch {
+		case strings.Contains(n, "PEN") || strings.Contains(strings.ToUpper(short), "PEN"):
+			return "post", "Penaltılarla bitti"
+		case strings.Contains(n, "AET") || strings.Contains(strings.ToUpper(short), "AET") || strings.Contains(strings.ToUpper(short), "OT"):
+			return "post", "Uzatmada bitti"
+		}
+		return "post", "Bitti"
+	}
+	return "prematch", ""
+}
+
+// foldTR: favori eşleşmesi için Türkçe harfleri sadeleştirir (Beşiktaş = Besiktas).
+func foldTR(s string) string {
+	r := strings.NewReplacer("ç", "c", "ğ", "g", "ı", "i", "İ", "i", "ö", "o", "ş", "s", "ü", "u", "Ç", "c", "Ğ", "g", "Ö", "o", "Ş", "s", "Ü", "u", "â", "a", "î", "i", "û", "u")
+	return strings.ToLower(r.Replace(strings.TrimSpace(s)))
+}
+
+func isFavoriteGame(g sportsGame, favorites []string) bool {
+	h, a := foldTR(g.Home), foldTR(g.Away)
+	for _, f := range favorites {
+		f = foldTR(f)
+		if len(f) >= 3 && (strings.Contains(h, f) || strings.Contains(a, f)) {
+			return true
+		}
+	}
+	return false
+}
+
+// sortSportsGames: favoriler, canlı maçlar, yaklaşan maçlar (en yakın önce),
+// sonra sonuçlar (en yeni önce).
+func sortSportsGames(games []sportsGame) {
+	rank := func(g sportsGame) int {
+		r := map[string]int{"in": 0, "prematch": 1, "post": 2}[g.Status]
+		if g.Fav {
+			r -= 10
+		}
+		return r
+	}
+	sort.SliceStable(games, func(i, j int) bool {
+		a, b := games[i], games[j]
+		if rank(a) != rank(b) {
+			return rank(a) < rank(b)
+		}
+		if a.Status == "post" {
+			return a.Start > b.Start
+		}
+		return a.Start < b.Start
+	})
+}
+
 func firstNonEmpty(a, b string) string {
 	if strings.TrimSpace(a) != "" {
 		return a
@@ -175,6 +285,10 @@ func sportsJSON(ctx context.Context, cfg *Config) []byte {
 		}()
 	}
 	wg.Wait()
+	for i := range board.Games {
+		board.Games[i].Fav = isFavoriteGame(board.Games[i], favorites)
+	}
+	sortSportsGames(board.Games)
 	if len(board.Games) == 0 {
 		board.OK = false
 		board.Error = "Spor verisi alınamadı"

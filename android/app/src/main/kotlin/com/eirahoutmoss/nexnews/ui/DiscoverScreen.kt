@@ -400,14 +400,19 @@ private fun GamesList(s: SportsBoard?, bp: PaddingValues) {
     if (b.games.isEmpty()) { Empty(b.error.ifBlank { "Bugün için maç bulunamadı." }); return }
     LazyColumn(contentPadding = bp) {
         items(b.games, key = { it.id.ifBlank { it.home + it.away } }) { g ->
-            val fav = b.favorites.any { f -> g.home.contains(f, true) || g.away.contains(f, true) }
+            val fav = g.fav
             Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp)) {
-                Text(g.leagueName + " · " + g.statusDetail.ifBlank { clock(g.start) }, style = MaterialTheme.typography.labelSmall,
+                val when_ = when (g.status) {
+                    "in" -> "● CANLI " + g.statusDetail
+                    "post" -> g.statusDetail.ifBlank { "Bitti" }
+                    else -> if (g.start > 0) java.text.SimpleDateFormat("EEE d MMM HH:mm", java.util.Locale("tr")).format(java.util.Date(g.start * 1000)) else ""
+                }
+                Text((if (fav) "⭐ " else "") + g.leagueName + " · " + when_, style = MaterialTheme.typography.labelSmall,
                     color = if (g.status == "in") LocalNex.current.breaking else MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(g.home, Modifier.weight(1f), fontWeight = if (fav) FontWeight.Bold else FontWeight.Normal)
-                    Text("${g.homeScore} – ${g.awayScore}", fontWeight = FontWeight.Bold)
-                    Text(g.away, Modifier.weight(1f).padding(start = 12.dp), fontWeight = if (fav) FontWeight.Bold else FontWeight.Normal)
+                    Text(if (g.status == "prematch") "–" else "${g.homeScore} – ${g.awayScore}", fontWeight = FontWeight.Bold)
+                    Text(g.away, Modifier.weight(1f).padding(start = 12.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End, fontWeight = if (fav) FontWeight.Bold else FontWeight.Normal)
                 }
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))

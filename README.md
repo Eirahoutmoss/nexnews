@@ -37,6 +37,10 @@ ve güncellemeler kaldırıp kurmadan yüklenir:
 - Ayarlar ve önbellek: `%APPDATA%\NexNews\` (`config.json`, `feed-cache.json`,
   `translations.json`, `favorites.json`, `history.json`, `follows.json`).
 
+## RC84 değişiklikleri (masaüstü)
+
+- Maçlar kartı: ESPN'den tarih aralığıyla (−2/+8 gün) çekilir; favoriler harf duyarsız eşleşir ve en üstte; ev sahibi önce; Türkçe durumlar; tanımsız `countdown` hatası giderildi; maç filtresi artık puan durumu sekmelerini etkilemiyor.
+
 ## RC83 değişiklikleri (masaüstü)
 
 - Sağ panelde **Borsa Analiz** ve **Spor** ayrı sekmeler oldu.

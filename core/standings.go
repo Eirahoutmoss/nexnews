@@ -257,8 +257,8 @@ func parseESPNStandings(body []byte) ([]standingRow, string, error) {
 	sortStandings(rows)
 	season := ""
 	if raw.Season.Year > 0 {
-		// ESPN "year" sezonun bittiği yıldır.
-		season = seasonLabel(raw.Season.Year - 1)
+		// ESPN "year" sezonun başladığı yıldır (2026 = 2026-27).
+		season = seasonLabel(raw.Season.Year)
 	}
 	return rows, season, nil
 }

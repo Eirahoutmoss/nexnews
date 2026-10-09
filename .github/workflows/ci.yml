@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      emulator:
+        description: "Android emülatör testini de çalıştır (~12 dk)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -135,6 +140,13 @@ jobs:
           name: nexnews
           path: dist/*
 
+      - name: Test APK'sını sakla (emülatör işi için)
+        uses: actions/upload-artifact@v5
+        with:
+          name: debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 3
+
       - name: Sürüm yayınla
         if: success() && github.ref == 'refs/heads/main'
         shell: bash
@@ -158,27 +170,6 @@ jobs:
             gh release create deneme dist/* --target "$GITHUB_SHA" --prerelease --title "NexNews deneme ($NEXNEWS_VERSION_NAME, #$GITHUB_RUN_NUMBER)" --notes-file "$NOTES"
           fi
 
-      - name: KVM (emülatör hızlandırma)
-        if: success()
-        shell: bash
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Emülatörde duman testi
-        if: success()
-        continue-on-error: true
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          arch: x86_64
-          target: google_apis
-          profile: pixel_6
-          disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: bash android/smoke/smoke.sh
-
       # Günlükler ayrı bir dala da yazılır (ci-logs): Actions günlük indirmesi
       # erişilemeyen ortamlardan da git ile okunabilsin diye.
       - name: Günlükleri ci-logs dalına yaz
@@ -197,3 +188,46 @@ jobs:
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "CI günlükleri #$GITHUB_RUN_NUMBER"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-logs || true
 
+  # Emülatör testi ayrı ve isteğe bağlı: sürüm yayınını hiç bekletmez.
+  # Actions → CI → Run workflow → "Android emülatör testini de çalıştır".
+  emulator:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.emulator
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: debug-apk
+          path: android/app/build/outputs/apk/debug
+      - name: KVM (emülatör hızlandırma)
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Emülatörde duman testi
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-boot-timeout: 900
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash android/smoke/smoke.sh
+      - name: Ekran görüntülerini ci-smoke dalına yaz
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/s" && cp -rf smoke "$RUNNER_TEMP/s/" 2>/dev/null || true
+          echo "run=$GITHUB_RUN_NUMBER sha=$GITHUB_SHA" > "$RUNNER_TEMP/s/OZET.txt"
+          cd "$RUNNER_TEMP/s" && git init -q && git checkout -q -b ci-smoke
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "Emülatör testi #$GITHUB_RUN_NUMBER"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-smoke || true

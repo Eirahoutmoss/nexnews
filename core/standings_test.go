@@ -42,7 +42,7 @@ func TestParseWikiStandings(t *testing.T) {
 }
 
 func TestParseESPNStandings(t *testing.T) {
-	body := []byte(`{"season":{"year":2027},"children":[{"standings":{"entries":[
+	body := []byte(`{"season":{"year":2026},"children":[{"standings":{"entries":[
 	{"team":{"displayName":"Fenerbahce"},"stats":[{"name":"rank","value":2},{"name":"points","value":10},{"name":"gamesPlayed","value":5},{"name":"ties","value":1}]},
 	{"team":{"displayName":"Galatasaray"},"note":{"description":"Champions League"},"stats":[{"name":"rank","value":1},{"name":"points","value":13},{"name":"gamesPlayed","value":5},{"name":"pointDifferential","value":7},{"name":"deductions"}]}]}}]}`)
 	rows, season, err := parseESPNStandings(body)

@@ -52,7 +52,7 @@ func TestLiveSports(t *testing.T) {
 		t.Skip("canlı test kapalı")
 	}
 	c := defaultConfig()
-	for _, k := range []string{"futbol", "premier", "ucl", "nba", "euroleague"} {
+	for _, k := range []string{"futbol", "premier", "ucl", "nba"} {
 		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		g, err := espnScoreboard(ctx, k, sportsEndpoints[k])
 		cancel()

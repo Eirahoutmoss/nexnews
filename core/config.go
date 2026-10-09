@@ -113,7 +113,7 @@ func defaultConfig() *Config {
 		LineHeight:     1.75,
 		ReaderWidth:    760,
 		MarketWatch:    []string{"^XU100", "^XU030", "THYAO.IS", "ASELS.IS", "GARAN.IS", "BIMAS.IS", "USDTRY=X", "EURTRY=X", "GC=F"},
-		SportsWatch:    []string{"futbol", "nba", "euroleague", "premier", "ucl"},
+		SportsWatch:    []string{"futbol", "ucl", "premier", "nba"},
 		SportsTeams:    []string{"Galatasaray", "Fenerbahçe", "Beşiktaş"},
 		Notify:         true,
 		NotifyMinScore: 75,
@@ -533,7 +533,7 @@ func (c *Config) migrate() bool {
 		c.Translate = true
 	}
 	if c.SportsWatch == nil {
-		c.SportsWatch = []string{"futbol", "nba", "euroleague", "premier", "ucl"}
+		c.SportsWatch = []string{"futbol", "ucl", "premier", "nba"}
 	}
 	if c.SportsTeams == nil {
 		c.SportsTeams = []string{"Galatasaray", "Fenerbahçe", "Beşiktaş"}

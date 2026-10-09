@@ -43,7 +43,6 @@ var sportsEndpoints = map[string]string{
 	"premier":    "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",
 	"ucl":        "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard",
 	"nba":        "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",
-	"euroleague": "https://site.api.espn.com/apis/site/v2/sports/basketball/eurleague/scoreboard",
 	"nfl":        "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
 }
 
@@ -259,7 +258,7 @@ func sportsJSON(ctx context.Context, cfg *Config) []byte {
 	cfg.mu.RUnlock()
 	board.Favorites = favorites
 	if len(watch) == 0 {
-		watch = []string{"futbol", "nba", "euroleague", "premier", "ucl"}
+		watch = []string{"futbol", "ucl", "premier", "nba"}
 	}
 	var wg sync.WaitGroup
 	var mu sync.Mutex

@@ -325,9 +325,20 @@ func ValidateArticle(a Article) error {
 	return nil
 }
 
+func validClaimStatus(status ClaimStatus) bool {
+	switch status {
+	case ClaimReported, ClaimCorroborated, ClaimContested, ClaimRetracted, ClaimUnverified, ClaimUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
 // ValidateClaim checks the minimum shape of a literal source statement. It does
 // not assert factual truth or semantic entailment; those require separate evidence
-// assessment and are outside this deterministic extractor.
+// assessment and are outside this deterministic extractor. Previously reviewed
+// statuses remain structurally valid; the extractor itself only creates reported
+// candidates and preserves existing review decisions.
 func ValidateClaim(c Claim, evidenceByID map[string]Evidence) error {
 	switch {
 	case strings.TrimSpace(c.ID) == "":
@@ -338,8 +349,8 @@ func ValidateClaim(c Claim, evidenceByID map[string]Evidence) error {
 		return errors.New("claim predicate is required")
 	case strings.TrimSpace(c.ClaimText) == "":
 		return errors.New("claim text is required")
-	case c.Status != ClaimReported && c.Status != ClaimUnverified && c.Status != ClaimUnknown:
-		return errors.New("literal source statement cannot be auto-promoted to a verified claim status")
+	case !validClaimStatus(c.Status):
+		return errors.New("claim status is invalid")
 	case len(c.EvidenceIDs) == 0:
 		return errors.New("claim requires at least one source evidence")
 	}

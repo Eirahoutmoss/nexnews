@@ -1,5 +1,6 @@
-// Command nexnews-intelligence imports a NexNews snapshot, persists it in an
-// independent Intelligence database, and runs the conservative local analysis.
+// Command nexnews-intelligence imports either a snapshot JSON file or the
+// local NexNews feed cache, persists it in an independent Intelligence database,
+// and runs the conservative local analysis.
 package main
 
 import (
@@ -12,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"nexnews/core"
 	"nexnews/intelligence"
 )
 
@@ -19,7 +21,7 @@ const maxSnapshotSize int64 = 64 << 20
 
 type commandReport struct {
 	OK           bool                       `json:"ok"`
-	SnapshotPath string                     `json:"snapshotPath"`
+	InputPath    string                     `json:"inputPath"`
 	DatabasePath string                     `json:"databasePath"`
 	Sync         intelligence.SyncStats     `json:"sync"`
 	Analysis     intelligence.PipelineStats `json:"analysis"`
@@ -33,12 +35,13 @@ func main() {
 func run(args []string, stdout, stderr io.Writer) int {
 	flags := flag.NewFlagSet("nexnews-intelligence", flag.ContinueOnError)
 	flags.SetOutput(stderr)
-	snapshotPath := flags.String("snapshot", "", "NexNews IntelligenceSnapshot JSON file (required)")
+	snapshotPath := flags.String("snapshot", "", "Optional NexNews IntelligenceSnapshot JSON file")
+	cachePath := flags.String("cache", "", "NexNews feed-cache.json; default: %APPDATA%\\NexNews\\feed-cache.json")
 	databasePath := flags.String("db", "nexnews-intelligence.json", "separate Intelligence database file")
 	flags.Usage = func() {
-		fmt.Fprintln(stderr, "Usage: nexnews-intelligence -snapshot <nexnews-snapshot.json> [-db <intelligence.json>]")
-		fmt.Fprintln(stderr, "Imports a local NexNews snapshot, then analyzes stored titles/summaries.")
-		fmt.Fprintln(stderr, "No network requests are made. Claims remain source-reported; no relations are inferred.")
+		fmt.Fprintln(stderr, "Usage: nexnews-intelligence [-cache <feed-cache.json> | -snapshot <snapshot.json>] [-db <intelligence.json>]")
+		fmt.Fprintln(stderr, "By default, reads the existing NexNews cache from %APPDATA%\\NexNews\\feed-cache.json.")
+		fmt.Fprintln(stderr, "It makes no network requests. Source statements stay reported; no relations are inferred.")
 		flags.PrintDefaults()
 	}
 	if err := flags.Parse(args); err != nil {
@@ -52,9 +55,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		flags.Usage()
 		return 2
 	}
-	if strings.TrimSpace(*snapshotPath) == "" {
-		fmt.Fprintln(stderr, "The -snapshot flag is required.")
-		flags.Usage()
+	if strings.TrimSpace(*snapshotPath) != "" && strings.TrimSpace(*cachePath) != "" {
+		fmt.Fprintln(stderr, "Use either -snapshot or -cache, not both.")
 		return 2
 	}
 	if strings.TrimSpace(*databasePath) == "" {
@@ -62,34 +64,61 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 
-	inputPath, err := filepath.Abs(*snapshotPath)
-	if err != nil {
-		fmt.Fprintf(stderr, "Resolve snapshot path: %v\n", err)
-		return 2
+	inputPath := strings.TrimSpace(*snapshotPath)
+	useSnapshot := inputPath != ""
+	var snapshot core.IntelligenceSnapshot
+	var payload []byte
+	var err error
+	if useSnapshot {
+		inputPath, err = filepath.Abs(inputPath)
+		if err != nil {
+			fmt.Fprintf(stderr, "Resolve snapshot path: %v\n", err)
+			return 2
+		}
+		payload, err = readSnapshot(inputPath)
+		if err != nil {
+			fmt.Fprintf(stderr, "Read snapshot: %v\n", err)
+			return 1
+		}
+	} else {
+		inputPath = strings.TrimSpace(*cachePath)
+		if inputPath == "" {
+			inputPath, err = defaultFeedCachePath()
+			if err != nil {
+				fmt.Fprintf(stderr, "Resolve NexNews cache path: %v\n", err)
+				return 1
+			}
+		}
+		inputPath, err = filepath.Abs(inputPath)
+		if err != nil {
+			fmt.Fprintf(stderr, "Resolve NexNews cache path: %v\n", err)
+			return 2
+		}
+		snapshot, err = core.IntelligenceSnapshotFromFeedCacheFile(inputPath)
+		if err != nil {
+			fmt.Fprintf(stderr, "Read NexNews feed cache: %v\nUse -snapshot only if you already have an exported JSON snapshot.\n", err)
+			return 1
+		}
 	}
+
 	dbPath, err := filepath.Abs(*databasePath)
 	if err != nil {
 		fmt.Fprintf(stderr, "Resolve database path: %v\n", err)
 		return 2
 	}
-	payload, err := readSnapshot(inputPath)
-	if err != nil {
-		fmt.Fprintf(stderr, "Read snapshot: %v\n", err)
-		return 1
-	}
-
 	repo, err := intelligence.NewJSONRepository(dbPath)
 	if err != nil {
 		fmt.Fprintf(stderr, "Open Intelligence repository: %v\n", err)
 		return 1
 	}
-	report := commandReport{
-		SnapshotPath: inputPath,
-		DatabasePath: dbPath,
+	report := commandReport{InputPath: inputPath, DatabasePath: dbPath}
+	if useSnapshot {
+		report.Sync, err = repo.SyncSnapshotJSON(payload)
+	} else {
+		report.Sync, err = repo.SyncFromNexNews(snapshot)
 	}
-	report.Sync, err = repo.SyncSnapshotJSON(payload)
 	if err != nil {
-		report.Error = fmt.Sprintf("Import snapshot: %v", err)
+		report.Error = fmt.Sprintf("Import input: %v", err)
 		_ = writeReport(stdout, report)
 		fmt.Fprintln(stderr, report.Error)
 		return 1
@@ -107,6 +136,17 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	return 0
+}
+
+func defaultFeedCachePath() (string, error) {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(configDir) == "" {
+		return "", errors.New("OS user config directory is unavailable; pass -cache explicitly")
+	}
+	return filepath.Join(configDir, "NexNews", "feed-cache.json"), nil
 }
 
 func readSnapshot(path string) ([]byte, error) {

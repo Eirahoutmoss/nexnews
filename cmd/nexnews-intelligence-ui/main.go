@@ -111,8 +111,7 @@ func newHandler(repo *intelligence.JSONRepository) http.Handler {
 		}
 		setSecurityHeaders(w)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		_, _ = w.Write([]byte("{"ok":true,"mode":"read-only"}
-"))
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "mode": "read-only"})
 	})
 	return mux
 }

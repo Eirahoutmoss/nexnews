@@ -15,6 +15,7 @@ type EntityExtractionStats struct {
 	ArticlesScanned int      `json:"articlesScanned"`
 	MentionsFound   int      `json:"mentionsFound"`
 	EntitiesCreated int      `json:"entitiesCreated"`
+	MentionsCreated int       `json:"mentionsCreated"`
 	Warnings        []string `json:"warnings,omitempty"`
 	RunID           string   `json:"runId"`
 }
@@ -258,11 +259,18 @@ func (r *JSONRepository) ExtractStoredEntityCandidates() (EntityExtractionStats,
 	sort.Strings(articleIDs)
 	stats.ArticlesScanned=len(articleIDs)
 	newEntities:=map[string]Entity{}
+	newMentions:=map[string]EntityMention{}
 	for _, articleID := range articleIDs {
 		article:=db.Articles[articleID]
 		result, err:=ExtractEntityCandidates(article,started)
 		if err != nil { return EntityExtractionStats{}, fmt.Errorf("extract entities for %q: %w",articleID,err) }
 		stats.MentionsFound += len(result.Mentions)
+		for _, mention := range result.Mentions {
+			if prior, ok := db.EntityMentions[mention.ID]; ok && !prior.ObservedAt.IsZero() {
+				mention.ObservedAt = prior.ObservedAt
+			}
+			newMentions[mention.ID] = mention
+		}
 		for _,e:=range result.Entities {
 			if prior,ok:=db.Entities[e.ID]; ok {
 				if prior.IdentityStatus==IdentityResolved || prior.IdentityStatus==IdentityAmbiguous {
@@ -276,6 +284,10 @@ func (r *JSONRepository) ExtractStoredEntityCandidates() (EntityExtractionStats,
 	for id,e:=range newEntities {
 		if _,ok:=db.Entities[id]; !ok { stats.EntitiesCreated++ }
 		db.Entities[id]=e
+	}
+	for id, mention := range newMentions {
+		if _, ok := db.EntityMentions[id]; !ok { stats.MentionsCreated++ }
+		db.EntityMentions[id] = mention
 	}
 	stats.RunID=stableID("analysis_run",EntityCandidateExtractorVersion+"\x00"+started.Format(time.RFC3339Nano))
 	completed:=time.Now().UTC()

@@ -188,3 +188,18 @@ func (s *Store) IntelligenceSnapshot() IntelligenceSnapshot {
 	})
 	return out
 }
+
+
+// CurrentIntelligenceSnapshot returns the active process-wide store's current
+// read-only snapshot. It is safe to call before initialization and performs no
+// network requests.
+func CurrentIntelligenceSnapshot() IntelligenceSnapshot {
+	if store == nil {
+		return IntelligenceSnapshot{
+			CapturedAt: time.Now().UTC(),
+			Articles: []IntelligenceArticleSnapshot{},
+			Events: []IntelligenceEventSnapshot{},
+		}
+	}
+	return store.IntelligenceSnapshot()
+}

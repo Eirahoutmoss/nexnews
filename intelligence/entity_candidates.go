@@ -253,7 +253,7 @@ func (r *JSONRepository) ExtractStoredEntityCandidates() (EntityExtractionStats,
 	defer r.mu.Unlock()
 	db, err := r.loadLocked()
 	if err != nil { return EntityExtractionStats{}, err }
-	stats := EntityExtractionStats{Warnings: []{}}
+	stats := EntityExtractionStats{Warnings: []string{}}
 	articleIDs := make([]string,0,len(db.Articles))
 	for id := range db.Articles { articleIDs=append(articleIDs,id) }
 	sort.Strings(articleIDs)

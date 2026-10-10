@@ -126,6 +126,8 @@ type Article struct {
 	Summary            string              `json:"summary,omitempty"`
 	PublishedAt        *time.Time          `json:"publishedAt,omitempty"`
 	RetrievedAt        time.Time           `json:"retrievedAt"`
+	FirstObservedAt    time.Time           `json:"firstObservedAt"`
+	LastObservedAt     time.Time           `json:"lastObservedAt"`
 	Language           string              `json:"language,omitempty"`
 	ContentAvailability ContentAvailability `json:"contentAvailability"`
 	ContentHash        string              `json:"contentHash,omitempty"`

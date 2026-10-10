@@ -337,6 +337,30 @@ func ValidateEvidence(e Evidence) error {
 	return nil
 }
 
+// validRelationEndpoints prevents a syntactically valid predicate from being
+// attached to semantically incompatible node types. Predicate direction is
+// always subject -> object.
+func validRelationEndpoints(p RelationPredicate, subject, object NodeType) bool {
+	switch p {
+	case RelationAnnouncedBy, RelationIssuedBy:
+		return subject == NodeEvent && object == NodeEntity
+	case RelationSaidBy:
+		return subject == NodeClaim && object == NodeEntity
+	case RelationParticipates:
+		return subject == NodeEntity && object == NodeEvent
+	case RelationMemberOf, RelationLocatedIn, RelationOwns, RelationOperates, RelationControls:
+		return subject == NodeEntity && object == NodeEntity
+	case RelationRespondsTo, RelationSameEventAs, RelationCausedBy, RelationLeadsTo:
+		return subject == NodeEvent && object == NodeEvent
+	case RelationSupportsClaim, RelationContradictsClaim:
+		return subject == NodeArticle && object == NodeClaim
+	case RelationUpdatesEvent:
+		return subject == NodeArticle && object == NodeEvent
+	default:
+		return false
+	}
+}
+
 // ValidateRelation requires provenance for every relation status, including
 // candidates. Co-occurrence and free-form "related_to" are intentionally not
 // part of the allowlist. A relation cannot be accepted just because an LLM
@@ -353,6 +377,8 @@ func ValidateRelation(r Relation, evidenceByID map[string]Evidence) error {
 		return errors.New("relation subject and object cannot be the same node")
 	case !validRelationPredicate(r.Predicate):
 		return fmt.Errorf("relation predicate %q is not allowed", r.Predicate)
+	case !validRelationEndpoints(r.Predicate, r.Subject.Type, r.Object.Type):
+		return fmt.Errorf("relation predicate %q cannot connect %s to %s", r.Predicate, r.Subject.Type, r.Object.Type)
 	case !validRelationStatus(r.Status):
 		return errors.New("relation status is invalid")
 	case strings.TrimSpace(r.Rationale) == "":

@@ -219,3 +219,103 @@ func TestSyncSnapshotJSONRejectsBridgeErrorEnvelope(t *testing.T) {
 		t.Fatalf("database must not be written after bridge error; stat err=%v", statErr)
 	}
 }
+
+func TestExtractStoredSourceStatementsPersistsEvidenceAndLinksUniqueEvent(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intelligence.json")
+	repo, err := NewJSONRepository(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.SyncFromNexNews(sampleCoreSnapshot(10)); err != nil {
+		t.Fatalf("initial NexNews sync failed: %v", err)
+	}
+	first, err := repo.ExtractStoredSourceStatements()
+	if err != nil {
+		t.Fatalf("source statement extraction failed: %v", err)
+	}
+	if first.ArticlesScanned != 1 || first.ClaimsCreated == 0 || first.EvidenceCreated == 0 {
+		t.Fatalf("unexpected extraction stats: %+v", first)
+	}
+	db, err := repo.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(db.Claims) != first.ClaimsCreated {
+		t.Fatalf("claims in database=%d but extraction reported=%d", len(db.Claims), first.ClaimsCreated)
+	}
+	if len(db.Evidence) != first.EvidenceCreated {
+		t.Fatalf("evidence in database=%d but extraction reported=%d", len(db.Evidence), first.EvidenceCreated)
+	}
+	if len(db.Runs) != 1 {
+		t.Fatalf("expected a persisted analysis run, got %d", len(db.Runs))
+	}
+	for _, claim := range db.Claims {
+		if claim.Kind != ClaimSourceStatement || claim.Status != ClaimReported {
+			t.Fatalf("source text should remain a reported statement candidate: %+v", claim)
+		}
+		if claim.EventID == "" {
+			t.Fatalf("statement should attach to exactly one matching event candidate: %+v", claim)
+		}
+		if len(claim.EvidenceIDs) == 0 {
+			t.Fatalf("claim lacks traceable evidence: %+v", claim)
+		}
+		for _, evidenceID := range claim.EvidenceIDs {
+			evidence, ok := db.Evidence[evidenceID]
+			if !ok || evidence.ClaimID != claim.ID {
+				t.Fatalf("claim evidence link is broken: claim=%s evidence=%s", claim.ID, evidenceID)
+			}
+			if evidence.Stance != EvidenceReports {
+				t.Fatalf("literal source statement must not be marked as factual support, got %q", evidence.Stance)
+			}
+		}
+	}
+	for _, event := range db.Events {
+		if len(event.ClaimIDs) != len(db.Claims) {
+			t.Fatalf("unique source article's event should link its statements: event claims=%d, stored claims=%d", len(event.ClaimIDs), len(db.Claims))
+		}
+	}
+
+	second, err := repo.ExtractStoredSourceStatements()
+	if err != nil {
+		t.Fatalf("repeat extraction failed: %v", err)
+	}
+	if second.ClaimsCreated != 0 || second.EvidenceCreated != 0 {
+		t.Fatalf("repeat extraction should be idempotent, got %+v", second)
+	}
+	db2, err := repo.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(db2.Claims) != len(db.Claims) || len(db2.Evidence) != len(db.Evidence) || len(db2.Runs) != 2 {
+		t.Fatalf("unexpected database growth after repeated extraction: claims %d->%d evidence %d->%d runs=%d", len(db.Claims), len(db2.Claims), len(db.Evidence), len(db2.Evidence), len(db2.Runs))
+	}
+	if len(db2.Relations) != 0 {
+		t.Fatal("source statement extraction must not invent semantic relations")
+	}
+}
+
+func TestExtractStoredSourceStatementsOnlyUsesPersistedArticleText(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intelligence.json")
+	repo, err := NewJSONRepository(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.SyncFromNexNews(sampleCoreSnapshot(10)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.ExtractStoredSourceStatements(); err != nil {
+		t.Fatal(err)
+	}
+	db, err := repo.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, evidence := range db.Evidence {
+		if evidence.ExcerptField != "title" && evidence.ExcerptField != "summary" {
+			t.Fatalf("extractor invented or mislabeled a content field: %q", evidence.ExcerptField)
+		}
+		if evidence.ContentLevel == ContentFullText {
+			t.Fatal("feed summary must not be represented as full article text")
+		}
+	}
+}

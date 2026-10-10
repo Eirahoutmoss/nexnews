@@ -174,8 +174,17 @@ type Entity struct {
 	ResolutionEvidenceIDs []string    `json:"resolutionEvidenceIds,omitempty"`
 }
 
+type ClaimKind string
+
+const (
+	// ClaimSourceStatement is an exact source-authored sentence or headline
+	// excerpt retained as a statement candidate, not normalized truth.
+	ClaimSourceStatement ClaimKind = "source_statement"
+)
+
 type Claim struct {
 	ID               string      `json:"id"`
+	Kind             ClaimKind   `json:"kind"`
 	SubjectEntityID  string      `json:"subjectEntityId,omitempty"`
 	Predicate        string      `json:"predicate"`
 	ObjectText       string      `json:"objectText,omitempty"`
@@ -316,6 +325,47 @@ func ValidateArticle(a Article) error {
 	return nil
 }
 
+// ValidateClaim checks the minimum shape of a literal source statement. It does
+// not assert factual truth or semantic entailment; those require separate evidence
+// assessment and are outside this deterministic extractor.
+func ValidateClaim(c Claim, evidenceByID map[string]Evidence) error {
+	switch {
+	case strings.TrimSpace(c.ID) == "":
+		return errors.New("claim id is required")
+	case c.Kind != ClaimSourceStatement:
+		return errors.New("claim kind is not supported by the current extractor")
+	case strings.TrimSpace(c.Predicate) == "":
+		return errors.New("claim predicate is required")
+	case strings.TrimSpace(c.ClaimText) == "":
+		return errors.New("claim text is required")
+	case c.Status != ClaimReported && c.Status != ClaimUnverified && c.Status != ClaimUnknown:
+		return errors.New("literal source statement cannot be auto-promoted to a verified claim status")
+	case len(c.EvidenceIDs) == 0:
+		return errors.New("claim requires at least one source evidence")
+	}
+	seen := map[string]bool{}
+	for _, id := range c.EvidenceIDs {
+		if id == "" || seen[id] {
+			return errors.New("claim evidence ids must be non-empty and unique")
+		}
+		seen[id] = true
+		e, ok := evidenceByID[id]
+		if !ok {
+			return fmt.Errorf("claim evidence %q was not found", id)
+		}
+		if err := ValidateEvidence(e); err != nil {
+			return fmt.Errorf("claim evidence %q is invalid: %w", id, err)
+		}
+		if e.ClaimID != c.ID {
+			return fmt.Errorf("claim evidence %q does not point back to claim %q", id, c.ID)
+		}
+		if e.Stance != EvidenceReports && e.Stance != EvidenceSourceText {
+			return fmt.Errorf("source statement evidence must have reports or source_text stance")
+		}
+	}
+	return nil
+}
+
 // ValidateEvidence validates provenance and the actual captured text segment.
 // It cannot determine whether the quotation semantically proves a claim; that
 // requires a separate review/extraction step and must never be silently assumed.
@@ -329,6 +379,10 @@ func ValidateEvidence(e Evidence) error {
 		return errors.New("evidence source URL must be http or https")
 	case strings.TrimSpace(e.Quote) == "":
 		return errors.New("evidence quote is required")
+	case e.ExcerptField != "title" && e.ExcerptField != "summary" && e.ExcerptField != "full_text":
+		return errors.New("evidence excerpt field must be title, summary, or full_text")
+	case e.ExcerptField == "full_text" && e.ContentLevel != ContentFullText:
+		return errors.New("full_text excerpt requires full_text content level")
 	case !validEvidenceStance(e.Stance):
 		return errors.New("evidence stance is invalid")
 	case !validContentAvailability(e.ContentLevel):

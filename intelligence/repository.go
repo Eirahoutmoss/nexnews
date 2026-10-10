@@ -26,6 +26,8 @@ type Database struct {
 	Events    map[string]Event   `json:"events"`
 	Claims    map[string]Claim   `json:"claims"`
 	Evidence  map[string]Evidence `json:"evidence"`
+	Entities map[string]Entity `json:"entities"`
+	EntityMentions map[string]EntityMention `json:"entityMentions"`
 	Relations map[string]Relation `json:"relations"`
 	Timeline  map[string]TimelineEntry `json:"timeline"`
 	Runs      map[string]AnalysisRun `json:"analysisRuns"`
@@ -53,7 +55,7 @@ func emptyDatabase() Database {
 	return Database{
 		Version: databaseVersion, Schema: SchemaVersion,
 		Sources: map[string]Source{}, Articles: map[string]Article{}, Events: map[string]Event{},
-		Claims: map[string]Claim{}, Evidence: map[string]Evidence{}, Relations: map[string]Relation{},
+		Claims: map[string]Claim{}, Evidence: map[string]Evidence{}, Entities: map[string]Entity{}, EntityMentions: map[string]EntityMention{}, Relations: map[string]Relation{},
 		Timeline: map[string]TimelineEntry{}, Runs: map[string]AnalysisRun{},
 	}
 }
@@ -64,6 +66,8 @@ func ensureDatabaseMaps(db *Database) {
 	if db.Events == nil { db.Events = map[string]Event{} }
 	if db.Claims == nil { db.Claims = map[string]Claim{} }
 	if db.Evidence == nil { db.Evidence = map[string]Evidence{} }
+	if db.Entities == nil { db.Entities = map[string]Entity{} }
+	if db.EntityMentions == nil { db.EntityMentions = map[string]EntityMention{} }
 	if db.Relations == nil { db.Relations = map[string]Relation{} }
 	if db.Timeline == nil { db.Timeline = map[string]TimelineEntry{} }
 	if db.Runs == nil { db.Runs = map[string]AnalysisRun{} }

@@ -67,6 +67,11 @@ const (
 	EvidenceContradicts  EvidenceStance = "contradicts"
 	EvidenceContext      EvidenceStance = "context"
 	EvidenceMentions     EvidenceStance = "mentions"
+	// EvidenceReports records that this source reported a claim. It is not
+	// independent evidence that the underlying event is true.
+	EvidenceReports EvidenceStance = "reports"
+	// EvidenceSourceText retains a traceable excerpt not classified as a claim.
+	EvidenceSourceText EvidenceStance = "source_text"
 )
 
 type RelationPredicate string
@@ -190,6 +195,7 @@ type Evidence struct {
 	ArticleID         string        `json:"articleId"`
 	ClaimID           string        `json:"claimId,omitempty"`
 	Stance            EvidenceStance `json:"stance"`
+	ExcerptField      string        `json:"excerptField"`
 	Quote             string        `json:"quote"`
 	StartOffset       *int          `json:"startOffset,omitempty"`
 	EndOffset         *int          `json:"endOffset,omitempty"`
@@ -257,7 +263,7 @@ func validContentAvailability(v ContentAvailability) bool {
 
 func validEvidenceStance(v EvidenceStance) bool {
 	switch v {
-	case EvidenceSupports, EvidenceContradicts, EvidenceContext, EvidenceMentions:
+	case EvidenceSupports, EvidenceContradicts, EvidenceContext, EvidenceMentions, EvidenceReports, EvidenceSourceText:
 		return true
 	default:
 		return false

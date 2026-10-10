@@ -3,7 +3,6 @@ package intelligence
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -53,6 +52,7 @@ var entityCandidateLexicon = []entityLexiconEntry{
 }
 
 type EntityMention struct {
+	ID          string    `json:"id"`
 	EntityID    string    `json:"entityId"`
 	Canonical  string    `json:"canonicalName"`
 	EntityType  EntityType `json:"entityType"`
@@ -78,19 +78,39 @@ type lexiconMatch struct {
 	alias string
 }
 
+func foldRune(r rune) string {
+	lower := strings.ToLower(string(r))
+	lower = strings.ReplaceAll(lower, "ı", "i")
+	lower = strings.ReplaceAll(lower, "İ", "i")
+	return lower
+}
+
 func foldForMatch(s string) string {
 	var b strings.Builder
-	for _, r := range strings.ToLower(s) {
-		switch r {
-		case 'ı':
-			b.WriteRune('i')
-		case 'İ':
-			b.WriteRune('i')
-		default:
-			b.WriteRune(r)
-		}
+	for _, r := range s {
+		b.WriteString(foldRune(r))
 	}
 	return b.String()
+}
+
+// foldedWithOffsets creates a search string plus a mapping from every folded
+// byte back to the original source byte span. This is essential for Turkish
+// dotless-i folding: search indices must never be used directly to slice source
+// text because folding can change byte length.
+func foldedWithOffsets(s string) (string, []int, []int) {
+	var b strings.Builder
+	starts, ends := []int{}, []int{}
+	for i, r := range s {
+		_, size := runeAt(s, i)
+		if size == 0 { size = len(string(r)) }
+		part := foldRune(r)
+		b.WriteString(part)
+		for n := 0; n < len(part); n++ {
+			starts = append(starts, i)
+			ends = append(ends, i+size)
+		}
+	}
+	return b.String(), starts, ends
 }
 
 func entityStableID(name string, kind EntityType) string {
@@ -133,7 +153,7 @@ func runeAt(s string, at int) (rune, int) {
 }
 
 func findLexiconMatches(text string) []lexiconMatch {
-	folded := foldForMatch(text)
+	folded, originalStarts, originalEnds := foldedWithOffsets(text)
 	matches := []lexiconMatch{}
 	for _, entry := range entityCandidateLexicon {
 		aliases := append([]string{entry.name}, entry.aliases...)
@@ -143,15 +163,18 @@ func findLexiconMatches(text string) []lexiconMatch {
 			for from := 0; from < len(folded); {
 				rel := strings.Index(folded[from:], needle)
 				if rel < 0 { break }
-				start := from + rel
-				end := start + len(needle)
-				from = start + 1
-				if !hasWordBoundary(folded, start, end) { continue }
-				matches = append(matches, lexiconMatch{start:start, end:end, entry:entry, alias:alias})
+				searchStart := from + rel
+				searchEnd := searchStart + len(needle)
+				from = searchStart + 1
+				if !hasWordBoundary(folded, searchStart, searchEnd) { continue }
+				if searchStart >= len(originalStarts) || searchEnd <= 0 || searchEnd > len(originalEnds) { continue }
+				originalStart := originalStarts[searchStart]
+				originalEnd := originalEnds[searchEnd-1]
+				matches = append(matches, lexiconMatch{start:originalStart, end:originalEnd, entry:entry, alias:alias})
 			}
 		}
 	}
-	// Prefer the longest alias when aliases overlap, then stable positions/names.
+	// Prefer the longest original span when aliases overlap.
 	sort.Slice(matches, func(i,j int) bool {
 		li, lj := matches[i].end-matches[i].start, matches[j].end-matches[j].start
 		if li != lj { return li > lj }
@@ -206,7 +229,7 @@ func ExtractEntityCandidates(article Article, observedAt time.Time) (entityCandi
 			if seenMentions[key] { continue }
 			seenMentions[key] = true
 			out.Mentions = append(out.Mentions, EntityMention{
-				EntityID:entityID, Canonical:m.entry.name, EntityType:m.entry.kind,
+				ID: stableID("mention", key), EntityID:entityID, Canonical:m.entry.name, EntityType:m.entry.kind,
 				AliasMatched:m.alias, ArticleID:article.ID, Field:field.Field,
 				Quote:quote, StartOffset:m.start, EndOffset:m.end,
 				ObservedAt:observedAt, Status:IdentityCandidate,
@@ -265,4 +288,3 @@ func (r *JSONRepository) ExtractStoredEntityCandidates() (EntityExtractionStats,
 	return stats,nil
 }
 
-var _ = errors.New

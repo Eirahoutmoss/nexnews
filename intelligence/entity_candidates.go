@@ -134,7 +134,7 @@ func hasWordBoundary(s string, start, end int) bool {
 
 func isLetterOrDigit(r rune) bool {
 	return r >= '0' && r <= '9' || r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' ||
-		r >= 'A' && r <= 'Z' || r >= 0x00C0 && r <= 0x02AF || r >= 0x0370 && r <= 0x052F
+		r >= 0x00C0 && r <= 0x02AF || r >= 0x0370 && r <= 0x052F
 }
 
 func runeBefore(s string, at int) (rune, int) {

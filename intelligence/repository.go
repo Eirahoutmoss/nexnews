@@ -260,6 +260,189 @@ func (r *JSONRepository) Sync(batch ImportSnapshot) (SyncStats, error) {
 	return stats, nil
 }
 
+type StatementExtractionStats struct {
+	ArticlesScanned int `json:"articlesScanned"`
+	ClaimsCreated   int `json:"claimsCreated"`
+	EvidenceCreated int `json:"evidenceCreated"`
+	SkippedSegments int `json:"skippedSegments"`
+	Warnings        []string `json:"warnings,omitempty"`
+	RunID           string `json:"runId"`
+}
+
+type extractionPending struct {
+	claim Claim
+	evidence []Evidence
+}
+
+// ExtractStoredSourceStatements runs only over text already stored in the
+// Intelligence database (article titles and summaries). It makes no network
+// calls, never infers factual truth, and persists every extract with exact
+// source-field offsets. Full article text is never fabricated from a summary.
+func (r *JSONRepository) ExtractStoredSourceStatements() (StatementExtractionStats, error) {
+	started := time.Now().UTC()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	db, err := r.loadLocked()
+	if err != nil {
+		return StatementExtractionStats{}, err
+	}
+	stats := StatementExtractionStats{Warnings: []string{}}
+	articleIDs := make([]string, 0, len(db.Articles))
+	for id := range db.Articles {
+		articleIDs = append(articleIDs, id)
+	}
+	sort.Strings(articleIDs)
+	stats.ArticlesScanned = len(articleIDs)
+
+	articleEvents := map[string][]string{}
+	for eventID, event := range db.Events {
+		for _, articleID := range event.ArticleIDs {
+			articleEvents[articleID] = union(articleEvents[articleID], []string{eventID})
+		}
+	}
+
+	byClaim := map[string]*extractionPending{}
+	for _, articleID := range articleIDs {
+		article := db.Articles[articleID]
+		sourceName := article.PublisherSourceID
+		if source, ok := db.Sources[article.PublisherSourceID]; ok && strings.TrimSpace(source.Name) != "" {
+			sourceName = source.Name
+		}
+		excerpts := []TextExcerpt{{Field: "title", Text: article.Title}}
+		if strings.TrimSpace(article.Summary) != "" && article.ContentAvailability != ContentTitleOnly {
+			excerpts = append(excerpts, TextExcerpt{Field: "summary", Text: article.Summary})
+		}
+		result, extractErr := ExtractSourceStatements(article, sourceName, excerpts, started)
+		if extractErr != nil {
+			return StatementExtractionStats{}, fmt.Errorf("extract article %q: %w", articleID, extractErr)
+		}
+		stats.SkippedSegments += result.Skipped
+		stats.Warnings = append(stats.Warnings, result.Warnings...)
+		evidenceForClaim := map[string][]Evidence{}
+		for _, evidence := range result.Evidence {
+			evidenceForClaim[evidence.ClaimID] = append(evidenceForClaim[evidence.ClaimID], evidence)
+		}
+		for _, claim := range result.Claims {
+			p := byClaim[claim.ID]
+			if p == nil {
+				p = &extractionPending{claim: claim, evidence: evidenceForClaim[claim.ID]}
+				byClaim[claim.ID] = p
+			} else {
+				p.claim.EvidenceIDs = union(p.claim.EvidenceIDs, claim.EvidenceIDs)
+				p.evidence = append(p.evidence, evidenceForClaim[claim.ID]...)
+			}
+		}
+	}
+
+	evidenceByID := make(map[string]Evidence, len(db.Evidence)+len(byClaim))
+	for id, evidence := range db.Evidence {
+		evidenceByID[id] = evidence
+	}
+	newEvidence := 0
+	claimIDs := make([]string, 0, len(byClaim))
+	for id := range byClaim {
+		claimIDs = append(claimIDs, id)
+	}
+	sort.Strings(claimIDs)
+
+	for _, claimID := range claimIDs {
+		p := byClaim[claimID]
+		claim := p.claim
+		if prior, ok := db.Claims[claimID]; ok {
+			if prior.Kind != ClaimSourceStatement {
+				return StatementExtractionStats{}, fmt.Errorf("refusing to overwrite non-source claim %q", claimID)
+			}
+			if !prior.FirstSeenAt.IsZero() {
+				claim.FirstSeenAt = prior.FirstSeenAt
+			}
+			claim.EvidenceIDs = union(prior.EvidenceIDs, claim.EvidenceIDs)
+			if prior.Status != "" {
+				claim.Status = prior.Status
+			}
+			if prior.StatusReason != "" {
+				claim.StatusReason = prior.StatusReason
+			}
+			if prior.EventID != "" {
+				claim.EventID = prior.EventID
+			}
+		}
+		for _, evidence := range p.evidence {
+			if prior, ok := db.Evidence[evidence.ID]; ok {
+				if prior.Quote != evidence.Quote || prior.ArticleID != evidence.ArticleID || prior.SourceURL != evidence.SourceURL {
+					return StatementExtractionStats{}, fmt.Errorf("evidence identity collision for %q", evidence.ID)
+				}
+				if !prior.CapturedAt.IsZero() {
+					evidence.CapturedAt = prior.CapturedAt
+				}
+			} else {
+				newEvidence++
+			}
+			if err := ValidateEvidence(evidence); err != nil {
+				return StatementExtractionStats{}, err
+			}
+			db.Evidence[evidence.ID] = evidence
+			evidenceByID[evidence.ID] = evidence
+		}
+		if err := ValidateClaim(claim, evidenceByID); err != nil {
+			return StatementExtractionStats{}, err
+		}
+		if _, existed := db.Claims[claimID]; !existed {
+			stats.ClaimsCreated++
+		}
+		db.Claims[claimID] = claim
+	}
+
+	// Only attach a statement to an event when exactly one stored event candidate
+	// contains its source article. Ambiguous many-event memberships stay unlinked.
+	eventClaims := map[string][]string{}
+	articleEventCount := map[string][]string{}
+	for eventID, event := range db.Events {
+		for _, articleID := range event.ArticleIDs {
+			articleEventCount[articleID] = union(articleEventCount[articleID], []string{eventID})
+		}
+	}
+	for _, claimID := range claimIDs {
+		claim := db.Claims[claimID]
+		for _, evidenceID := range claim.EvidenceIDs {
+			evidence, ok := db.Evidence[evidenceID]
+			if !ok {
+				continue
+			}
+			matches := articleEventCount[evidence.ArticleID]
+			if len(matches) == 1 {
+				claim.EventID = matches[0]
+				db.Claims[claimID] = claim
+				eventClaims[matches[0]] = union(eventClaims[matches[0]], []string{claimID})
+			} else if len(matches) > 1 {
+				stats.Warnings = append(stats.Warnings, "Article "+evidence.ArticleID+" belongs to multiple event candidates; statement was not assigned to one event.")
+			}
+			break
+		}
+	}
+	for eventID, claimIDs := range eventClaims {
+		event := db.Events[eventID]
+		event.ClaimIDs = union(event.ClaimIDs, claimIDs)
+		event.UpdatedAt = started
+		db.Events[eventID] = event
+	}
+
+	stats.EvidenceCreated = newEvidence
+	stats.RunID = stableID("analysis_run", StatementExtractorVersion+"\x00"+started.Format(time.RFC3339Nano))
+	completed := time.Now().UTC()
+	run := AnalysisRun{
+		ID: stats.RunID, InputIDs: articleIDs, RuleVersion: StatementExtractorVersion,
+		StartedAt: started, CompletedAt: &completed, Status: "completed",
+		Warnings: append([]string(nil), stats.Warnings...),
+	}
+	db.Runs[run.ID] = run
+	db.SavedAt = completed
+	if err := r.writeLocked(db); err != nil {
+		return StatementExtractionStats{}, err
+	}
+	return stats, nil
+}
+
 func union(a, b []string) []string {
 	seen := make(map[string]bool, len(a)+len(b))
 	out := make([]string, 0, len(a)+len(b))

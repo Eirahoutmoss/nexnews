@@ -1,6 +1,7 @@
 package intelligence
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -182,5 +183,39 @@ func TestRepositoryRejectsCorruptDatabase(t *testing.T) {
 	}
 	if _, err := repo.Load(); err == nil {
 		t.Fatal("expected corrupt database to return an error")
+	}
+}
+
+func TestSyncSnapshotJSONAcceptsBridgePayload(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intelligence.json")
+	repo, err := NewJSONRepository(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	payload, err := json.Marshal(sampleCoreSnapshot(10))
+	if err != nil {
+		t.Fatal(err)
+	}
+	stats, err := repo.SyncSnapshotJSON(payload)
+	if err != nil {
+		t.Fatalf("valid snapshot payload failed: %v", err)
+	}
+	if stats.ArticlesSaved != 1 || stats.EventsSaved != 1 {
+		t.Fatalf("unexpected sync stats: %+v", stats)
+	}
+}
+
+func TestSyncSnapshotJSONRejectsBridgeErrorEnvelope(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intelligence.json")
+	repo, err := NewJSONRepository(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = repo.SyncSnapshotJSON([]byte(`{"error":"çekirdek hazır değil","articles":[],"events":[]}`))
+	if err == nil {
+		t.Fatal("expected bridge error envelope to be rejected")
+	}
+	if _, statErr := os.Stat(path); !os.IsNotExist(statErr) {
+		t.Fatalf("database must not be written after bridge error; stat err=%v", statErr)
 	}
 }

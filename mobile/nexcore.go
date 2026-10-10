@@ -39,4 +39,8 @@ func Sports() string                        { return core.MobileSports() }
 func Standings() string                     { return core.MobileStandings() }
 func NetStats() string                      { return core.MobileNetStats() }
 func AddTraffic(bytes int64)                { core.MobileAddTraffic(bytes) }
+// IntelligenceSnapshot returns a read-only JSON view of NexNews items and
+// event candidates. It does not include inferred claims, evidence or relations.
+func IntelligenceSnapshot() string            { return core.MobileIntelligenceSnapshot() }
+
 func Version() string                       { return core.MobileVersion() }

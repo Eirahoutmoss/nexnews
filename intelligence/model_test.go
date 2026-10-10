@@ -11,6 +11,7 @@ func testEvidence(stance EvidenceStance) Evidence {
 		ID:                "evidence-1",
 		ArticleID:         "article-1",
 		Stance:            stance,
+		ExcerptField:      "summary",
 		Quote:             "The ministry announced the new policy on Tuesday.",
 		SourceURL:         "https://example.org/article",
 		CapturedAt:        time.Date(2026, 10, 10, 10, 0, 0, 0, time.UTC),
@@ -116,6 +117,7 @@ func TestContestedRelationAcceptsSupportingAndContradictingEvidence(t *testing.T
 		"evidence-1": testEvidence(EvidenceSupports),
 		"evidence-2": {
 			ID: "evidence-2", ArticleID: "article-2", Stance: EvidenceContradicts,
+			ExcerptField: "summary",
 			Quote: "The ministry denied announcing the policy.",
 			SourceURL: "https://example.net/statement", CapturedAt: time.Now(),
 			ContentLevel: ContentFullText, ExtractionMethod: "test-fixture", ExtractionVersion: "1",

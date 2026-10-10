@@ -461,4 +461,16 @@ func MobileAddTraffic(down int64) {
 	}
 }
 
+// MobileIntelligenceSnapshot exports a read-only JSON snapshot for the
+// separate NexNews Intelligence product. It includes article/event candidates
+// only; the exporter does not infer claims, evidence, or semantic relations.
+func MobileIntelligenceSnapshot() string {
+	if !mobileReady() {
+		return `{"error":"çekirdek hazır değil","articles":[],"events":[]}`
+	}
+	snapshot := store.IntelligenceSnapshot()
+	b, err := json.Marshal(snapshot)
+	return jsonOr(b, err, `{"error":"Intelligence verisi dışa aktarılamadı","articles":[],"events":[]}`)
+}
+
 func MobileVersion() string { return appVersion }

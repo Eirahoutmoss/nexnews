@@ -5,6 +5,9 @@ package core
 // They intentionally do not expose mutable Store maps or Story internals.
 
 import (
+	"encoding/json"
+	"errors"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -202,4 +205,66 @@ func CurrentIntelligenceSnapshot() IntelligenceSnapshot {
 		}
 	}
 	return store.IntelligenceSnapshot()
+}
+
+
+// IntelligenceSnapshotFromFeedCacheFile reads NexNews' existing persistent
+// feed-cache.json and constructs the same read-only snapshot without requiring
+// an intermediate export file or making any network request. Event clusters
+// are marked as NexNews candidates by the downstream adapter, not as verified
+// Intelligence findings.
+func IntelligenceSnapshotFromFeedCacheFile(path string) (IntelligenceSnapshot, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return IntelligenceSnapshot{}, err
+	}
+	var cached persistentCache
+	if err := json.Unmarshal(data, &cached); err != nil {
+		return IntelligenceSnapshot{}, err
+	}
+	if cached.Version != cacheSchema {
+		return IntelligenceSnapshot{}, errors.New("unsupported NexNews feed-cache schema")
+	}
+	captured := cached.SavedAt.UTC()
+	if captured.IsZero() {
+		captured = time.Now().UTC()
+	}
+	feedMap := make(map[string]FeedCacheEntry, len(cached.Feeds))
+	byCategory := map[string][]Item{}
+	for _, feed := range cached.Feeds {
+		if strings.TrimSpace(feed.URL) == "" {
+			continue
+		}
+		if feed.FetchedAt.IsZero() {
+			feed.FetchedAt = captured
+		}
+		for i := range feed.Items {
+			if strings.TrimSpace(feed.Items[i].Source) == "" {
+				feed.Items[i].Source = strings.TrimSpace(feed.Name)
+			}
+			if strings.TrimSpace(feed.Items[i].Category) == "" {
+				feed.Items[i].Category = strings.TrimSpace(feed.Category)
+			}
+			byCategory[feed.Items[i].Category] = append(byCategory[feed.Items[i].Category], feed.Items[i])
+		}
+		feedMap[feed.URL] = feed
+	}
+	var stories []*Story
+	categories := make([]string, 0, len(byCategory))
+	for category := range byCategory {
+		categories = append(categories, category)
+	}
+	sort.Strings(categories)
+	for _, category := range categories {
+		items := dedupeItems(byCategory[category])
+		sortItemsNewest(items)
+		cluster := clusterItems(items)
+		rankStories(cluster)
+		stories = append(stories, cluster...)
+	}
+	rankStories(stories)
+	s := &Store{cache: feedMap, important: stories}
+	out := s.IntelligenceSnapshot()
+	out.CapturedAt = captured
+	return out, nil
 }

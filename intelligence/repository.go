@@ -106,6 +106,37 @@ func (r *JSONRepository) SyncFromNexNews(input core.IntelligenceSnapshot) (SyncS
 	return r.Sync(batch)
 }
 
+// SyncCurrentNexNews takes a read-only snapshot from the active NexNews core
+// singleton and persists it. Call explicitly from a user-triggered action or a
+// controlled background job; constructing the repository does not start syncs.
+func (r *JSONRepository) SyncCurrentNexNews() (SyncStats, error) {
+	return r.SyncFromNexNews(core.CurrentIntelligenceSnapshot())
+}
+
+// SyncSnapshotJSON accepts the JSON contract exposed by the mobile bridge or
+// another process. Error envelopes and malformed snapshots are rejected rather
+// than interpreted as an empty successful sync.
+func (r *JSONRepository) SyncSnapshotJSON(payload []byte) (SyncStats, error) {
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(payload, &envelope); err != nil {
+		return SyncStats{}, fmt.Errorf("decode NexNews snapshot envelope: %w", err)
+	}
+	if rawError, ok := envelope["error"]; ok {
+		var message string
+		if json.Unmarshal(rawError, &message) == nil && strings.TrimSpace(message) != "" {
+			return SyncStats{}, fmt.Errorf("NexNews snapshot unavailable: %s", message)
+		}
+	}
+	var snapshot core.IntelligenceSnapshot
+	if err := json.Unmarshal(payload, &snapshot); err != nil {
+		return SyncStats{}, fmt.Errorf("decode NexNews snapshot: %w", err)
+	}
+	if snapshot.CapturedAt.IsZero() {
+		return SyncStats{}, errors.New("NexNews snapshot is missing capturedAt")
+	}
+	return r.SyncFromNexNews(snapshot)
+}
+
 // Sync persists a normalized import batch. First-observed timestamps are kept
 // across updates; last-observed timestamps advance with each successful sync.
 func (r *JSONRepository) Sync(batch ImportSnapshot) (SyncStats, error) {

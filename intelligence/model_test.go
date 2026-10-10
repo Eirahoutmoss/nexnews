@@ -23,9 +23,9 @@ func testEvidence(stance EvidenceStance) Evidence {
 func testRelation() Relation {
 	return Relation{
 		ID:          "relation-1",
-		Subject:     NodeRef{ID: "entity-ministry", Type: NodeEntity},
+		Subject:     NodeRef{ID: "event-policy", Type: NodeEvent},
 		Predicate:   RelationAnnouncedBy,
-		Object:      NodeRef{ID: "event-policy", Type: NodeEvent},
+		Object:      NodeRef{ID: "entity-ministry", Type: NodeEntity},
 		Status:      RelationSupported,
 		EvidenceIDs: []string{"evidence-1"},
 		Rationale:   "The quoted source explicitly attributes the announcement to the ministry.",
@@ -134,5 +134,14 @@ func TestRelationRejectsSelfEdge(t *testing.T) {
 	r.Object = r.Subject
 	if err := ValidateRelation(r, map[string]Evidence{"evidence-1": testEvidence(EvidenceSupports)}); err == nil {
 		t.Fatal("expected self-edge to be rejected")
+	}
+}
+
+func TestRelationRejectsIncompatibleEndpointTypes(t *testing.T) {
+	r := testRelation()
+	r.Object = NodeRef{ID: "event-other", Type: NodeEvent}
+	err := ValidateRelation(r, map[string]Evidence{"evidence-1": testEvidence(EvidenceSupports)})
+	if err == nil || !strings.Contains(err.Error(), "cannot connect") {
+		t.Fatalf("expected invalid endpoint types to be rejected, got %v", err)
 	}
 }

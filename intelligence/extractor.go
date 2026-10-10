@@ -104,7 +104,12 @@ func splitSourceSentences(input string) []sentenceRange {
 }
 
 func normalizeStatement(s string) string {
-	return strings.ToLower(strings.Join(strings.Fields(strings.TrimSpace(s)), " "))
+	s = strings.ToLower(strings.Join(strings.Fields(strings.TrimSpace(s)), " "))
+	// Punctuation is retained in Evidence. For duplicate detection only, remove
+	// terminal sentence punctuation so a headline and the same summary sentence
+	// are not extracted twice just because the headline omits a final full stop.
+	s = strings.TrimRight(s, ".!?;:,")
+	return s
 }
 
 func meaningfulSourceStatement(s string) bool {

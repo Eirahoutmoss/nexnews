@@ -120,7 +120,7 @@ func entityStableID(name string, kind EntityType) string {
 }
 
 func hasWordBoundary(s string, start, end int) bool {
-	isWord := func(r rune) bool { return r == '_' || r == '-' || r == '\'' || r == '’' || isLetterOrDigit(r) }
+	isWord := func(r rune) bool { return r == '_' || r == '-' || isLetterOrDigit(r) }
 	if start > 0 {
 		r, _ := runeBefore(s, start)
 		if isWord(r) { return false }

@@ -253,6 +253,25 @@ func (r *JSONRepository) Sync(batch ImportSnapshot) (SyncStats, error) {
 		db.Events[e.ID] = e
 	}
 
+	// The offline importer may discover overlapping candidate clusters from
+	// category-specific feeds. Reconcile memberships for articles in this snapshot
+	// against the current candidate set, instead of unioning stale memberships
+	// forever. Historical candidates are retained as archived audit records.
+	observedArticles := make(map[string]bool, len(batch.Articles))
+	for _, article := range batch.Articles {
+		observedArticles[article.ID] = true
+	}
+	expectedMembership := map[string]map[string]bool{}
+	for _, event := range batch.Events {
+		for _, articleID := range event.ArticleIDs {
+			if expectedMembership[articleID] == nil {
+				expectedMembership[articleID] = map[string]bool{}
+			}
+			expectedMembership[articleID][event.ID] = true
+		}
+	}
+	reconcileImportedEventMemberships(&db, observedArticles, expectedMembership, captured)
+
 	db.SavedAt = time.Now().UTC()
 	db.LastSyncAt = captured
 	if err := r.writeLocked(db); err != nil {
@@ -549,6 +568,122 @@ func compactLegacyEventAssignmentWarnings(db *Database) {
 			run.Warnings = kept
 			db.Runs[runID] = run
 		}
+	}
+}
+
+
+func reconcileImportedEventMemberships(db *Database, observedArticles map[string]bool, expected map[string]map[string]bool, at time.Time) {
+	if db == nil {
+		return
+	}
+
+	// Current event membership is authoritative only for articles present in this
+	// import. Articles outside the current cache are left untouched to preserve
+	// historical context.
+	for eventID, event := range db.Events {
+		if event.RuleVersion != ImporterVersion {
+			continue
+		}
+		kept := make([]string, 0, len(event.ArticleIDs))
+		removedAny := false
+		for _, articleID := range event.ArticleIDs {
+			if !observedArticles[articleID] {
+				kept = append(kept, articleID)
+				continue
+			}
+			if expected[articleID][eventID] {
+				kept = append(kept, articleID)
+			} else {
+				removedAny = true
+			}
+		}
+		event.ArticleIDs = union(nil, kept)
+		if removedAny {
+			event.UpdatedAt = at
+			if len(event.ArticleIDs) == 0 {
+				event.Status = EventArchived
+				event.CoverageLimitations = addLimitation(event.CoverageLimitations,
+					"Candidate has no current article membership after overlapping NexNews category candidates were reconciled; retained for audit.")
+			} else {
+				event.CoverageLimitations = addLimitation(event.CoverageLimitations,
+					"Some article memberships were removed during reconciliation against the current NexNews snapshot.")
+			}
+		}
+		db.Events[eventID] = event
+	}
+
+	// Rebuild source-statement event assignments from current membership. Never
+	// choose arbitrarily when an article still belongs to multiple candidates.
+	articleEvents := map[string][]string{}
+	for eventID, event := range db.Events {
+		if event.RuleVersion != ImporterVersion {
+			continue
+		}
+		for _, articleID := range event.ArticleIDs {
+			articleEvents[articleID] = union(articleEvents[articleID], []string{eventID})
+		}
+	}
+	for articleID := range articleEvents {
+		sort.Strings(articleEvents[articleID])
+	}
+
+	sourceClaims := map[string]bool{}
+	for claimID, claim := range db.Claims {
+		if claim.Kind != ClaimSourceStatement {
+			continue
+		}
+		sourceClaims[claimID] = true
+		claimArticleIDs := []string{}
+		for _, evidenceID := range claim.EvidenceIDs {
+			if evidence, ok := db.Evidence[evidenceID]; ok && evidence.ArticleID != "" {
+				claimArticleIDs = union(claimArticleIDs, []string{evidence.ArticleID})
+			}
+		}
+		// Claims that do not have evidence from this import keep their prior
+		// assignment; present articles are reassessed against the current graph.
+		hasObservedEvidence := false
+		candidates := []string{}
+		for _, articleID := range claimArticleIDs {
+			if !observedArticles[articleID] {
+				continue
+			}
+			hasObservedEvidence = true
+			for _, eventID := range articleEvents[articleID] {
+				candidates = union(candidates, []string{eventID})
+			}
+		}
+		if hasObservedEvidence {
+			claim.EventID = ""
+			if len(candidates) == 1 {
+				claim.EventID = candidates[0]
+			}
+			db.Claims[claimID] = claim
+		}
+	}
+
+	// Remove stale source-statement references from event indexes, then rebuild
+	// those references from each claim's current EventID. Other claim types are
+	// retained unchanged.
+	for eventID, event := range db.Events {
+		kept := make([]string, 0, len(event.ClaimIDs))
+		for _, claimID := range event.ClaimIDs {
+			if !sourceClaims[claimID] {
+				kept = append(kept, claimID)
+			}
+		}
+		event.ClaimIDs = kept
+		db.Events[eventID] = event
+	}
+	for claimID, claim := range db.Claims {
+		if claim.Kind != ClaimSourceStatement || claim.EventID == "" {
+			continue
+		}
+		event, ok := db.Events[claim.EventID]
+		if !ok || event.RuleVersion != ImporterVersion {
+			continue
+		}
+		event.ClaimIDs = union(event.ClaimIDs, []string{claimID})
+		db.Events[event.ID] = event
 	}
 }
 

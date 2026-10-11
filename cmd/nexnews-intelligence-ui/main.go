@@ -450,6 +450,8 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     pill(summary,d.statementCount+" kaynak ifadesi");
     pill(summary,(d.conflictCandidates||[]).length+" olası çelişki sinyali");
     append(host,"div","cards","").appendChild(summary);
+    var researchLink=append(host,"a","open-dossier","Bu olay için araştırma başlat");
+    researchLink.href="/research-workspace?eventId="+encodeURIComponent(d.event.id);
     var metricsBox=append(host,"div","metrics","");
     metric(metricsBox,"Haber",d.articleCount,"Bu olay adayına bağlı");
     metric(metricsBox,"Yayıncı alan adı",d.publisherDomainCount,"Bağımsız kaynak sayısı değildir");

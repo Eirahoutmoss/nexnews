@@ -124,6 +124,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
   var selectedCaseId = "";
   var selectedCase = null;
   var caseSummaries = [];
+  var linkedEventId = new URLSearchParams(window.location.search).get("eventId") || "";
   var messageTimer = null;
   function byId(id){return document.getElementById(id);}
   function node(tag, cls, text){
@@ -297,7 +298,8 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
   byId("caseForm").addEventListener("submit",async function(event){
     event.preventDefault();var button=byId("createCaseButton");button.disabled=true;
     try{
-      var item=await api("/api/research-cases",{method:"POST",body:JSON.stringify({title:byId("caseTitle").value,question:byId("caseQuestion").value,context:byId("caseContext").value})});
+      var item=await api("/api/research-cases",{method:"POST",body:JSON.stringify({title:byId("caseTitle").value,question:byId("caseQuestion").value,context:byId("caseContext").value,relatedEventId:linkedEventId})});
+      linkedEventId="";window.history.replaceState(null,"",window.location.pathname);
       byId("caseForm").reset();selectedCaseId=item.id;selectedCase=item;
       await refreshCaseList();await loadCase(item.id);setMessage("Araştırma dosyası kalıcı olarak oluşturuldu.",false);
     }catch(err){setMessage(err.message,true);}finally{button.disabled=false;}
@@ -341,6 +343,17 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
   byId("assessedHypothesis").addEventListener("change",function(){
     byId("assessmentRationale").required=Boolean(this.value);
   });
+  if(linkedEventId){
+    api("/api/event-dossier?eventId="+encodeURIComponent(linkedEventId)).then(function(d){
+      byId("caseTitle").value="Araştırma: "+d.event.title;
+      byId("caseQuestion").value="Bu olayda hangi iddialar destekleniyor, anlatılar nerede ayrışıyor ve hangi alternatif açıklamalar verilerle sınanabilir?";
+      byId("caseContext").value="NexNews olay adayı: "+d.event.title+"\nBağlı haber sayısı: "+d.articleCount+"\nNot: Olay kümesi doğruluk hükmü değildir. Olayın tarihi, kaynak kökeni, kapsamı ve karşı kanıtlar ayrıca değerlendirilmelidir.";
+      setMessage("NexNews olay dosyası araştırma başlangıcı olarak yüklendi. Araştırma dosyası oluşturduğunda olay bağlantısı korunacak.",false);
+    }).catch(function(){
+      linkedEventId="";
+      setMessage("İstenen NexNews olay dosyası okunamadı. Yeni araştırma yine bağımsız oluşturulabilir.",true);
+    });
+  }
   refreshCaseList().catch(function(err){byId("caseList").replaceChildren(node("div","empty","Araştırma veritabanı okunamadı: "+err.message));setMessage(err.message,true);});
 })();
 </script>

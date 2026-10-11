@@ -480,6 +480,7 @@ func (r *JSONRepository) AddResearchEvidence(caseID string, in AddResearchEviden
 		HypothesisAssessments: append([]HypothesisEvidenceAssessment(nil), in.HypothesisAssessments...),
 	}
 	item.Evidence = append(item.Evidence, evidence)
+	markResearchCaseActive(&item, now)
 	item.UpdatedAt = now
 	db.ResearchCases[item.ID] = item
 	db.SavedAt = now
@@ -514,6 +515,7 @@ func (r *JSONRepository) AddResearchQuestion(caseID, question string) (ResearchC
 		return ResearchCase{}, errors.New("research case not found")
 	}
 	item.OpenQuestions = append(item.OpenQuestions, ResearchQuestion{ID: id, Text: question, Status: "open", CreatedAt: now, UpdatedAt: now})
+	markResearchCaseActive(&item, now)
 	item.UpdatedAt = now
 	db.ResearchCases[item.ID] = item
 	db.SavedAt = now
@@ -618,6 +620,7 @@ func (r *JSONRepository) SetResearchHypothesisStatus(caseID, hypothesisID string
 	if !found {
 		return ResearchCase{}, errors.New("research hypothesis not found")
 	}
+	markResearchCaseActive(&item, now)
 	item.UpdatedAt = now
 	db.ResearchCases[item.ID] = item
 	db.SavedAt = now

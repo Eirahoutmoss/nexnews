@@ -54,6 +54,16 @@ func registerResearchRoutes(mux *http.ServeMux, repo *intelligence.JSONRepositor
 		writeResearchJSON(w, http.StatusOK, item)
 	})
 
+	mux.HandleFunc("/api/research-import", func(w http.ResponseWriter, r *http.Request) {
+		setResearchHeaders(w)
+		if r.Method != http.MethodPost { researchMethodNotAllowed(w, "POST"); return }
+		caseID := strings.TrimSpace(r.URL.Query().Get("caseId"))
+		if caseID == "" { writeResearchError(w, http.StatusBadRequest, "caseId is required"); return }
+		item, stats, err := repo.SyncResearchCaseFromNexNews(caseID)
+		if err != nil { researchOperationError(w, err); return }
+		writeResearchJSON(w, http.StatusOK, map[string]any{"case":item,"stats":stats})
+	})
+
 	mux.HandleFunc("/api/research-analysis", func(w http.ResponseWriter, r *http.Request) {
 		setResearchHeaders(w)
 		if !allowGET(w, r) { return }

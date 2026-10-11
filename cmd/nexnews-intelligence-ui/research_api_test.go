@@ -88,6 +88,33 @@ func TestResearchWorkspaceAPICreatesCaseHypothesisAndEvidence(t *testing.T) {
 	}
 }
 
+func TestResearchAnalysisAPIReportsEvidenceCoverage(t *testing.T) {
+	h := newHandler(testRepository(t))
+	created := requestJSON(t, h, http.MethodPost, "/api/research-cases", map[string]string{
+		"title":"Evidence test", "question":"What does the record support?",
+	})
+	if created.Code != http.StatusCreated { t.Fatalf("create case status=%d body=%s",created.Code,created.Body.String()) }
+	var item intelligence.ResearchCase
+	if err := json.Unmarshal(created.Body.Bytes(), &item); err != nil { t.Fatal(err) }
+	item, err := func() (intelligence.ResearchCase,error) {
+		rec := requestJSON(t,h,http.MethodPost,"/api/research-hypothesis?caseId="+item.ID,map[string]string{"statement":"One testable hypothesis"})
+		if rec.Code != http.StatusCreated { t.Fatalf("add hypothesis status=%d body=%s",rec.Code,rec.Body.String()) }
+		var v intelligence.ResearchCase
+		e := json.Unmarshal(rec.Body.Bytes(),&v)
+		return v,e
+	}()
+	if err != nil { t.Fatal(err) }
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec,httptest.NewRequest(http.MethodGet,"/api/research-analysis?caseId="+item.ID,nil))
+	if rec.Code != http.StatusOK { t.Fatalf("analysis status=%d body=%s",rec.Code,rec.Body.String()) }
+	var report intelligence.ResearchAnalysisReport
+	if err := json.Unmarshal(rec.Body.Bytes(),&report); err != nil { t.Fatal(err) }
+	if report.CaseID != item.ID || len(report.Hypotheses) != 1 || report.Hypotheses[0].CoverageLabel != "no_linked_evidence" {
+		t.Fatalf("unexpected coverage report: %+v",report)
+	}
+	if rec.Header().Get("Cache-Control") != "no-store" { t.Fatal("analysis response must not be cached") }
+}
+
 func TestResearchAPIRejectsBadMethodsBodiesAndUnknownCases(t *testing.T) {
 	h := newHandler(testRepository(t))
 	cases := []struct{ method, path, body string; want int }{

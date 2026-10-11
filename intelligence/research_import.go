@@ -111,6 +111,7 @@ func (r *JSONRepository) SyncResearchCaseFromNexNews(caseID string) (ResearchCas
 		item.Evidence = append(item.Evidence, evidence)
 		if revised { stats.RevisionsAdded++ } else { stats.EvidenceImported++ }
 	}
+	markResearchCaseActive(&item, now)
 	item.UpdatedAt = now
 	db.ResearchCases[item.ID] = item
 	db.SavedAt = now

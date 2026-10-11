@@ -414,3 +414,67 @@ func TestExtractStoredSourceStatementsAggregatesAmbiguousEventWarningsAndClearsS
 func containsSubstring(s, part string) bool {
 	return strings.Contains(s, part)
 }
+
+
+func TestRepositorySyncReconcilesStaleDuplicateCandidatesWithoutLosingStatements(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intelligence.json")
+	repo, err := NewJSONRepository(path)
+	if err != nil { t.Fatal(err) }
+
+	firstSnapshot := sampleCoreSnapshot(10)
+	duplicate := firstSnapshot.Events[0]
+	duplicate.CandidateID = "historical-duplicate-category-candidate"
+	duplicate.Title = "Duplicate category candidate for the same source article"
+	firstSnapshot.Events = append(firstSnapshot.Events, duplicate)
+	if _, err := repo.SyncFromNexNews(firstSnapshot); err != nil {
+		t.Fatalf("first sync: %v", err)
+	}
+	extraction, err := repo.ExtractStoredSourceStatements()
+	if err != nil { t.Fatalf("initial extraction: %v", err) }
+	if !stringsContain(extraction.Warnings, "birden fazla NexNews olay adayına bağlı") {
+		t.Fatalf("test setup should initially produce one ambiguous membership warning: %+v", extraction.Warnings)
+	}
+
+	// A corrected snapshot contains only the canonical category candidate.
+	secondSnapshot := sampleCoreSnapshot(11)
+	if _, err := repo.SyncFromNexNews(secondSnapshot); err != nil {
+		t.Fatalf("corrected sync: %v", err)
+	}
+	afterSync, err := repo.Load()
+	if err != nil { t.Fatal(err) }
+
+	canonicalEventID := stableID("event_candidate", "candidate-from-nexnews")
+	staleEventID := stableID("event_candidate", "historical-duplicate-category-candidate")
+	canonicalEvent, ok := afterSync.Events[canonicalEventID]
+	if !ok { t.Fatalf("canonical event candidate %q disappeared", canonicalEventID) }
+	if len(canonicalEvent.ArticleIDs) != 1 {
+		t.Fatalf("canonical candidate should retain article membership: %+v", canonicalEvent.ArticleIDs)
+	}
+	staleEvent, ok := afterSync.Events[staleEventID]
+	if !ok { t.Fatalf("stale candidate should be retained as an audit record, %q missing", staleEventID) }
+	if staleEvent.Status != EventArchived || len(staleEvent.ArticleIDs) != 0 {
+		t.Fatalf("stale candidate should be archived and unlinked: status=%q articles=%v", staleEvent.Status, staleEvent.ArticleIDs)
+	}
+
+	retry, err := repo.ExtractStoredSourceStatements()
+	if err != nil { t.Fatalf("re-extraction after reconciliation: %v", err) }
+	for _, warning := range retry.Warnings {
+		if containsSubstring(warning, "birden fazla NexNews olay adayına bağlı") {
+			t.Fatalf("duplicate membership should no longer create ambiguity after corrected sync: %v", retry.Warnings)
+		}
+	}
+	finalDB, err := repo.Load()
+	if err != nil { t.Fatal(err) }
+	for _, claim := range finalDB.Claims {
+		if claim.Kind != ClaimSourceStatement { continue }
+		if claim.EventID != canonicalEventID {
+			t.Fatalf("source statement should be attached only to the canonical candidate: claim=%+v", claim)
+		}
+	}
+	if len(finalDB.Events[canonicalEventID].ClaimIDs) == 0 {
+		t.Fatal("canonical event should retain source statement references")
+	}
+	if len(finalDB.Events[staleEventID].ClaimIDs) != 0 {
+		t.Fatalf("archived duplicate must not keep source statement references: %v", finalDB.Events[staleEventID].ClaimIDs)
+	}
+}

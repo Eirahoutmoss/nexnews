@@ -458,10 +458,6 @@ func (r *JSONRepository) AddResearchEvidence(caseID string, in AddResearchEviden
 			return ResearchCase{}, fmt.Errorf("hypothesis %q does not belong to this research case", assessment.HypothesisID)
 		}
 	}
-	if in.ContentLevel == ResearchContentTitleOnly && !strings.EqualFold(strings.TrimSpace(in.Kind.String()), "") {
-		// Content-level is deliberately retained as declared; a title-only item
-		// may still quote its actual headline as its sole accessible text.
-	}
 	evidence := ResearchEvidence{
 		ID: id, Kind: in.Kind, Title: strings.TrimSpace(in.Title), SourceURL: sourceURL,
 		Publisher: strings.TrimSpace(in.Publisher), PublisherDomain: domain,
@@ -481,7 +477,6 @@ func (r *JSONRepository) AddResearchEvidence(caseID string, in AddResearchEviden
 	return item, nil
 }
 
-func (k ResearchEvidenceKind) String() string { return string(k) }
 
 func (r *JSONRepository) AddResearchQuestion(caseID, question string) (ResearchCase, error) {
 	question = strings.TrimSpace(question)

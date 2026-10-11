@@ -88,6 +88,32 @@ func TestResearchWorkspaceAPICreatesCaseHypothesisAndEvidence(t *testing.T) {
 	}
 }
 
+func TestResearchImportAPIImportsLinkedNexNewsEvent(t *testing.T) {
+	h := newHandler(testRepository(t))
+	created := requestJSON(t, h, http.MethodPost, "/api/research-cases", intelligence.CreateResearchCaseInput{
+		Title:"Import test", Question:"What was reported?", RelatedEventID:"e1",
+	})
+	if created.Code != http.StatusCreated { t.Fatalf("create case status=%d body=%s",created.Code,created.Body.String()) }
+	var item intelligence.ResearchCase
+	if err := json.Unmarshal(created.Body.Bytes(), &item); err != nil { t.Fatal(err) }
+	first := requestJSON(t,h,http.MethodPost,"/api/research-import?caseId="+item.ID,nil)
+	if first.Code != http.StatusOK { t.Fatalf("import status=%d body=%s",first.Code,first.Body.String()) }
+	var result struct {
+		Case intelligence.ResearchCase `json:"case"`
+		Stats intelligence.ResearchImportStats `json:"stats"`
+	}
+	if err := json.Unmarshal(first.Body.Bytes(),&result); err != nil { t.Fatal(err) }
+	if len(result.Case.Evidence)!=1 || result.Stats.EvidenceImported!=1 {
+		t.Fatalf("expected linked article to be imported, got stats=%+v evidence=%+v",result.Stats,result.Case.Evidence)
+	}
+	second := requestJSON(t,h,http.MethodPost,"/api/research-import?caseId="+item.ID,nil)
+	if second.Code != http.StatusOK { t.Fatalf("repeat import status=%d body=%s",second.Code,second.Body.String()) }
+	if err := json.Unmarshal(second.Body.Bytes(),&result); err != nil { t.Fatal(err) }
+	if result.Stats.UnchangedSkipped!=1 || len(result.Case.Evidence)!=1 {
+		t.Fatalf("repeat import was not idempotent: stats=%+v evidence=%d",result.Stats,len(result.Case.Evidence))
+	}
+}
+
 func TestResearchAnalysisAPIReportsEvidenceCoverage(t *testing.T) {
 	h := newHandler(testRepository(t))
 	created := requestJSON(t, h, http.MethodPost, "/api/research-cases", map[string]string{

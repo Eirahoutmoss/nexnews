@@ -241,6 +241,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     <button data-view="evidence"><span class="symbol">⌕</span> Kanıt Alıntıları</button>
     <button data-view="entities"><span class="symbol">◎</span> Varlık Anılmaları</button>
     <button data-view="relations"><span class="symbol">⌁</span> İlişkiler</button>
+    <button type="button" onclick="window.location.href='/research-workspace'"><span class="symbol">⌖</span> Araştırma Masası</button>
   </nav>
   <div class="side-note">Bu ilk arayüz salt okunurdur. Kaynağa bağlanmayan bir iddia veya kanıtsız ilişki oluşturmaz.</div>
 </aside>

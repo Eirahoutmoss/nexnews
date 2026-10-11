@@ -68,3 +68,48 @@ func TestIntelligenceSnapshotFromFeedCacheRejectsUnknownSchema(t *testing.T) {
 		t.Fatal("expected unsupported feed-cache schema to be rejected")
 	}
 }
+
+
+func TestIntelligenceSnapshotFromFeedCacheDeduplicatesSameArticleAcrossCategories(t *testing.T) {
+	now := time.Date(2026, 10, 10, 12, 0, 0, 0, time.UTC)
+	itemWorld := Item{
+		ID: "world-copy",
+		Title: "Regional officials announced a coordinated response",
+		Link: "https://news.example.org/story/42?utm_source=world",
+		Canonical: "https://news.example.org/story/42",
+		Source: "Example News",
+		Category: "World",
+		Published: now.Add(-time.Hour),
+		HasDate: true,
+		Summary: "Regional officials announced a coordinated response after Tuesday's meeting.",
+	}
+	itemLocal := itemWorld
+	itemLocal.ID = "local-copy"
+	itemLocal.Link = "https://news.example.org/story/42?utm_medium=local"
+	itemLocal.Category = "Local"
+
+	cache := persistentCache{
+		Version: cacheSchema,
+		SavedAt: now,
+		Feeds: []FeedCacheEntry{
+			{URL: "https://news.example.org/world.xml", Category: "World", Name: "Example News", FetchedAt: now, Items: []Item{itemWorld}},
+			{URL: "https://news.example.org/local.xml", Category: "Local", Name: "Example News", FetchedAt: now, Items: []Item{itemLocal}},
+		},
+	}
+	payload, err := json.Marshal(cache)
+	if err != nil { t.Fatal(err) }
+	path := filepath.Join(t.TempDir(), "feed-cache.json")
+	if err := os.WriteFile(path, payload, 0o600); err != nil { t.Fatal(err) }
+
+	snapshot, err := IntelligenceSnapshotFromFeedCacheFile(path)
+	if err != nil { t.Fatalf("snapshot from cache: %v", err) }
+	if len(snapshot.Articles) != 1 {
+		t.Fatalf("same canonical URL should yield one article, got %d", len(snapshot.Articles))
+	}
+	if len(snapshot.Events) != 1 {
+		t.Fatalf("same article split across feed categories should yield one candidate, got %d: %+v", len(snapshot.Events), snapshot.Events)
+	}
+	if len(snapshot.Events[0].ArticleURLs) != 1 || snapshot.Events[0].ArticleURLs[0] != "https://news.example.org/story/42" {
+		t.Fatalf("unexpected event article membership: %+v", snapshot.Events[0].ArticleURLs)
+	}
+}

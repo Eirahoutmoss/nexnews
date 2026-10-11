@@ -50,7 +50,7 @@ func TestIndexServesReadOnlyInterfaceAndSecurityHeaders(t *testing.T) {
 	w:=httptest.NewRecorder()
 	h.ServeHTTP(w,r)
 	if w.Code!=http.StatusOK {t.Fatalf("GET / status=%d body=%s",w.Code,w.Body.String())}
-	if !strings.Contains(w.Body.String(),"NexNews Intelligence") || !strings.Contains(w.Body.String(),"İlişkiler") || !strings.Contains(w.Body.String(),"Kaynak Karşılaştırma") || !strings.Contains(w.Body.String(),"İddia Değerlendirme") || !strings.Contains(w.Body.String(),"Veri Kalitesi") || !strings.Contains(w.Body.String(),"Olay dosyasını aç") || !strings.Contains(w.Body.String(),"Son gelişmeler · en yeni kayıtlar") || !strings.Contains(w.Body.String(),"Birebir tekrar") {
+	if !strings.Contains(w.Body.String(),"NexNews Intelligence") || !strings.Contains(w.Body.String(),"İlişkiler") || !strings.Contains(w.Body.String(),"Kaynak Karşılaştırma") || !strings.Contains(w.Body.String(),"İddia Değerlendirme") || !strings.Contains(w.Body.String(),"Veri Kalitesi") || !strings.Contains(w.Body.String(),"Olay dosyasını aç") || !strings.Contains(w.Body.String(),"Son gelişmeler · en yeni kayıtlar") || !strings.Contains(w.Body.String(),"Birebir tekrar") || !strings.Contains(w.Body.String(),"Araştırma Masası") {
 		t.Fatal("expected standalone Intelligence interface")
 	}
 	if w.Header().Get("X-Frame-Options")!="DENY" {t.Fatal("expected frame protection header")}

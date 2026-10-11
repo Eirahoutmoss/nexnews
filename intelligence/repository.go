@@ -31,6 +31,7 @@ type Database struct {
 	Relations map[string]Relation `json:"relations"`
 	Timeline  map[string]TimelineEntry `json:"timeline"`
 	Runs      map[string]AnalysisRun `json:"analysisRuns"`
+	ResearchCases map[string]ResearchCase `json:"researchCases"`
 }
 
 // JSONRepository is a small dependency-free persistence implementation for the
@@ -56,7 +57,7 @@ func emptyDatabase() Database {
 		Version: databaseVersion, Schema: SchemaVersion,
 		Sources: map[string]Source{}, Articles: map[string]Article{}, Events: map[string]Event{},
 		Claims: map[string]Claim{}, Evidence: map[string]Evidence{}, Entities: map[string]Entity{}, EntityMentions: map[string]EntityMention{}, Relations: map[string]Relation{},
-		Timeline: map[string]TimelineEntry{}, Runs: map[string]AnalysisRun{},
+		Timeline: map[string]TimelineEntry{}, Runs: map[string]AnalysisRun{}, ResearchCases: map[string]ResearchCase{},
 	}
 }
 
@@ -71,6 +72,7 @@ func ensureDatabaseMaps(db *Database) {
 	if db.Relations == nil { db.Relations = map[string]Relation{} }
 	if db.Timeline == nil { db.Timeline = map[string]TimelineEntry{} }
 	if db.Runs == nil { db.Runs = map[string]AnalysisRun{} }
+	if db.ResearchCases == nil { db.ResearchCases = map[string]ResearchCase{} }
 }
 
 func (r *JSONRepository) loadLocked() (Database, error) {

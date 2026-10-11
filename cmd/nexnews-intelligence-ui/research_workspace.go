@@ -163,7 +163,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     return ({title_only:"Yalnızca başlık",title_summary:"Başlık ve özet",full_text:"Tam metin",structured_data:"Yapılandırılmış veri"})[value]||value;
   }
   function evidenceKindText(value){
-    return ({observation:"Gözlem",attributed_claim:"Atfedilen iddia",data_point:"Veri noktası",background:"Bağlam",correction_or_update:"Düzeltme / güncelleme"})[value]||value;
+    return ({source_article:"NexNews haber kaydı",observation:"Gözlem",attributed_claim:"Atfedilen iddia",data_point:"Veri noktası",background:"Bağlam",correction_or_update:"Düzeltme / güncelleme"})[value]||value;
   }
   function statusText(value){
     return ({draft:"Taslak",active:"Aktif",monitoring:"İzlemede",closed:"Kapatıldı",open:"Açık",under_review:"İncelemede",supported:"Destek buldu",weakened:"Zayıfladı",rejected:"Reddedildi",inconclusive:"Sonuçsuz",supports:"Destekler",contradicts:"Karşı kanıt",context:"Bağlam"})[value]||value;

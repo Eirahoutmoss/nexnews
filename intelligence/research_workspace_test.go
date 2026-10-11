@@ -120,6 +120,32 @@ func TestResearchWorkspaceRejectsInvalidSourceAndUnlinkedHypothesis(t *testing.T
 	}
 }
 
+func TestResearchQuestionMustHaveResolutionNoteAndCanReopen(t *testing.T) {
+	repo, err := NewJSONRepository(filepath.Join(t.TempDir(), "intelligence.json"))
+	if err != nil { t.Fatal(err) }
+	item, err := repo.CreateResearchCase(CreateResearchCaseInput{Title:"Research process",Question:"Which question can be answered?"})
+	if err != nil { t.Fatal(err) }
+	item, err = repo.AddResearchQuestion(item.ID, "Does the record distinguish a claimed strike from confirmed damage?")
+	if err != nil { t.Fatal(err) }
+	if item.Status != ResearchCaseActive { t.Fatalf("first research action should activate a draft case: %s", item.Status) }
+	qid := item.OpenQuestions[0].ID
+	if _, err := repo.SetResearchQuestionStatus(item.ID,qid,"resolved",""); err == nil || !strings.Contains(err.Error(),"resolution note") {
+		t.Fatalf("expected a resolution note requirement, got %v",err)
+	}
+	item, err = repo.SetResearchQuestionStatus(item.ID,qid,"resolved","The incident ledger records claims and confirmed damage separately; the report sources are linked.")
+	if err != nil { t.Fatal(err) }
+	if item.OpenQuestions[0].Status!="resolved" || item.OpenQuestions[0].ResolutionNote=="" {
+		t.Fatalf("expected resolved question with rationale, got %+v",item.OpenQuestions[0])
+	}
+	item, err = repo.SetResearchQuestionStatus(item.ID,qid,"open","")
+	if err != nil { t.Fatal(err) }
+	if item.OpenQuestions[0].Status!="open" || item.OpenQuestions[0].ResolutionNote!="" {
+		t.Fatalf("reopened question should clear stale resolution note, got %+v",item.OpenQuestions[0])
+	}
+	summary:=summarizeResearchCase(item)
+	if summary.OpenQuestionCount!=1 { t.Fatalf("expected reopened question to count as open, got %+v",summary) }
+}
+
 func TestResearchCaseCannotConcludeHypothesisWithoutLinkedEvidence(t *testing.T) {
 	repo, err := NewJSONRepository(filepath.Join(t.TempDir(), "intelligence.json"))
 	if err != nil { t.Fatal(err) }

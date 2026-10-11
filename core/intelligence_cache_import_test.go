@@ -74,14 +74,14 @@ func TestIntelligenceSnapshotFromFeedCacheDeduplicatesSameArticleAcrossCategorie
 	now := time.Date(2026, 10, 10, 12, 0, 0, 0, time.UTC)
 	itemWorld := Item{
 		ID: "world-copy",
-		Title: "Regional officials announced a coordinated response",
+		Title: "Türkiye ve İran temsilcileri görüşmeleri sürdürdü",
 		Link: "https://news.example.org/story/42?utm_source=world",
 		Canonical: "https://news.example.org/story/42",
 		Source: "Example News",
 		Category: "World",
 		Published: now.Add(-time.Hour),
 		HasDate: true,
-		Summary: "Regional officials announced a coordinated response after Tuesday's meeting.",
+		Summary: "Türkiye ve İran temsilcileri görüşmeleri sürdürdü after Tuesday's meeting.",
 	}
 	itemLocal := itemWorld
 	itemLocal.ID = "local-copy"

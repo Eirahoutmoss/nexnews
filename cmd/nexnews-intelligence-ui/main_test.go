@@ -50,7 +50,7 @@ func TestIndexServesReadOnlyInterfaceAndSecurityHeaders(t *testing.T) {
 	w:=httptest.NewRecorder()
 	h.ServeHTTP(w,r)
 	if w.Code!=http.StatusOK {t.Fatalf("GET / status=%d body=%s",w.Code,w.Body.String())}
-	if !strings.Contains(w.Body.String(),"NexNews Intelligence") || !strings.Contains(w.Body.String(),"İlişkiler") || !strings.Contains(w.Body.String(),"Kaynak Karşılaştırma") || !strings.Contains(w.Body.String(),"İddia Değerlendirme") {
+	if !strings.Contains(w.Body.String(),"NexNews Intelligence") || !strings.Contains(w.Body.String(),"İlişkiler") || !strings.Contains(w.Body.String(),"Kaynak Karşılaştırma") || !strings.Contains(w.Body.String(),"İddia Değerlendirme") || !strings.Contains(w.Body.String(),"Veri Kalitesi") {
 		t.Fatal("expected standalone Intelligence interface")
 	}
 	if w.Header().Get("X-Frame-Options")!="DENY" {t.Fatal("expected frame protection header")}
@@ -65,7 +65,7 @@ func TestStateAPIContainsDatabaseRecords(t *testing.T) {
 	if w.Code!=http.StatusOK {t.Fatalf("status=%d body=%s",w.Code,w.Body.String())}
 	var state viewState
 	if err:=json.Unmarshal(w.Body.Bytes(),&state);err!=nil {t.Fatal(err)}
-	if state.Summary.Articles!=1 || state.Summary.Events!=1 || state.Summary.Relations!=0 {
+	if state.Summary.Articles!=1 || state.Summary.Events!=1 || state.Summary.Relations!=0 || state.DataQuality.RecordsChecked == 0 {
 		t.Fatalf("unexpected state summary: %+v",state.Summary)
 	}
 }

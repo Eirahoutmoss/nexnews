@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -318,4 +319,98 @@ func TestExtractStoredSourceStatementsOnlyUsesPersistedArticleText(t *testing.T)
 			t.Fatal("feed summary must not be represented as full article text")
 		}
 	}
+}
+
+
+func TestExtractStoredSourceStatementsAggregatesAmbiguousEventWarningsAndClearsStaleLinks(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intelligence.json")
+	repo, err := NewJSONRepository(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	input := sampleCoreSnapshot(10)
+	secondCandidate := input.Events[0]
+	secondCandidate.CandidateID = "another-candidate-for-same-article"
+	secondCandidate.Title = "A different NexNews candidate title"
+	input.Events = append(input.Events, secondCandidate)
+	if _, err := repo.SyncFromNexNews(input); err != nil {
+		t.Fatalf("initial NexNews sync failed: %v", err)
+	}
+
+	first, err := repo.ExtractStoredSourceStatements()
+	if err != nil {
+		t.Fatalf("source statement extraction failed: %v", err)
+	}
+	ambiguousWarnings := 0
+	for _, warning := range first.Warnings {
+		if containsSubstring(warning, "birden fazla NexNews olay adayına bağlı") {
+			ambiguousWarnings++
+		}
+		if containsSubstring(warning, "belongs to multiple event candidates") {
+			t.Fatalf("per-statement legacy warning should not be emitted: %q", warning)
+		}
+	}
+	if ambiguousWarnings != 1 {
+		t.Fatalf("expected one aggregated ambiguity warning, got %d warnings=%v", ambiguousWarnings, first.Warnings)
+	}
+	db, err := repo.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sourceClaims := map[string]bool{}
+	for id, claim := range db.Claims {
+		if claim.Kind == ClaimSourceStatement {
+			sourceClaims[id] = true
+			if claim.EventID != "" {
+				t.Fatalf("ambiguous statement must not be assigned to an arbitrary event: %+v", claim)
+			}
+		}
+	}
+	if len(sourceClaims) == 0 {
+		t.Fatal("test fixture should create source statement records")
+	}
+	for _, event := range db.Events {
+		for _, claimID := range event.ClaimIDs {
+			if sourceClaims[claimID] {
+				t.Fatalf("ambiguous source statement %q must not remain in event %q", claimID, event.ID)
+			}
+		}
+	}
+	if len(db.Runs) != 1 {
+		t.Fatalf("expected one analysis run, got %d", len(db.Runs))
+	}
+
+	second, err := repo.ExtractStoredSourceStatements()
+	if err != nil {
+		t.Fatalf("repeated extraction failed: %v", err)
+	}
+	ambiguousWarnings = 0
+	for _, warning := range second.Warnings {
+		if containsSubstring(warning, "birden fazla NexNews olay adayına bağlı") {
+			ambiguousWarnings++
+		}
+	}
+	if ambiguousWarnings != 1 {
+		t.Fatalf("repeated run should emit one aggregate warning, got %d: %v", ambiguousWarnings, second.Warnings)
+	}
+	db2, err := repo.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, run := range db2.Runs {
+		legacyPerArticle := 0
+		for _, warning := range run.Warnings {
+			if containsSubstring(warning, "belongs to multiple event candidates; statement was not assigned") {
+				legacyPerArticle++
+			}
+		}
+		if legacyPerArticle > 0 {
+			t.Fatalf("legacy per-statement warnings were not compacted in analysis run %q: %d", run.ID, legacyPerArticle)
+		}
+	}
+}
+
+func containsSubstring(s, part string) bool {
+	return strings.Contains(s, part)
 }

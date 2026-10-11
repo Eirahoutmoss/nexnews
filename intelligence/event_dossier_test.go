@@ -67,3 +67,55 @@ func TestBuildEventDossierRejectsUnknownEvent(t *testing.T) {
 	_, err := BuildEventDossier(emptyDatabase(), "missing")
 	if err == nil || !strings.Contains(err.Error(), "not found") { t.Fatalf("expected unknown candidate error, got %v",err) }
 }
+
+
+func TestEventDossierMarksExactWordingRepeatsAndListsLatestFirst(t *testing.T) {
+	t1 := time.Date(2026, 10, 10, 9, 0, 0, 0, time.UTC)
+	t2 := t1.Add(3 * time.Hour)
+	t3 := t1.Add(5 * time.Hour)
+	db := Database{
+		Schema: SchemaVersion,
+		Sources: map[string]Source{
+			"s1": {ID:"s1",Name:"Kaynak A",CanonicalDomain:"a.example"},
+			"s2": {ID:"s2",Name:"Kaynak B",CanonicalDomain:"b.example"},
+		},
+		Articles: map[string]Article{
+			"a1": {ID:"a1",CanonicalURL:"https://a.example/1",PublisherSourceID:"s1",Title:"İlk haber",PublishedAt:&t1,ContentAvailability:ContentTitleOnly},
+			"a2": {ID:"a2",CanonicalURL:"https://b.example/2",PublisherSourceID:"s2",Title:"Son haber",PublishedAt:&t3,ContentAvailability:ContentTitleOnly},
+			"a3": {ID:"a3",CanonicalURL:"https://a.example/3",PublisherSourceID:"s1",Title:"Ara haber",PublishedAt:&t2,ContentAvailability:ContentTitleOnly},
+		},
+		Events: map[string]Event{
+			"event1": {ID:"event1",Title:"Test olayı",Status:EventDeveloping,ArticleIDs:[]string{"a1","a2","a3"}},
+		},
+		Claims: map[string]Claim{
+			"c1": {ID:"c1",Kind:ClaimSourceStatement,ClaimText:"Kurul toplantıyı erteledi",Status:ClaimReported,EvidenceIDs:[]string{"e1"}},
+			"c2": {ID:"c2",Kind:ClaimSourceStatement,ClaimText:"Kurul toplantıyı erteledi",Status:ClaimReported,EvidenceIDs:[]string{"e2"}},
+			"c3": {ID:"c3",Kind:ClaimSourceStatement,ClaimText:"Yeni karar açıklandı",Status:ClaimReported,EvidenceIDs:[]string{"e3"}},
+		},
+		Evidence: map[string]Evidence{
+			"e1": {ID:"e1",ClaimID:"c1",ArticleID:"a1",Stance:EvidenceReports,ExcerptField:"title",Quote:"Kurul toplantıyı erteledi.",SourceURL:"https://a.example/1"},
+			"e2": {ID:"e2",ClaimID:"c2",ArticleID:"a2",Stance:EvidenceReports,ExcerptField:"title",Quote:"Kurul toplantıyı erteledi!",SourceURL:"https://b.example/2"},
+			"e3": {ID:"e3",ClaimID:"c3",ArticleID:"a3",Stance:EvidenceReports,ExcerptField:"title",Quote:"Yeni karar açıklandı",SourceURL:"https://a.example/3"},
+		},
+		Entities: map[string]Entity{}, EntityMentions: map[string]EntityMention{},
+		Relations: map[string]Relation{}, Timeline: map[string]TimelineEntry{}, Runs: map[string]AnalysisRun{},
+	}
+	dossier, err := BuildEventDossier(db,"event1")
+	if err != nil { t.Fatal(err) }
+	if len(dossier.LatestArticles) != 3 || dossier.LatestArticles[0].ID != "a2" || dossier.LatestArticles[1].ID != "a3" || dossier.LatestArticles[2].ID != "a1" {
+		t.Fatalf("latest articles must be newest-first: %+v",dossier.LatestArticles)
+	}
+	if dossier.StatementCount != 3 || dossier.DistinctWordingCount != 2 || dossier.ExactRepeatOccurrences != 1 {
+		t.Fatalf("unexpected wording counts: total=%d distinct=%d repeats=%d",dossier.StatementCount,dossier.DistinctWordingCount,dossier.ExactRepeatOccurrences)
+	}
+	var foundRepeat bool
+	for _, statement := range dossier.Statements {
+		if statement.WordingStatus == "repeated_verbatim" {
+			foundRepeat = true
+			if statement.FirstOccurrence == nil || statement.FirstOccurrence.ArticleID != "a1" {
+				t.Fatalf("repeat must link to the earliest occurrence: %+v",statement)
+			}
+		}
+	}
+	if !foundRepeat { t.Fatal("expected exact repeat to be marked") }
+}

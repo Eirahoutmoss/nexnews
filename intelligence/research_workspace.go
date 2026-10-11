@@ -134,11 +134,12 @@ type HypothesisEvidenceAssessment struct {
 }
 
 type ResearchQuestion struct {
-	ID        string    `json:"id"`
-	Text      string    `json:"text"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID             string    `json:"id"`
+	Text           string    `json:"text"`
+	Status         string    `json:"status"`
+	ResolutionNote string    `json:"resolutionNote,omitempty"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
 }
 
 type ResearchCaseSummary struct {
@@ -324,6 +325,13 @@ func validateResearchEvidence(in AddResearchEvidenceInput) (string, error) {
 	return domain, nil
 }
 
+func markResearchCaseActive(item *ResearchCase, at time.Time) {
+	if item != nil && item.Status == ResearchCaseDraft {
+		item.Status = ResearchCaseActive
+		item.UpdatedAt = at
+	}
+}
+
 func (r *JSONRepository) CreateResearchCase(in CreateResearchCaseInput) (ResearchCase, error) {
 	if err := validateResearchCaseInput(in); err != nil {
 		return ResearchCase{}, err
@@ -418,6 +426,7 @@ func (r *JSONRepository) AddResearchHypothesis(caseID, statement string) (Resear
 	item.Hypotheses = append(item.Hypotheses, ResearchHypothesis{
 		ID: id, Statement: statement, Status: HypothesisOpen, CreatedAt: now, UpdatedAt: now,
 	})
+	markResearchCaseActive(&item, now)
 	item.UpdatedAt = now
 	db.ResearchCases[item.ID] = item
 	db.SavedAt = now
@@ -511,6 +520,42 @@ func (r *JSONRepository) AddResearchQuestion(caseID, question string) (ResearchC
 	if err := r.writeLocked(db); err != nil {
 		return ResearchCase{}, err
 	}
+	return item, nil
+}
+
+func (r *JSONRepository) SetResearchQuestionStatus(caseID, questionID, status, note string) (ResearchCase, error) {
+	status = strings.TrimSpace(status)
+	note = strings.TrimSpace(note)
+	if status != "open" && status != "resolved" {
+		return ResearchCase{}, errors.New("research question status must be open or resolved")
+	}
+	if status == "resolved" && note == "" {
+		return ResearchCase{}, errors.New("a resolution note is required before resolving a research question")
+	}
+	now := time.Now().UTC()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	db, err := r.loadLocked()
+	if err != nil { return ResearchCase{}, err }
+	item, ok := db.ResearchCases[strings.TrimSpace(caseID)]
+	if !ok { return ResearchCase{}, errors.New("research case not found") }
+	found := false
+	for i := range item.OpenQuestions {
+		question := &item.OpenQuestions[i]
+		if question.ID != strings.TrimSpace(questionID) { continue }
+		found = true
+		question.Status = status
+		question.ResolutionNote = note
+		if status == "open" { question.ResolutionNote = "" }
+		question.UpdatedAt = now
+		break
+	}
+	if !found { return ResearchCase{}, errors.New("research question not found") }
+	markResearchCaseActive(&item, now)
+	item.UpdatedAt = now
+	db.ResearchCases[item.ID] = item
+	db.SavedAt = now
+	if err := r.writeLocked(db); err != nil { return ResearchCase{}, err }
 	return item, nil
 }
 

@@ -25,6 +25,8 @@ type summary struct {
 	Relations int `json:"relations"`
 	RepeatedWordingGroups int `json:"repeatedWordingGroups"`
 	ExplicitOppositionCases int `json:"explicitOppositionCases"`
+	QualityErrors int `json:"qualityErrors"`
+	QualityWarnings int `json:"qualityWarnings"`
 }
 
 type viewState struct {
@@ -42,6 +44,7 @@ type viewState struct {
 	Relations []intelligence.Relation `json:"relations"`
 	SourceComparisons intelligence.SourceComparisonReport `json:"sourceComparisons"`
 	ClaimAssessment intelligence.ClaimAssessmentReport `json:"claimAssessment"`
+	DataQuality intelligence.DataQualityReport `json:"dataQuality"`
 }
 
 func main() {
@@ -153,6 +156,7 @@ func loadState(repo *intelligence.JSONRepository) (viewState, error) {
 		Relations: make([]intelligence.Relation, 0, len(db.Relations)),
 		SourceComparisons: intelligence.BuildSourceComparisonReport(db),
 		ClaimAssessment: intelligence.BuildClaimAssessmentReport(db),
+		DataQuality: intelligence.BuildDataQualityReport(db),
 	}
 	for _, v := range db.Sources { out.Sources = append(out.Sources, v) }
 	for _, v := range db.Articles { out.Articles = append(out.Articles, v) }
@@ -169,6 +173,8 @@ func loadState(repo *intelligence.JSONRepository) (viewState, error) {
 		Mentions: len(out.Mentions), Relations: len(out.Relations),
 		RepeatedWordingGroups: out.SourceComparisons.RepeatedWordingGroups,
 		ExplicitOppositionCases: out.ClaimAssessment.ExplicitOppositionCases,
+		QualityErrors: out.DataQuality.ErrorCount,
+		QualityWarnings: out.DataQuality.WarningCount,
 	}
 	return out, nil
 }
@@ -183,7 +189,7 @@ const indexHTML = `<!doctype html>
 :root{color-scheme:dark;--bg:#0a0f18;--panel:#111a27;--panel2:#151f2e;--line:#263447;--text:#eaf1fb;--muted:#91a2b9;--cyan:#78dce8;--gold:#e7c98a;--green:#91d6b2}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% 0%,#142338 0,transparent 40%),var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
 .layout{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:100vh}.side{padding:24px 16px;border-right:1px solid var(--line);background:#090e16}.brand{display:flex;align-items:center;gap:12px;padding:4px 8px 26px}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#89e0e9,#397b9b);color:#07111a;display:grid;place-items:center;font-weight:900;font-size:18px}.brand strong{display:block;font-size:15px;letter-spacing:.02em}.brand small{color:var(--muted)}.nav{display:grid;gap:6px}.nav button{border:1px solid transparent;background:transparent;color:var(--muted);text-align:left;padding:11px 12px;border-radius:10px;cursor:pointer;font:inherit}.nav button.active,.nav button:hover{background:var(--panel2);border-color:var(--line);color:var(--text)}.nav .symbol{display:inline-block;width:25px;color:var(--cyan)}.side-note{margin:26px 6px 0;padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:12px}
-main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:28px}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}.top h1{margin:6px 0 6px;font-size:clamp(25px,3vw,36px);letter-spacing:-.04em}.sub{color:var(--muted);max-width:720px}.status{white-space:nowrap;border:1px solid #3c6957;color:var(--green);padding:7px 10px;border-radius:30px;font-size:12px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}.metric,.panel{background:linear-gradient(145deg,rgba(21,31,46,.94),rgba(13,21,32,.94));border:1px solid var(--line);border-radius:16px}.metric{padding:17px}.metric label{display:block;color:var(--muted);font-size:12px}.metric strong{display:block;font-size:27px;margin-top:8px;font-weight:650;letter-spacing:-.04em}.metric small{color:var(--muted)}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px}.search{flex:1;min-width:220px;background:#0b131f;border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--text);font:inherit;outline:none}.search:focus{border-color:#5794a8}.refresh{background:#18283a;border:1px solid #35506a;border-radius:10px;padding:10px 13px;color:var(--text);font:inherit;cursor:pointer}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 12px}.section-head h2{margin:0;font-size:18px}.count{color:var(--muted);font-size:12px}.cards{display:grid;gap:12px}.item{background:var(--panel);border:1px solid var(--line);padding:17px 18px;border-radius:14px;min-width:0}.item h3{font-size:15px;line-height:1.45;margin:0 0 8px}.item p{margin:6px 0;color:#b4c1d3;overflow-wrap:anywhere}.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-top:10px}.pill{display:inline-block;border:1px solid #35465b;color:#b1c6da;padding:3px 7px;border-radius:20px;font-size:11px}.pill.green{border-color:#376d59;color:var(--green)}.pill.gold{border-color:#65563c;color:var(--gold)}a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}.empty,.error{padding:30px;text-align:center;border:1px dashed #334156;border-radius:14px;color:var(--muted)}.error{color:#f0a9a9}.foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}.warning{border-left:3px solid var(--gold);padding:10px 13px;background:#171a20;color:#cfbea0;border-radius:0 9px 9px 0;margin:0 0 16px}
+main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:28px}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}.top h1{margin:6px 0 6px;font-size:clamp(25px,3vw,36px);letter-spacing:-.04em}.sub{color:var(--muted);max-width:720px}.status{white-space:nowrap;border:1px solid #3c6957;color:var(--green);padding:7px 10px;border-radius:30px;font-size:12px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}.metric,.panel{background:linear-gradient(145deg,rgba(21,31,46,.94),rgba(13,21,32,.94));border:1px solid var(--line);border-radius:16px}.metric{padding:17px}.metric label{display:block;color:var(--muted);font-size:12px}.metric strong{display:block;font-size:27px;margin-top:8px;font-weight:650;letter-spacing:-.04em}.metric small{color:var(--muted)}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px}.search{flex:1;min-width:220px;background:#0b131f;border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--text);font:inherit;outline:none}.search:focus{border-color:#5794a8}.refresh{background:#18283a;border:1px solid #35506a;border-radius:10px;padding:10px 13px;color:var(--text);font:inherit;cursor:pointer}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 12px}.section-head h2{margin:0;font-size:18px}.count{color:var(--muted);font-size:12px}.cards{display:grid;gap:12px}.item{background:var(--panel);border:1px solid var(--line);padding:17px 18px;border-radius:14px;min-width:0}.item h3{font-size:15px;line-height:1.45;margin:0 0 8px}.item p{margin:6px 0;color:#b4c1d3;overflow-wrap:anywhere}.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-top:10px}.pill{display:inline-block;border:1px solid #35465b;color:#b1c6da;padding:3px 7px;border-radius:20px;font-size:11px}.pill.green{border-color:#376d59;color:var(--green)}.pill.red{border-color:#804348;color:#ffb0b0}.pill.gold{border-color:#65563c;color:var(--gold)}a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}.empty,.error{padding:30px;text-align:center;border:1px dashed #334156;border-radius:14px;color:var(--muted)}.error{color:#f0a9a9}.foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}.warning{border-left:3px solid var(--gold);padding:10px 13px;background:#171a20;color:#cfbea0;border-radius:0 9px 9px 0;margin:0 0 16px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.side{border-right:0;border-bottom:1px solid var(--line);padding:12px 16px}.brand{padding:4px 4px 12px}.nav{grid-template-columns:repeat(3,minmax(0,1fr))}.nav button{padding:8px;font-size:12px}.nav .symbol{width:18px}.side-note{display:none}main{padding-top:20px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:500px){.top{display:block}.status{display:inline-block;margin-top:10px}.metrics{gap:8px}.metric{padding:12px}.metric strong{font-size:23px}.nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
@@ -198,6 +204,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     <button data-view="claims"><span class="symbol">≋</span> Kaynak İfadeleri</button>
     <button data-view="comparison"><span class="symbol">⇄</span> Kaynak Karşılaştırma</button>
     <button data-view="assessment"><span class="symbol">⚖</span> İddia Değerlendirme</button>
+    <button data-view="quality"><span class="symbol">⌘</span> Veri Kalitesi</button>
     <button data-view="evidence"><span class="symbol">⌕</span> Kanıt Alıntıları</button>
     <button data-view="entities"><span class="symbol">◎</span> Varlık Anılmaları</button>
     <button data-view="relations"><span class="symbol">⌁</span> İlişkiler</button>
@@ -229,6 +236,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     entities:["Varlık Anılmaları","Sınırlı sözlükte birebir eşleşen metin parçaları. Kimlik eşlemesi kesin değildir.","Varlık anılmaları"],
     comparison:["Kaynak Karşılaştırma","Kaynak ifadelerinin birebir tekrarlarını ve kaynak dağılımını gösterir. Aynı ifade, bağımsız teyit anlamına gelmez.","Tekrarlanan ifadeler"],
     assessment:["İddia Değerlendirme","Sınırlı açık karşıt ifade kurallarıyla bulunan inceleme adayları. Hiçbir taraf otomatik olarak doğru sayılmaz.","Olası çelişki sinyalleri"],
+    quality:["Veri Kalitesi","Kaynak, olay, iddia, kanıt ve ilişki kayıtlarının yapısal tutarlılığı. Bu rapor haberlerin doğruluğuna karar vermez.","Denetim bulguları"],
     relations:["İlişkiler","Yalnızca kanıt ve tür doğrulamasından geçmiş ilişkiler bu bölümde gösterilir.","Kayıtlı ilişkiler"]
   };
   function el(tag,cls,text){
@@ -274,6 +282,8 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     metric(m,"İlişkiler",s.relations,"Yalnızca kayıtlı ve doğrulanabilir bağlar");
     metric(m,"Tekrarlanan ifade grupları",s.repeatedWordingGroups,"Birebir metin eşleşmesi; bağımsız teyit değildir");
     metric(m,"Olası çelişki sinyalleri",s.explicitOppositionCases,"İnceleme adayıdır; otomatik hüküm değildir");
+    metric(m,"Veri bütünlüğü hataları",s.qualityErrors,"Kopuk veya uyuşmayan kayıtlar");
+    metric(m,"Veri kalite uyarıları",s.qualityWarnings,"İnsan incelemesi önerilir");
   }
   function card(title,desc){
     var box=el("article","item");
@@ -325,6 +335,15 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
       });
     });
     (item.limitations||[]).forEach(function(note){append(c,"p","","Sınır: "+note);});
+    return c;
+  }
+  function renderQuality(item){
+    var severity=item.severity||"info";
+    var c=card(item.code||"Kalite bulgusu",item.message||"");
+    pill(c,severity,severity==="error"?"red":severity==="warning"?"gold":"green");
+    pill(c,item.recordType||"record");
+    pill(c,item.recordId||"kimlik yok");
+    if(item.sourceUrl){var row=append(c,"p","","");addSource(row,item.sourceUrl,"İlgili kaynağı aç");}
     return c;
   }
   function renderComparison(item){
@@ -384,6 +403,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     if(view==="claims")return state.claims.map(function(x){return {kind:"claim",data:x,search:[x.claimText,x.attributedTo,x.statusReason,x.status].join(" ")};});
     if(view==="comparison")return (state.sourceComparisons.groups||[]).map(function(x){return {kind:"comparison",data:x,search:[x.statement,x.assessment,(x.occurrences||[]).map(function(o){return o.publisherName+" "+o.publisherDomain+" "+o.articleTitle+" "+o.quote;}).join(" ")].join(" ")};});
     if(view==="assessment")return (state.claimAssessment.cases||[]).map(function(x){return {kind:"assessment",data:x,search:[x.context,x.assertionType,x.assessment,(x.positiveSources||[]).concat(x.negativeSources||[]).map(function(o){return o.publisherName+" "+o.publisherDomain+" "+o.quote;}).join(" ")].join(" ")};});
+    if(view==="quality")return (state.dataQuality.issues||[]).map(function(x){return {kind:"quality",data:x,search:[x.severity,x.code,x.recordType,x.recordId,x.message,x.sourceUrl].join(" ")};});
     if(view==="evidence")return state.evidence.map(function(x){return {kind:"evidence",data:x,search:[x.quote,x.sourceUrl,x.excerptField,x.stance].join(" ")};});
     if(view==="entities")return state.entities.map(function(x){return {kind:"entity",data:x,search:[x.canonicalName,x.type,x.identityStatus].join(" ")};});
     if(view==="relations")return state.relations.map(function(x){return {kind:"relation",data:x,search:[x.predicate,x.rationale,x.status].join(" ")};});
@@ -400,7 +420,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     document.getElementById("resultCount").textContent=filtered.length+" kayıt";
     var host=document.getElementById("content");host.replaceChildren();
     if(!filtered.length){
-      var msg=view==="relations"?"Henüz gösterilecek ilişki yok. Bu beklenen bir sonuçtur; ilişki oluşturmak için bağlantı uydurulmayacak.":view==="comparison"?"Birebir aynı kaynak ifadesini birden fazla haber belgesinde tekrarlayan grup bulunamadı. Farklı ifadelerle anlatılan haberler bu sürümde semantik olarak karşılaştırılmaz.":view==="assessment"?"İzinli açık karşıt ifade kalıplarıyla eşleşen inceleme adayı bulunamadı. Bu, haberlerde çelişki olmadığı anlamına gelmez.":"Bu bölümde eşleşen kayıt bulunamadı.";
+      var msg=view==="relations"?"Henüz gösterilecek ilişki yok. Bu beklenen bir sonuçtur; ilişki oluşturmak için bağlantı uydurulmayacak.":view==="comparison"?"Birebir aynı kaynak ifadesini birden fazla haber belgesinde tekrarlayan grup bulunamadı. Farklı ifadelerle anlatılan haberler bu sürümde semantik olarak karşılaştırılmaz.":view==="assessment"?"İzinli açık karşıt ifade kalıplarıyla eşleşen inceleme adayı bulunamadı. Bu, haberlerde çelişki olmadığı anlamına gelmez.":view==="quality"?"Kalite denetiminde bulgu yok. Tarih veya tam metin eksikliği gibi kapsama sınırlamaları, yapısal hata olmadan da bulunabilir.":"Bu bölümde eşleşen kayıt bulunamadı.";
       host.appendChild(el("div","empty",msg));return;
     }
     filtered.slice(0,250).forEach(function(entry){
@@ -409,6 +429,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
       else if(entry.kind==="claim")node=renderClaim(entry.data);
       else if(entry.kind==="comparison")node=renderComparison(entry.data);
       else if(entry.kind==="assessment")node=renderAssessment(entry.data);
+      else if(entry.kind==="quality")node=renderQuality(entry.data);
       else if(entry.kind==="evidence")node=renderEvidence(entry.data);
       else if(entry.kind==="entity")node=renderEntity(entry.data);
       else if(entry.kind==="relation")node=renderRelation(entry.data);

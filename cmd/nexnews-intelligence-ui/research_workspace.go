@@ -54,6 +54,13 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
         <div class="metrics" id="metrics"></div>
         <div id="limitations"></div>
       </section>
+      <section class="panel section">
+        <div class="section-title"><h3>Kanıt kapsama analizi</h3><button class="button secondary" id="analysisRefresh" type="button">Analizi yenile</button></div>
+        <p class="muted small">Bu rapor, hipotez başına bağlanan destekleyici, karşıt ve bağlamsal kayıtları sayar. Yayıncı alan adlarını bağımsız kanıt olarak varsaymaz ve olayın doğruluğu ya da aktörlerin niyeti hakkında otomatik hüküm vermez.</p>
+        <div class="metrics" id="analysisOverview"><div class="empty">Analiz raporu hazırlanıyor…</div></div>
+        <div class="stack" id="hypothesisCoverage"></div>
+        <div id="analysisLimitations"></div>
+      </section>
       <div class="formgrid">
         <section class="panel">
           <h3>Hipotezler</h3>
@@ -196,6 +203,35 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     });
     if((selectedCase.hypotheses||[]).some(function(h){return h.id===chosen;}))select.value=chosen;
   }
+  function renderAnalysis(report){
+    var overview=byId("analysisOverview");clear(overview);
+    [["Kanıt kaydı",report.evidenceCount],["Yayıncı alan adı",report.publisherDomainCount],["Tam metin / veri",report.fullTextOrStructuredCount],["Kökeni bilinmeyen",report.unknownSourceOriginCount],["Atfedilmiş iddia",report.attributedClaimCount],["Ortak köken etiketi",report.knownSyndicationGroupCount],["Açık soru",report.openQuestionCount]].forEach(function(pair){
+      var m=add(overview,"div","metric","");add(m,"strong","",pair[1]);add(m,"span","",pair[0]);
+    });
+    var host=byId("hypothesisCoverage");clear(host);
+    if(!report.hypotheses||!report.hypotheses.length){host.appendChild(node("div","empty","Henüz hipotez yok. Hipotez eklediğinde ona bağlı kanıtların kapsamı burada çözümlenecek."));}
+    (report.hypotheses||[]).forEach(function(h){
+      var item=add(host,"article","item","");add(item,"h4","",h.statement);
+      var row=add(item,"div","meta","");pill(row,statusText(h.status));pill(row,h.coverageLabel.replace(/_/g," "));
+      var countrow=add(item,"div","meta","");pill(countrow,"Destek: "+h.supportingEvidenceCount);pill(countrow,"Karşı kanıt: "+h.contradictingEvidenceCount);pill(countrow,"Bağlam: "+h.contextEvidenceCount);
+      add(item,"p","muted small","Destekleyen yayıncı alan adları: "+((h.supportingPublisherDomains||[]).join(", ")||"yok")+" · Karşı kanıt alan adları: "+((h.contradictingPublisherDomains||[]).join(", ")||"yok"));
+      (h.limitations||[]).forEach(function(note){add(item,"div","notice",note);});
+      host.appendChild(item);
+    });
+    var limits=byId("analysisLimitations");clear(limits);
+    (report.limitations||[]).forEach(function(note){add(limits,"div","notice",note);});
+    var stamp=add(limits,"p","muted small","Rapor zamanı: "+date(report.generatedAt)+" · Alan adı sayısı bağımsız doğrulama sayısı değildir.");
+  }
+  async function loadAnalysis(){
+    if(!selectedCase)return;
+    var id=selectedCase.id;
+    try{
+      var report=await api("/api/research-analysis?caseId="+encodeURIComponent(id));
+      if(selectedCase&&selectedCase.id===id)renderAnalysis(report);
+    }catch(err){
+      if(selectedCase&&selectedCase.id===id){byId("analysisOverview").replaceChildren(node("div","empty","Kanıt kapsama analizi alınamadı: "+err.message));}
+    }
+  }
   function renderHypotheses(){
     var host=byId("hypotheses");clear(host);
     var items=selectedCase.hypotheses||[];
@@ -249,7 +285,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     byId("activeStatus").textContent=statusText(selectedCase.status);
     var summary=caseSummaries.find(function(s){return s.case.id===selectedCase.id;});
     renderMetrics(summary||{evidenceCount:(selectedCase.evidence||[]).length,hypothesisCount:(selectedCase.hypotheses||[]).length,openQuestionCount:(selectedCase.openQuestions||[]).filter(function(q){return q.status!=="resolved";}).length,publisherDomainCount:new Set((selectedCase.evidence||[]).map(function(e){return e.publisherDomain;})).size,limitations:[]});
-    renderHypotheses();renderQuestions();renderEvidence();
+    renderHypotheses();renderQuestions();renderEvidence();loadAnalysis();
     renderCaseList();
   }
   async function loadCase(id){
@@ -257,6 +293,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     await api("/api/research-cases").then(function(result){caseSummaries=result.items||[];});
     renderCurrentCase();return item;
   }
+  byId("analysisRefresh").addEventListener("click",function(){loadAnalysis();});
   byId("caseForm").addEventListener("submit",async function(event){
     event.preventDefault();var button=byId("createCaseButton");button.disabled=true;
     try{

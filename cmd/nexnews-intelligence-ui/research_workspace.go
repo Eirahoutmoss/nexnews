@@ -307,4 +307,4 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
   refreshCaseList().catch(function(err){byId("caseList").replaceChildren(node("div","empty","Araştırma veritabanı okunamadı: "+err.message));setMessage(err.message,true);});
 })();
 </script>
-</body></html>"
+</body></html>`

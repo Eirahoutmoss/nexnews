@@ -161,9 +161,9 @@ func labelHypothesisCoverage(c HypothesisEvidenceCoverage) (string, []string) {
 	} else {
 		notes = append(notes, "Bağlı kaynaklar yalnızca bağlam sağlıyor; hipotezi doğrudan destekleyen veya çürüten değerlendirme kaydedilmedi.")
 	}
-	domainCount := len(union(nil, append(append([]string{}, c.SupportingPublisherDomains...), c.ContradictingPublisherDomains...)))
+	domainCount := len(union(nil, append(append(append([]string{}, c.SupportingPublisherDomains...), c.ContradictingPublisherDomains...), c.ContextPublisherDomains...)))
 	if domainCount <= 1 {
-		notes = append(notes, "Destek/karşı kanıt en fazla bir yayıncı alan adına bağlı. Kaynak çeşitliliği sınırlı.")
+		notes = append(notes, "Bu hipoteze bağlanan kanıt en fazla bir yayıncı alan adına bağlı. Kaynak çeşitliliği sınırlı.")
 	} else {
 		notes = append(notes, "Birden çok yayıncı alan adı var; bu tek başına bağımsız doğrulama değildir.")
 	}

@@ -299,13 +299,6 @@ func (r *JSONRepository) ExtractStoredSourceStatements() (StatementExtractionSta
 	sort.Strings(articleIDs)
 	stats.ArticlesScanned = len(articleIDs)
 
-	articleEvents := map[string][]string{}
-	for eventID, event := range db.Events {
-		for _, articleID := range event.ArticleIDs {
-			articleEvents[articleID] = union(articleEvents[articleID], []string{eventID})
-		}
-	}
-
 	byClaim := map[string]*extractionPending{}
 	for _, articleID := range articleIDs {
 		article := db.Articles[articleID]
@@ -397,39 +390,114 @@ func (r *JSONRepository) ExtractStoredSourceStatements() (StatementExtractionSta
 		db.Claims[claimID] = claim
 	}
 
-	// Only attach a statement to an event when exactly one stored event candidate
-	// contains its source article. Ambiguous many-event memberships stay unlinked.
-	eventClaims := map[string][]string{}
+	// Recalculate all source-statement event links from current memberships.
+	// Existing EventID values and Event.ClaimIDs are not authoritative: the feed
+	// cache may add overlapping candidates on a later sync. Ambiguous membership
+	// is intentionally left unassigned instead of preserving a stale assignment.
 	articleEventCount := map[string][]string{}
 	for eventID, event := range db.Events {
 		for _, articleID := range event.ArticleIDs {
 			articleEventCount[articleID] = union(articleEventCount[articleID], []string{eventID})
 		}
 	}
-	for _, claimID := range claimIDs {
+	for articleID := range articleEventCount {
+		sort.Strings(articleEventCount[articleID])
+	}
+
+	sourceStatementIDs := make(map[string]bool, len(db.Claims))
+	allSourceClaimIDs := make([]string, 0, len(db.Claims))
+	for claimID, claim := range db.Claims {
+		if claim.Kind != ClaimSourceStatement {
+			continue
+		}
+		sourceStatementIDs[claimID] = true
+		allSourceClaimIDs = append(allSourceClaimIDs, claimID)
+		claim.EventID = ""
+		db.Claims[claimID] = claim
+	}
+	sort.Strings(allSourceClaimIDs)
+
+	eventClaims := map[string][]string{}
+	ambiguousArticles := map[string][]string{}
+	ambiguousClaimCounts := map[string]int{}
+	multiArticleEvidenceClaims := 0
+	for _, claimID := range allSourceClaimIDs {
 		claim := db.Claims[claimID]
+		articleIDsForClaim := []string{}
 		for _, evidenceID := range claim.EvidenceIDs {
 			evidence, ok := db.Evidence[evidenceID]
-			if !ok {
+			if !ok || strings.TrimSpace(evidence.ArticleID) == "" {
 				continue
 			}
-			matches := articleEventCount[evidence.ArticleID]
-			if len(matches) == 1 {
-				claim.EventID = matches[0]
-				db.Claims[claimID] = claim
-				eventClaims[matches[0]] = union(eventClaims[matches[0]], []string{claimID})
-			} else if len(matches) > 1 {
-				stats.Warnings = append(stats.Warnings, "Article "+evidence.ArticleID+" belongs to multiple event candidates; statement was not assigned to one event.")
-			}
-			break
+			articleIDsForClaim = union(articleIDsForClaim, []string{evidence.ArticleID})
 		}
+		if len(articleIDsForClaim) != 1 {
+			if len(articleIDsForClaim) > 1 {
+				multiArticleEvidenceClaims++
+			}
+			db.Claims[claimID] = claim
+			continue
+		}
+
+		articleID := articleIDsForClaim[0]
+		matches := articleEventCount[articleID]
+		switch len(matches) {
+		case 1:
+			claim.EventID = matches[0]
+			eventClaims[matches[0]] = union(eventClaims[matches[0]], []string{claimID})
+		case 0:
+			// No event candidate currently includes this article. Keeping the
+			// statement outside every event is valid and more accurate than guessing.
+		default:
+			ambiguousArticles[articleID] = append([]string(nil), matches...)
+			ambiguousClaimCounts[articleID]++
+		}
+		db.Claims[claimID] = claim
 	}
-	for eventID, claimIDs := range eventClaims {
-		event := db.Events[eventID]
-		event.ClaimIDs = union(event.ClaimIDs, claimIDs)
+
+	// Remove old auto-extracted statements from event indexes before rebuilding
+	// them. This also repairs stale links in databases created by earlier builds.
+	for eventID, event := range db.Events {
+		kept := make([]string, 0, len(event.ClaimIDs))
+		for _, claimID := range event.ClaimIDs {
+			if !sourceStatementIDs[claimID] {
+				kept = append(kept, claimID)
+			}
+		}
+		event.ClaimIDs = union(kept, eventClaims[eventID])
 		event.UpdatedAt = started
 		db.Events[eventID] = event
 	}
+
+	if len(ambiguousArticles) > 0 {
+		articleIDs := make([]string, 0, len(ambiguousArticles))
+		for articleID := range ambiguousArticles {
+			articleIDs = append(articleIDs, articleID)
+		}
+		sort.Strings(articleIDs)
+		examples := make([]string, 0, 5)
+		for _, articleID := range articleIDs {
+			if len(examples) == 5 {
+				break
+			}
+			examples = append(examples, fmt.Sprintf("%s (%d aday, %d ifade)", articleID, len(ambiguousArticles[articleID]), ambiguousClaimCounts[articleID]))
+		}
+		stats.Warnings = append(stats.Warnings, fmt.Sprintf(
+			"%d kaynak haber birden fazla NexNews olay adayına bağlı; %d kaynak ifadesi rastgele bir olaya atanmadı. Örnekler: %s",
+			len(ambiguousArticles), sumIntMap(ambiguousClaimCounts), strings.Join(examples, "; "),
+		))
+	}
+	if multiArticleEvidenceClaims > 0 {
+		stats.Warnings = append(stats.Warnings, fmt.Sprintf(
+			"%d kaynak ifadesinin kanıtı birden fazla haber belgesine bağlı; olay ataması yapılmadı.",
+			multiArticleEvidenceClaims,
+		))
+	}
+
+	// Earlier builds repeated one ambiguity warning per statement. Compact those
+	// historical entries in stored runs so the database and future reads remain
+	// useful after upgrading this extractor.
+	compactLegacyEventAssignmentWarnings(&db)
 
 	stats.EvidenceCreated = newEvidence
 	stats.RunID = stableID("analysis_run", StatementExtractorVersion+"\x00"+started.Format(time.RFC3339Nano))
@@ -445,6 +513,43 @@ func (r *JSONRepository) ExtractStoredSourceStatements() (StatementExtractionSta
 		return StatementExtractionStats{}, err
 	}
 	return stats, nil
+}
+
+func sumIntMap(values map[string]int) int {
+	total := 0
+	for _, value := range values {
+		total += value
+	}
+	return total
+}
+
+func compactLegacyEventAssignmentWarnings(db *Database) {
+	const prefix = "Article "
+	const suffix = " belongs to multiple event candidates; statement was not assigned to one event."
+	for runID, run := range db.Runs {
+		uniqueArticles := map[string]bool{}
+		legacyCount := 0
+		kept := make([]string, 0, len(run.Warnings))
+		for _, warning := range run.Warnings {
+			if strings.HasPrefix(warning, prefix) && strings.HasSuffix(warning, suffix) {
+				articleID := strings.TrimSuffix(strings.TrimPrefix(warning, prefix), suffix)
+				if articleID != "" {
+					uniqueArticles[articleID] = true
+					legacyCount++
+					continue
+				}
+			}
+			kept = append(kept, warning)
+		}
+		if legacyCount > 0 {
+			kept = append(kept, fmt.Sprintf(
+				"Eski analiz kaydındaki %d tekrarlı olay-atama uyarısı %d farklı kaynak haber için tek özete indirildi; belirsiz ifadeler olaylara zorla atanmamıştı.",
+				legacyCount, len(uniqueArticles),
+			))
+			run.Warnings = kept
+			db.Runs[runID] = run
+		}
+	}
 }
 
 func union(a, b []string) []string {

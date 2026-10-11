@@ -394,8 +394,17 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     var c=card("“"+item.quote+"”",item.publisherName+" · "+item.publisherDomain);
     pill(c,item.claimStatus||"durum bilinmiyor","gold");
     pill(c,item.excerptField==="title"?"Başlık":item.excerptField==="summary"?"Özet":"Metin");
+    if(item.wordingStatus==="first_seen_in_dossier"){
+      pill(c,"Dosyadaki en erken eşleşme","green");
+    }else if(item.wordingStatus==="repeated_verbatim"){
+      pill(c,"Birebir tekrar","gold");
+    }
     append(c,"p","","Haberde yayın tarihi: "+date(item.publishedAt));
     var row=append(c,"p","","");addSource(row,item.sourceUrl,"İfadenin kaynağına git");
+    if(item.wordingStatus==="repeated_verbatim" && item.firstOccurrence){
+      var origin=append(c,"p","","İlk eşleşen kayıt: "+(item.firstOccurrence.publisherName||item.firstOccurrence.publisherDomain)+" · "+date(item.firstOccurrence.publishedAt)+" · ");
+      addSource(origin,item.firstOccurrence.sourceUrl,item.firstOccurrence.articleTitle||"İlk eşleşen haberi aç");
+    }
     return c;
   }
   function renderDossierComparison(item){
@@ -445,7 +454,9 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     metric(metricsBox,"Yayın zamanı eksik",d.articlesWithoutDate,"Kronolojik kapsamı sınırlar");
     metric(metricsBox,"Yalnızca başlık",d.titleOnlyArticles,"Özet/tam metin kapsamı sınırlı");
     metric(metricsBox,"Kaynak ifadesi",d.statementCount,"Alıntısı saklanan ifadeler");
-    metric(metricsBox,"Tekrar grubu",(d.repeatedWordingGroups||[]).length,"Birebir tekrar; teyit değildir");
+    metric(metricsBox,"Farklı ifade kalıbı",d.distinctWordingCount||0,"Yazım normalizasyonuna göre");
+    metric(metricsBox,"Birebir tekrar",d.exactRepeatOccurrences||0,"Semantik yenilik ölçümü değildir");
+    metric(metricsBox,"Tekrar grubu",(d.repeatedWordingGroups||[]).length,"Bağımsız teyit anlamına gelmez");
     (d.limitations||[]).forEach(function(note){host.appendChild(el("div","warning",note));});
 
     function heading(text,count){
@@ -456,8 +467,13 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
       var q=document.getElementById("search").value.trim().toLocaleLowerCase("tr-TR");
       return (list||[]).filter(function(item){return !q||textOf(item).toLocaleLowerCase("tr-TR").indexOf(q)>=0;});
     }
+    var latest=filtered(d.latestArticles,function(a){return [a.title,a.summary,a.publisherName,a.publisherDomain,a.canonicalUrl].join(" ");});
+    heading("Son gelişmeler · en yeni kayıtlar",latest.length);
+    if(!latest.length)host.appendChild(el("div","empty","Yayın zamanı bilinen güncel haber bulunamadı."));
+    latest.forEach(function(a){host.appendChild(renderDossierArticle(a));});
+
     var articles=filtered(d.articles,function(a){return [a.title,a.summary,a.publisherName,a.publisherDomain,a.canonicalUrl].join(" ");});
-    heading("Zaman çizelgesi · yayın sırasına göre",articles.length);
+    heading("Tüm haberler · yayın sırasına göre",articles.length);
     if(!articles.length)host.appendChild(el("div","empty","Aramayla eşleşen haber yok."));
     articles.forEach(function(a){host.appendChild(renderDossierArticle(a));});
 

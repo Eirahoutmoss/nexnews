@@ -31,15 +31,29 @@ type EventDossierSource struct {
 
 // EventDossierStatement is a literal excerpt from a stored source statement.
 type EventDossierStatement struct {
-	ClaimID        string      `json:"claimId"`
-	ArticleID      string      `json:"articleId"`
-	Quote          string      `json:"quote"`
-	ExcerptField   string      `json:"excerptField"`
-	SourceURL      string      `json:"sourceUrl"`
-	PublisherName  string      `json:"publisherName"`
+	ClaimID         string                    `json:"claimId"`
+	ArticleID       string                    `json:"articleId"`
+	ArticleTitle    string                    `json:"articleTitle"`
+	Quote           string                    `json:"quote"`
+	ExcerptField    string                    `json:"excerptField"`
+	SourceURL       string                    `json:"sourceUrl"`
+	PublisherName   string                    `json:"publisherName"`
+	PublisherDomain string                    `json:"publisherDomain"`
+	ClaimStatus     ClaimStatus               `json:"claimStatus"`
+	PublishedAt     *time.Time                `json:"publishedAt,omitempty"`
+	WordingStatus   string                    `json:"wordingStatus"`
+	FirstOccurrence *EventDossierStatementOrigin `json:"firstOccurrence,omitempty"`
+}
+
+// EventDossierStatementOrigin links an exact repeated wording back to the first
+// occurrence found in this dossier's available time-ordered records.
+type EventDossierStatementOrigin struct {
+	ArticleID       string     `json:"articleId"`
+	ArticleTitle    string     `json:"articleTitle"`
+	SourceURL       string     `json:"sourceUrl"`
+	PublisherName   string     `json:"publisherName"`
 	PublisherDomain string     `json:"publisherDomain"`
-	ClaimStatus    ClaimStatus `json:"claimStatus"`
-	PublishedAt    *time.Time  `json:"publishedAt,omitempty"`
+	PublishedAt     *time.Time `json:"publishedAt,omitempty"`
 }
 
 // EventDossierEntity collects exact, source-span entity mentions within the
@@ -81,6 +95,9 @@ type EventDossier struct {
 	Sources                  []EventDossierSource          `json:"sources"`
 	Articles                 []EventDossierArticle         `json:"articles"`
 	StatementCount           int                           `json:"statementCount"`
+	DistinctWordingCount     int                           `json:"distinctWordingCount"`
+	ExactRepeatOccurrences   int                           `json:"exactRepeatOccurrences"`
+	LatestArticles           []EventDossierArticle         `json:"latestArticles"`
 	Statements               []EventDossierStatement       `json:"statements"`
 	RepeatedWordingGroups    []StatementComparisonGroup    `json:"repeatedWordingGroups"`
 	ConflictCandidates       []ExplicitOppositionCase      `json:"conflictCandidates"`
@@ -117,6 +134,7 @@ func BuildEventDossier(db Database, eventID string) (EventDossier, error) {
 		Event: event,
 		Sources: []EventDossierSource{},
 		Articles: []EventDossierArticle{},
+		LatestArticles: []EventDossierArticle{},
 		Statements: []EventDossierStatement{},
 		RepeatedWordingGroups: []StatementComparisonGroup{},
 		ConflictCandidates: []ExplicitOppositionCase{},
@@ -189,6 +207,14 @@ func BuildEventDossier(db Database, eventID string) (EventDossier, error) {
 		}
 	}
 	sort.Slice(out.Articles, func(i, j int) bool { return dossierArticleLess(out.Articles[i], out.Articles[j]) })
+	// Keep the full chronology but also expose a compact, source-linked view of
+	// the most recently published reports for users entering this dossier.
+	latest := append([]EventDossierArticle(nil), out.Articles...)
+	sort.Slice(latest, func(i, j int) bool { return dossierArticleLess(latest[j], latest[i]) })
+	if len(latest) > 5 {
+		latest = latest[:5]
+	}
+	out.LatestArticles = latest
 	out.ArticleCount = len(out.Articles)
 	out.PublisherDomainCount = len(sourceCounts)
 	for domain, count := range sourceCounts {
@@ -205,12 +231,20 @@ func BuildEventDossier(db Database, eventID string) (EventDossier, error) {
 
 	// Claims and evidence are included only when the associated evidence belongs
 	// to an article in this dossier, preventing nearby/unrelated claims leaking in.
-	for claimID, claim := range db.Claims {
+	claimIDs := make([]string, 0, len(db.Claims))
+	for id := range db.Claims {
+		claimIDs = append(claimIDs, id)
+	}
+	sort.Strings(claimIDs)
+	for _, claimID := range claimIDs {
+		claim := db.Claims[claimID]
 		if claim.Kind != ClaimSourceStatement {
 			continue
 		}
 		selectedEvidenceIDs := []string{}
-		for _, evidenceID := range claim.EvidenceIDs {
+		evidenceIDs := append([]string(nil), claim.EvidenceIDs...)
+		sort.Strings(evidenceIDs)
+		for _, evidenceID := range evidenceIDs {
 			ev, exists := db.Evidence[evidenceID]
 			if !exists || !articleIDs[ev.ArticleID] {
 				continue
@@ -223,7 +257,7 @@ func BuildEventDossier(db Database, eventID string) (EventDossier, error) {
 			if domain == "" { domain = article.PublisherSourceID }
 			if name == "" { name = domain }
 			out.Statements = append(out.Statements, EventDossierStatement{
-				ClaimID: claim.ID, ArticleID: article.ID, Quote: ev.Quote,
+				ClaimID: claim.ID, ArticleID: article.ID, ArticleTitle: article.Title, Quote: ev.Quote,
 				ExcerptField: ev.ExcerptField, SourceURL: ev.SourceURL,
 				PublisherName: name, PublisherDomain: domain,
 				ClaimStatus: claim.Status, PublishedAt: article.PublishedAt,
@@ -254,6 +288,37 @@ func BuildEventDossier(db Database, eventID string) (EventDossier, error) {
 		if a.PublisherDomain != b.PublisherDomain { return a.PublisherDomain < b.PublisherDomain }
 		return a.Quote < b.Quote
 	})
+	// Wording novelty is deliberately lexical. The first item is the first
+	// occurrence found in the dossier's available publication-time order, not
+	// a claim that the underlying information is semantically new.
+	firstOccurrenceByWording := map[string]EventDossierStatementOrigin{}
+	for i := range out.Statements {
+		statement := &out.Statements[i]
+		key := comparisonKey(statement.Quote)
+		if key == "" {
+			statement.WordingStatus = "unclassified"
+			continue
+		}
+		if first, exists := firstOccurrenceByWording[key]; exists {
+			statement.WordingStatus = "repeated_verbatim"
+			statement.FirstOccurrence = &first
+			out.ExactRepeatOccurrences++
+			continue
+		}
+		statement.WordingStatus = "first_seen_in_dossier"
+		origin := EventDossierStatementOrigin{
+			ArticleID: statement.ArticleID, ArticleTitle: statement.ArticleTitle,
+			SourceURL: statement.SourceURL, PublisherName: statement.PublisherName,
+			PublisherDomain: statement.PublisherDomain, PublishedAt: statement.PublishedAt,
+		}
+		statement.FirstOccurrence = &origin
+		firstOccurrenceByWording[key] = origin
+	}
+	out.DistinctWordingCount = len(firstOccurrenceByWording)
+	out.Limitations = append(out.Limitations,
+		"İlk görülen ifade ile birebir tekrar ayrımı yalnızca kayıtlı alıntıların yazım karşılaştırmasıdır; farklı cümlelerdeki aynı bilgi ya da farklı bilgilerle ilgili aynı kelimeler semantik olarak değerlendirilmez.",
+		"İlk görülen ifadenin tarihsel olarak gerçekten ilk kez yayımlandığı garanti edilmez; eksik veya hatalı yayın zamanları sıralamayı etkileyebilir.",
+	)
 
 	// Reuse the existing narrow comparison rules on this dossier's subset only.
 	comparison := BuildSourceComparisonReport(sub)

@@ -114,6 +114,22 @@ func registerResearchRoutes(mux *http.ServeMux, repo *intelligence.JSONRepositor
 		writeResearchJSON(w, http.StatusCreated, item)
 	})
 
+	mux.HandleFunc("/api/research-question-status", func(w http.ResponseWriter, r *http.Request) {
+		setResearchHeaders(w)
+		if r.Method != http.MethodPost { researchMethodNotAllowed(w, "POST"); return }
+		caseID := strings.TrimSpace(r.URL.Query().Get("caseId"))
+		questionID := strings.TrimSpace(r.URL.Query().Get("questionId"))
+		if caseID == "" || questionID == "" { writeResearchError(w, http.StatusBadRequest, "caseId and questionId are required"); return }
+		var input struct {
+			Status string `json:"status"`
+			Note string `json:"note"`
+		}
+		if err := decodeResearchJSON(w, r, &input); err != nil { writeResearchError(w, http.StatusBadRequest, err.Error()); return }
+		item, err := repo.SetResearchQuestionStatus(caseID, questionID, input.Status, input.Note)
+		if err != nil { researchOperationError(w, err); return }
+		writeResearchJSON(w, http.StatusOK, item)
+	})
+
 	mux.HandleFunc("/api/research-hypothesis-status", func(w http.ResponseWriter, r *http.Request) {
 		setResearchHeaders(w)
 		if r.Method != http.MethodPost { researchMethodNotAllowed(w, "POST"); return }

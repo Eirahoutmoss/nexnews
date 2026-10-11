@@ -263,6 +263,11 @@ func IntelligenceSnapshotFromFeedCacheFile(path string) (IntelligenceSnapshot, e
 		stories = append(stories, cluster...)
 	}
 	rankStories(stories)
+	// Match Store.rebuildStories: when the same cached article appears in more
+	// than one feed category, retain only the highest-ranked candidate. Without
+	// this step the offline cache importer creates duplicate candidates and
+	// every extracted statement becomes ambiguously assigned.
+	stories = dedupeAcrossCategories(stories)
 	s := &Store{cache: feedMap, important: stories}
 	out := s.IntelligenceSnapshot()
 	out.CapturedAt = captured

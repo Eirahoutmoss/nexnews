@@ -210,7 +210,15 @@ func BuildEventDossier(db Database, eventID string) (EventDossier, error) {
 	// Keep the full chronology but also expose a compact, source-linked view of
 	// the most recently published reports for users entering this dossier.
 	latest := append([]EventDossierArticle(nil), out.Articles...)
-	sort.Slice(latest, func(i, j int) bool { return dossierArticleLess(latest[j], latest[i]) })
+	sort.Slice(latest, func(i, j int) bool {
+		a, b := latest[i], latest[j]
+		aKnown := a.PublishedAt != nil && !a.PublishedAt.IsZero()
+		bKnown := b.PublishedAt != nil && !b.PublishedAt.IsZero()
+		if aKnown != bKnown { return aKnown }
+		if aKnown && !a.PublishedAt.Equal(*b.PublishedAt) { return a.PublishedAt.After(*b.PublishedAt) }
+		if !a.RetrievedAt.Equal(b.RetrievedAt) { return a.RetrievedAt.After(b.RetrievedAt) }
+		return a.ID < b.ID
+	})
 	if len(latest) > 5 {
 		latest = latest[:5]
 	}

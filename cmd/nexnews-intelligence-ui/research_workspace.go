@@ -49,7 +49,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     </div>
     <div id="workspace" class="hidden">
       <section class="panel">
-        <div class="topline"><div><div class="eyebrow">Aktif araştırma</div><h2 id="activeTitle"></h2></div><span id="activeStatus" class="pill gold">Taslak</span></div>
+        <div class="topline"><div><div class="eyebrow">Aktif araştırma</div><h2 id="activeTitle"></h2></div><div class="row"><span id="activeStatus" class="pill gold">Taslak</span><button id="refreshSources" class="button secondary hidden" type="button">NexNews kaynaklarını yenile</button></div></div>
         <p id="activeQuestion"></p><p id="activeContext" class="muted"></p>
         <div class="metrics" id="metrics"></div>
         <div id="limitations"></div>
@@ -284,6 +284,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     byId("activeTitle").textContent=selectedCase.title;byId("activeQuestion").textContent=selectedCase.question;
     byId("activeContext").textContent=selectedCase.context||"Başlangıç bağlamı ayrıca belirtilmedi.";
     byId("activeStatus").textContent=statusText(selectedCase.status);
+    byId("refreshSources").classList.toggle("hidden",!selectedCase.relatedEventId);
     var summary=caseSummaries.find(function(s){return s.case.id===selectedCase.id;});
     renderMetrics(summary||{evidenceCount:(selectedCase.evidence||[]).length,hypothesisCount:(selectedCase.hypotheses||[]).length,openQuestionCount:(selectedCase.openQuestions||[]).filter(function(q){return q.status!=="resolved";}).length,publisherDomainCount:new Set((selectedCase.evidence||[]).map(function(e){return e.publisherDomain;})).size,limitations:[]});
     renderHypotheses();renderQuestions();renderEvidence();loadAnalysis();
@@ -295,13 +296,30 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     renderCurrentCase();return item;
   }
   byId("analysisRefresh").addEventListener("click",function(){loadAnalysis();});
+  byId("refreshSources").addEventListener("click",async function(){
+    if(!selectedCase||!selectedCase.relatedEventId)return;
+    var button=byId("refreshSources");button.disabled=true;
+    try{
+      var result=await api("/api/research-import?caseId="+encodeURIComponent(selectedCase.id),{method:"POST"});
+      var caseID=selectedCase.id;selectedCase=result.case;await refreshCaseList();await loadCase(caseID);
+      setMessage("NexNews kaynak eşitlemesi: "+result.stats.evidenceImported+" yeni, "+result.stats.unchangedSkipped+" aynı sürüm, "+result.stats.revisionsAdded+" yeni sürüm, "+result.stats.articlesSkipped+" atlandı.",false);
+    }catch(err){setMessage(err.message,true);}finally{button.disabled=false;}
+  });
   byId("caseForm").addEventListener("submit",async function(event){
     event.preventDefault();var button=byId("createCaseButton");button.disabled=true;
     try{
       var item=await api("/api/research-cases",{method:"POST",body:JSON.stringify({title:byId("caseTitle").value,question:byId("caseQuestion").value,context:byId("caseContext").value,relatedEventId:linkedEventId})});
       linkedEventId="";window.history.replaceState(null,"",window.location.pathname);
       byId("caseForm").reset();selectedCaseId=item.id;selectedCase=item;
-      await refreshCaseList();await loadCase(item.id);setMessage("Araştırma dosyası kalıcı olarak oluşturuldu.",false);
+      var importMessage="";
+      if(item.relatedEventId){
+        try{
+          var imported=await api("/api/research-import?caseId="+encodeURIComponent(item.id),{method:"POST"});
+          item=imported.case;selectedCase=item;
+          importMessage=" NexNews haber kaydı: "+imported.stats.evidenceImported+" yeni, "+imported.stats.unchangedSkipped+" aynı sürüm, "+imported.stats.revisionsAdded+" yeni sürüm.";
+        }catch(importErr){importMessage=" NexNews kaynak aktarımı tamamlanamadı: "+importErr.message;}
+      }
+      await refreshCaseList();await loadCase(item.id);setMessage("Araştırma dosyası oluşturuldu."+importMessage, importMessage.indexOf("tamamlanamadı")>=0);
     }catch(err){setMessage(err.message,true);}finally{button.disabled=false;}
   });
   byId("hypothesisForm").addEventListener("submit",async function(event){

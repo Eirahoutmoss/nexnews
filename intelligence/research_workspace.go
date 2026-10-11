@@ -5,6 +5,7 @@ package intelligence
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -67,6 +68,7 @@ const (
 type ResearchEvidenceKind string
 
 const (
+	ResearchEvidenceArticle     ResearchEvidenceKind = "source_article"
 	ResearchEvidenceObservation ResearchEvidenceKind = "observation"
 	ResearchEvidenceClaim       ResearchEvidenceKind = "attributed_claim"
 	ResearchEvidenceDataPoint   ResearchEvidenceKind = "data_point"
@@ -107,6 +109,8 @@ type ResearchHypothesis struct {
 
 type ResearchEvidence struct {
 	ID                    string                       `json:"id"`
+	NexNewsArticleID      string                       `json:"nexNewsArticleId,omitempty"`
+	ContentFingerprint    string                       `json:"contentFingerprint,omitempty"`
 	Kind                  ResearchEvidenceKind         `json:"kind"`
 	Title                 string                       `json:"title"`
 	SourceURL             string                       `json:"sourceUrl"`
@@ -235,7 +239,7 @@ func validHypothesisStatus(status ResearchHypothesisStatus) bool {
 
 func validResearchEvidenceKind(kind ResearchEvidenceKind) bool {
 	switch kind {
-	case ResearchEvidenceObservation, ResearchEvidenceClaim, ResearchEvidenceDataPoint, ResearchEvidenceBackground, ResearchEvidenceCorrection:
+	case ResearchEvidenceArticle, ResearchEvidenceObservation, ResearchEvidenceClaim, ResearchEvidenceDataPoint, ResearchEvidenceBackground, ResearchEvidenceCorrection:
 		return true
 	default:
 		return false

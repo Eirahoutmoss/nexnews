@@ -56,7 +56,7 @@ func (r *JSONRepository) SyncResearchCaseFromNexNews(caseID string) (ResearchCas
 			stats.Warnings = append(stats.Warnings, fmt.Sprintf("Article %s has no publisher source record; it was not imported.", article.ID))
 			continue
 		}
-		fingerprint := researchArticleFingerprint(article)
+		fingerprint := researchArticleFingerprint(article, source)
 		alreadyImported, revised := false, false
 		for _, previous := range item.Evidence {
 			if previous.NexNewsArticleID != article.ID { continue }
@@ -118,7 +118,7 @@ func (r *JSONRepository) SyncResearchCaseFromNexNews(caseID string) (ResearchCas
 	return item, stats, nil
 }
 
-func researchArticleFingerprint(article Article) string {
+func researchArticleFingerprint(article Article, source Source) string {
 	published := ""
 	if article.PublishedAt != nil { published = article.PublishedAt.UTC().Format(time.RFC3339Nano) }
 	payload := strings.Join([]string{
@@ -128,6 +128,12 @@ func researchArticleFingerprint(article Article) string {
 		strings.TrimSpace(article.ContentHash),
 		published,
 		string(article.ContentAvailability),
+		strings.TrimSpace(article.PublisherSourceID),
+		strings.TrimSpace(source.ID),
+		strings.TrimSpace(source.Name),
+		normalizedPublisherDomain(source.CanonicalDomain),
+		string(source.Type),
+		strings.TrimSpace(article.SyndicationOriginID),
 	}, "\x00")
 	sum := sha256.Sum256([]byte(payload))
 	return hex.EncodeToString(sum[:])

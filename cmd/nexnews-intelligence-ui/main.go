@@ -24,6 +24,7 @@ type summary struct {
 	Mentions  int `json:"mentions"`
 	Relations int `json:"relations"`
 	RepeatedWordingGroups int `json:"repeatedWordingGroups"`
+	ExplicitOppositionCases int `json:"explicitOppositionCases"`
 }
 
 type viewState struct {
@@ -40,6 +41,7 @@ type viewState struct {
 	Mentions  []intelligence.EntityMention `json:"mentions"`
 	Relations []intelligence.Relation `json:"relations"`
 	SourceComparisons intelligence.SourceComparisonReport `json:"sourceComparisons"`
+	ClaimAssessment intelligence.ClaimAssessmentReport `json:"claimAssessment"`
 }
 
 func main() {
@@ -150,6 +152,7 @@ func loadState(repo *intelligence.JSONRepository) (viewState, error) {
 		Mentions: make([]intelligence.EntityMention, 0, len(db.EntityMentions)),
 		Relations: make([]intelligence.Relation, 0, len(db.Relations)),
 		SourceComparisons: intelligence.BuildSourceComparisonReport(db),
+		ClaimAssessment: intelligence.BuildClaimAssessmentReport(db),
 	}
 	for _, v := range db.Sources { out.Sources = append(out.Sources, v) }
 	for _, v := range db.Articles { out.Articles = append(out.Articles, v) }
@@ -165,6 +168,7 @@ func loadState(repo *intelligence.JSONRepository) (viewState, error) {
 		Claims: len(out.Claims), Evidence: len(out.Evidence), Entities: len(out.Entities),
 		Mentions: len(out.Mentions), Relations: len(out.Relations),
 		RepeatedWordingGroups: out.SourceComparisons.RepeatedWordingGroups,
+		ExplicitOppositionCases: out.ClaimAssessment.ExplicitOppositionCases,
 	}
 	return out, nil
 }
@@ -193,6 +197,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     <button data-view="events"><span class="symbol">▣</span> Olay Dosyaları</button>
     <button data-view="claims"><span class="symbol">≋</span> Kaynak İfadeleri</button>
     <button data-view="comparison"><span class="symbol">⇄</span> Kaynak Karşılaştırma</button>
+    <button data-view="assessment"><span class="symbol">⚖</span> İddia Değerlendirme</button>
     <button data-view="evidence"><span class="symbol">⌕</span> Kanıt Alıntıları</button>
     <button data-view="entities"><span class="symbol">◎</span> Varlık Anılmaları</button>
     <button data-view="relations"><span class="symbol">⌁</span> İlişkiler</button>
@@ -223,6 +228,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     evidence:["Kanıt Alıntıları","Her alıntı orijinal haberin başlığına veya özetine geri bağlanır.","Kaynak alıntıları"],
     entities:["Varlık Anılmaları","Sınırlı sözlükte birebir eşleşen metin parçaları. Kimlik eşlemesi kesin değildir.","Varlık anılmaları"],
     comparison:["Kaynak Karşılaştırma","Kaynak ifadelerinin birebir tekrarlarını ve kaynak dağılımını gösterir. Aynı ifade, bağımsız teyit anlamına gelmez.","Tekrarlanan ifadeler"],
+    assessment:["İddia Değerlendirme","Sınırlı açık karşıt ifade kurallarıyla bulunan inceleme adayları. Hiçbir taraf otomatik olarak doğru sayılmaz.","Olası çelişki sinyalleri"],
     relations:["İlişkiler","Yalnızca kanıt ve tür doğrulamasından geçmiş ilişkiler bu bölümde gösterilir.","Kayıtlı ilişkiler"]
   };
   function el(tag,cls,text){
@@ -267,6 +273,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     metric(m,"Kaynaklar",s.sources,"Yayıncı/kaynak kayıtları");
     metric(m,"İlişkiler",s.relations,"Yalnızca kayıtlı ve doğrulanabilir bağlar");
     metric(m,"Tekrarlanan ifade grupları",s.repeatedWordingGroups,"Birebir metin eşleşmesi; bağımsız teyit değildir");
+    metric(m,"Olası çelişki sinyalleri",s.explicitOppositionCases,"İnceleme adayıdır; otomatik hüküm değildir");
   }
   function card(title,desc){
     var box=el("article","item");
@@ -297,6 +304,27 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
       var ev=state.evidence.find(function(e){return e.id===id;});
       if(ev){var row=append(c,"p","","Alıntı: “"+ev.quote+"” ");addSource(row,ev.sourceUrl,"Orijinal kaynak");}
     });
+    return c;
+  }
+  function renderAssessment(item){
+    var c=card(item.context,item.assessment);
+    pill(c,"İnceleme gerekli","gold");
+    pill(c,item.assertionType);
+    pill(c,item.articleCount+" haber");
+    pill(c,item.domainCount+" yayıncı alan adı");
+    var sides=[
+      {label:"Olumlu biçimde bildirilen ifade",items:item.positiveSources},
+      {label:"Olumsuz biçimde bildirilen ifade",items:item.negativeSources}
+    ];
+    sides.forEach(function(side){
+      append(c,"h4","",side.label);
+      side.items.forEach(function(o){
+        var row=append(c,"p","","");
+        addSource(row,o.canonicalUrl,(o.publisherName||o.publisherDomain||"Kaynak")+" · "+(o.publisherDomain||"alan adı yok")+" · "+date(o.publishedAt));
+        append(c,"p","","“"+o.quote+"”");
+      });
+    });
+    (item.limitations||[]).forEach(function(note){append(c,"p","","Sınır: "+note);});
     return c;
   }
   function renderComparison(item){
@@ -355,6 +383,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     if(view==="events")return state.events.map(function(x){return {kind:"event",data:x,search:[x.title,x.scope,x.status,(x.coverageLimitations||[]).join(" ")].join(" ")};});
     if(view==="claims")return state.claims.map(function(x){return {kind:"claim",data:x,search:[x.claimText,x.attributedTo,x.statusReason,x.status].join(" ")};});
     if(view==="comparison")return (state.sourceComparisons.groups||[]).map(function(x){return {kind:"comparison",data:x,search:[x.statement,x.assessment,(x.occurrences||[]).map(function(o){return o.publisherName+" "+o.publisherDomain+" "+o.articleTitle+" "+o.quote;}).join(" ")].join(" ")};});
+    if(view==="assessment")return (state.claimAssessment.cases||[]).map(function(x){return {kind:"assessment",data:x,search:[x.context,x.assertionType,x.assessment,(x.positiveSources||[]).concat(x.negativeSources||[]).map(function(o){return o.publisherName+" "+o.publisherDomain+" "+o.quote;}).join(" ")].join(" ")};});
     if(view==="evidence")return state.evidence.map(function(x){return {kind:"evidence",data:x,search:[x.quote,x.sourceUrl,x.excerptField,x.stance].join(" ")};});
     if(view==="entities")return state.entities.map(function(x){return {kind:"entity",data:x,search:[x.canonicalName,x.type,x.identityStatus].join(" ")};});
     if(view==="relations")return state.relations.map(function(x){return {kind:"relation",data:x,search:[x.predicate,x.rationale,x.status].join(" ")};});
@@ -371,7 +400,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     document.getElementById("resultCount").textContent=filtered.length+" kayıt";
     var host=document.getElementById("content");host.replaceChildren();
     if(!filtered.length){
-      var msg=view==="relations"?"Henüz gösterilecek ilişki yok. Bu beklenen bir sonuçtur; ilişki oluşturmak için bağlantı uydurulmayacak.":view==="comparison"?"Birebir aynı kaynak ifadesini birden fazla haber belgesinde tekrarlayan grup bulunamadı. Farklı ifadelerle anlatılan haberler bu sürümde semantik olarak karşılaştırılmaz.":"Bu bölümde eşleşen kayıt bulunamadı.";
+      var msg=view==="relations"?"Henüz gösterilecek ilişki yok. Bu beklenen bir sonuçtur; ilişki oluşturmak için bağlantı uydurulmayacak.":view==="comparison"?"Birebir aynı kaynak ifadesini birden fazla haber belgesinde tekrarlayan grup bulunamadı. Farklı ifadelerle anlatılan haberler bu sürümde semantik olarak karşılaştırılmaz.":view==="assessment"?"İzinli açık karşıt ifade kalıplarıyla eşleşen inceleme adayı bulunamadı. Bu, haberlerde çelişki olmadığı anlamına gelmez.":"Bu bölümde eşleşen kayıt bulunamadı.";
       host.appendChild(el("div","empty",msg));return;
     }
     filtered.slice(0,250).forEach(function(entry){
@@ -379,6 +408,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
       if(entry.kind==="event")node=renderEvent(entry.data);
       else if(entry.kind==="claim")node=renderClaim(entry.data);
       else if(entry.kind==="comparison")node=renderComparison(entry.data);
+      else if(entry.kind==="assessment")node=renderAssessment(entry.data);
       else if(entry.kind==="evidence")node=renderEvidence(entry.data);
       else if(entry.kind==="entity")node=renderEntity(entry.data);
       else if(entry.kind==="relation")node=renderRelation(entry.data);

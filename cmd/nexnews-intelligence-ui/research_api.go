@@ -47,7 +47,6 @@ func registerResearchRoutes(mux *http.ServeMux, repo *intelligence.JSONRepositor
 		if id == "" { writeResearchError(w, http.StatusBadRequest, "caseId is required"); return }
 		item, err := repo.GetResearchCase(id)
 		if err != nil {
-			if errors.Is(err, nil) { /* keep response handling below independent of error type */ }
 			if strings.Contains(strings.ToLower(err.Error()), "not found") { writeResearchError(w, http.StatusNotFound, "Research case not found."); return }
 			writeResearchError(w, http.StatusInternalServerError, "Research case could not be read.")
 			return

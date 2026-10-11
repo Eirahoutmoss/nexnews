@@ -258,7 +258,24 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
   function renderQuestions(){
     var host=byId("questions");clear(host);var items=selectedCase.openQuestions||[];
     if(!items.length){host.appendChild(node("div","empty","Açık soru bulunmuyor. Veri boşluklarını burada kaydet."));return;}
-    items.forEach(function(q){var c=add(host,"article","item","");add(c,"p","",q.text);var row=add(c,"div","meta","");pill(row,statusText(q.status),q.status==="resolved"?"green":"gold");add(row,"span","","Eklenme: "+date(q.createdAt));});
+    items.forEach(function(q){
+      var c=add(host,"article","item","");add(c,"p","",q.text);
+      var row=add(c,"div","meta","");pill(row,statusText(q.status),q.status==="resolved"?"green":"gold");add(row,"span","","Eklenme: "+date(q.createdAt));
+      if(q.resolutionNote)add(c,"p","muted small","Çözüm notu: "+q.resolutionNote);
+      var form=add(c,"form","stack","");form.style.marginTop="10px";
+      var select=add(form,"select","");select.setAttribute("aria-label","Araştırma sorusunun durumu");
+      [["open","Açık"],["resolved","Çözüldü"]].forEach(function(pair){var option=add(select,"option","",pair[1]);option.value=pair[0];});
+      select.value=q.status;
+      var note=add(form,"textarea","");note.rows=2;note.placeholder="Çözüldüyse yanıtı ve dayandığı kanıtı not et.";note.value=q.resolutionNote||"";
+      var button=add(form,"button","button secondary","Soru durumunu güncelle");button.type="submit";
+      form.addEventListener("submit",async function(event){
+        event.preventDefault();button.disabled=true;
+        try{
+          var item=await api("/api/research-question-status?caseId="+encodeURIComponent(selectedCase.id)+"&questionId="+encodeURIComponent(q.id),{method:"POST",body:JSON.stringify({status:select.value,note:note.value})});
+          selectedCase=item;await refreshCaseList();renderCurrentCase();setMessage("Araştırma sorusunun durumu kaydedildi.",false);
+        }catch(err){setMessage(err.message,true);}finally{button.disabled=false;}
+      });
+    });
   }
   function renderEvidence(){
     var host=byId("evidenceList");clear(host);var items=selectedCase.evidence||[];byId("evidenceCount").textContent=items.length+" kayıt";

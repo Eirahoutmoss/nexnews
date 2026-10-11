@@ -141,6 +141,26 @@ func TestResearchAnalysisAPIReportsEvidenceCoverage(t *testing.T) {
 	if rec.Header().Get("Cache-Control") != "no-store" { t.Fatal("analysis response must not be cached") }
 }
 
+func TestResearchQuestionStatusAPIRequiresResolutionNote(t *testing.T) {
+	h:=newHandler(testRepository(t))
+	created:=requestJSON(t,h,http.MethodPost,"/api/research-cases",intelligence.CreateResearchCaseInput{Title:"Question status",Question:"Does this endpoint preserve resolution context?"})
+	if created.Code!=http.StatusCreated { t.Fatalf("create status=%d body=%s",created.Code,created.Body.String()) }
+	var item intelligence.ResearchCase
+	if err:=json.Unmarshal(created.Body.Bytes(),&item);err!=nil { t.Fatal(err) }
+	added:=requestJSON(t,h,http.MethodPost,"/api/research-question?caseId="+item.ID,map[string]string{"question":"What is missing from the record?"})
+	if added.Code!=http.StatusCreated { t.Fatalf("add question status=%d body=%s",added.Code,added.Body.String()) }
+	if err:=json.Unmarshal(added.Body.Bytes(),&item);err!=nil { t.Fatal(err) }
+	qid:=item.OpenQuestions[0].ID
+	bad:=requestJSON(t,h,http.MethodPost,"/api/research-question-status?caseId="+item.ID+"&questionId="+qid,map[string]string{"status":"resolved","note":""})
+	if bad.Code!=http.StatusBadRequest { t.Fatalf("expected resolution note validation, status=%d body=%s",bad.Code,bad.Body.String()) }
+	good:=requestJSON(t,h,http.MethodPost,"/api/research-question-status?caseId="+item.ID+"&questionId="+qid,map[string]string{"status":"resolved","note":"The source dataset covers the relevant period; see linked evidence evidence-1."})
+	if good.Code!=http.StatusOK { t.Fatalf("resolve question status=%d body=%s",good.Code,good.Body.String()) }
+	if err:=json.Unmarshal(good.Body.Bytes(),&item);err!=nil { t.Fatal(err) }
+	if item.OpenQuestions[0].Status!="resolved" || item.OpenQuestions[0].ResolutionNote=="" {
+		t.Fatalf("resolution note not persisted: %+v",item.OpenQuestions[0])
+	}
+}
+
 func TestResearchAPIRejectsBadMethodsBodiesAndUnknownCases(t *testing.T) {
 	h := newHandler(testRepository(t))
 	cases := []struct{ method, path, body string; want int }{

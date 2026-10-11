@@ -1,0 +1,106 @@
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"nexnews/intelligence"
+)
+
+func requestJSON(t *testing.T, handler http.Handler, method, target string, input any) *httptest.ResponseRecorder {
+	t.Helper()
+	var body *bytes.Reader
+	if input == nil { body = bytes.NewReader(nil) } else {
+		data, err := json.Marshal(input)
+		if err != nil { t.Fatal(err) }
+		body = bytes.NewReader(data)
+	}
+	req := httptest.NewRequest(method, target, body)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+	return rec
+}
+
+func TestResearchWorkspacePageIsServedWithLocalSecurityHeaders(t *testing.T) {
+	h := newHandler(testRepository(t))
+	req := httptest.NewRequest(http.MethodGet, "/research-workspace", nil)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK { t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String()) }
+	for _, phrase := range []string{"Araştırma Masası", "Kurumsal hafıza", "Kaynaklı kanıt ekle", "Açık sorular", "hipotez"} {
+		if !strings.Contains(rec.Body.String(), phrase) { t.Errorf("workspace page missing %q", phrase) }
+	}
+	if rec.Header().Get("X-Frame-Options") != "DENY" { t.Fatal("expected frame protection header") }
+	if rec.Header().Get("Cache-Control") != "no-store" { t.Fatal("research workspace must not be cached") }
+}
+
+func TestResearchWorkspaceAPICreatesCaseHypothesisAndEvidence(t *testing.T) {
+	h := newHandler(testRepository(t))
+	created := requestJSON(t, h, http.MethodPost, "/api/research-cases", intelligence.CreateResearchCaseInput{
+		Title: "Tesis hedef seçimi", Question: "Hedef seçimi ile sahiplik arasında ilişki var mı?",
+	})
+	if created.Code != http.StatusCreated { t.Fatalf("create case status=%d: %s", created.Code, created.Body.String()) }
+	var item intelligence.ResearchCase
+	if err := json.Unmarshal(created.Body.Bytes(), &item); err != nil { t.Fatal(err) }
+	if item.ID == "" || item.Status != intelligence.ResearchCaseDraft { t.Fatalf("unexpected created case: %+v", item) }
+
+	hyp := requestJSON(t, h, http.MethodPost, "/api/research-hypothesis?caseId="+item.ID, map[string]string{
+		"statement": "Yabancı ortaklığı olan tesisler daha seyrek hedef alınıyor olabilir.",
+	})
+	if hyp.Code != http.StatusCreated { t.Fatalf("create hypothesis status=%d: %s", hyp.Code, hyp.Body.String()) }
+	if err := json.Unmarshal(hyp.Body.Bytes(), &item); err != nil { t.Fatal(err) }
+	if len(item.Hypotheses) != 1 { t.Fatalf("expected one hypothesis: %+v", item.Hypotheses) }
+	hypothesisID := item.Hypotheses[0].ID
+
+	evidence := requestJSON(t, h, http.MethodPost, "/api/research-evidence?caseId="+item.ID, intelligence.AddResearchEvidenceInput{
+		Kind: intelligence.ResearchEvidenceClaim,
+		Title: "Birincil açıklama",
+		SourceURL: "https://www.example.org/statement",
+		Publisher: "Example Org",
+		Excerpt: "The source claimed the facility was targeted.",
+		ContentLevel: intelligence.ResearchContentTitleSummary,
+		SourceKind: intelligence.ResearchSourcePrimary,
+		SourceOrigin: intelligence.ResearchOriginOfficial,
+		HypothesisAssessments: []intelligence.HypothesisEvidenceAssessment{{
+			HypothesisID: hypothesisID, Direction: intelligence.HypothesisEvidenceContext,
+			Rationale: "Bu açıklama hedef alındığı iddiasını bildirir ancak tesis sahipliğine ilişkin örüntüyü tek başına sınamaz.",
+		}},
+	})
+	if evidence.Code != http.StatusCreated { t.Fatalf("add evidence status=%d: %s", evidence.Code, evidence.Body.String()) }
+	if err := json.Unmarshal(evidence.Body.Bytes(), &item); err != nil { t.Fatal(err) }
+	if len(item.Evidence) != 1 || item.Evidence[0].PublisherDomain != "example.org" { t.Fatalf("unexpected evidence record: %+v", item.Evidence) }
+
+	question := requestJSON(t, h, http.MethodPost, "/api/research-question?caseId="+item.ID, map[string]string{
+		"question": "Karşılaştırma evrenindeki diğer tesisler hangileri?",
+	})
+	if question.Code != http.StatusCreated { t.Fatalf("add question status=%d: %s", question.Code, question.Body.String()) }
+
+	read := httptest.NewRecorder()
+	h.ServeHTTP(read, httptest.NewRequest(http.MethodGet, "/api/research-case?caseId="+item.ID, nil))
+	if read.Code != http.StatusOK { t.Fatalf("read case status=%d: %s", read.Code, read.Body.String()) }
+	if err := json.Unmarshal(read.Body.Bytes(), &item); err != nil { t.Fatal(err) }
+	if len(item.Evidence) != 1 || len(item.Hypotheses) != 1 || len(item.OpenQuestions) != 1 {
+		t.Fatalf("research case was not persisted: evidence=%d hypotheses=%d questions=%d", len(item.Evidence), len(item.Hypotheses), len(item.OpenQuestions))
+	}
+}
+
+func TestResearchAPIRejectsBadMethodsBodiesAndUnknownCases(t *testing.T) {
+	h := newHandler(testRepository(t))
+	cases := []struct{ method, path, body string; want int }{
+		{http.MethodDelete, "/api/research-cases", "", http.StatusMethodNotAllowed},
+		{http.MethodPost, "/api/research-cases", "{broken", http.StatusBadRequest},
+		{http.MethodGet, "/api/research-case", "", http.StatusBadRequest},
+		{http.MethodGet, "/api/research-case?caseId=unknown", "", http.StatusNotFound},
+		{http.MethodPost, "/api/research-hypothesis?caseId=unknown", `{"statement":"hypothesis"}`, http.StatusNotFound},
+	}
+	for _, tc := range cases {
+		req := httptest.NewRequest(tc.method, tc.path, strings.NewReader(tc.body))
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if rec.Code != tc.want { t.Errorf("%s %s got %d want %d: %s", tc.method, tc.path, rec.Code, tc.want, rec.Body.String()) }
+	}
+}

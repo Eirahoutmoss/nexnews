@@ -112,6 +112,38 @@ func newHandler(repo *intelligence.JSONRepository) http.Handler {
 		}
 		_ = json.NewEncoder(w).Encode(state)
 	})
+	mux.HandleFunc("/api/event-dossier", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/event-dossier" {
+			http.NotFound(w, r)
+			return
+		}
+		if !allowGET(w, r) {
+			return
+		}
+		setSecurityHeaders(w)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-store")
+		eventID := strings.TrimSpace(r.URL.Query().Get("eventId"))
+		if eventID == "" {
+			http.Error(w, "eventId is required", http.StatusBadRequest)
+			return
+		}
+		db, err := repo.Load()
+		if err != nil {
+			http.Error(w, "Intelligence veritabanı okunamadı.", http.StatusInternalServerError)
+			return
+		}
+		dossier, err := intelligence.BuildEventDossier(db, eventID)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				http.Error(w, "Olay adayı bulunamadı.", http.StatusNotFound)
+			} else {
+				http.Error(w, "Olay dosyası oluşturulamadı.", http.StatusInternalServerError)
+			}
+			return
+		}
+		_ = json.NewEncoder(w).Encode(dossier)
+	})
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		if !allowGET(w, r) {
 			return
@@ -227,7 +259,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
 <script>
 (function(){
   "use strict";
-  var state=null, view="overview";
+  var state=null, view="overview", selectedDossier=null;
   var titles={
     overview:["Genel Bakış","Kaynakların gerçekten söylediği şeyler, açık sınırları ve izlenebilir kanıtlarıyla.","Son kayıtlar"],
     events:["Olay Dosyaları","NexNews grupları yalnızca olay adayıdır; Intelligence doğrulaması sayılmaz.","Olay adayları"],
@@ -237,6 +269,7 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     comparison:["Kaynak Karşılaştırma","Kaynak ifadelerinin birebir tekrarlarını ve kaynak dağılımını gösterir. Aynı ifade, bağımsız teyit anlamına gelmez.","Tekrarlanan ifadeler"],
     assessment:["İddia Değerlendirme","Sınırlı açık karşıt ifade kurallarıyla bulunan inceleme adayları. Hiçbir taraf otomatik olarak doğru sayılmaz.","Olası çelişki sinyalleri"],
     quality:["Veri Kalitesi","Kaynak, olay, iddia, kanıt ve ilişki kayıtlarının yapısal tutarlılığı. Bu rapor haberlerin doğruluğuna karar vermez.","Denetim bulguları"],
+    dossier:["Olay Dosyası","Seçilen olay adayına bağlı haberler, kaynak ifadeleri, karşılaştırmalar ve açık sorular.","Olay incelemesi"],
     relations:["İlişkiler","Yalnızca kanıt ve tür doğrulamasından geçmiş ilişkiler bu bölümde gösterilir.","Kayıtlı ilişkiler"]
   };
   function el(tag,cls,text){
@@ -297,8 +330,11 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     pill(c,(item.articleIds||[]).length+" haber");
     append(c,"p","","İlk gözlem: "+date(item.firstObservedAt)+" · Son gözlem: "+date(item.lastObservedAt));
     if(item.coverageLimitations && item.coverageLimitations.length){
-      var p=append(c,"p","","Sınırlar: "+item.coverageLimitations.join(" "));
+      append(c,"p","","Sınırlar: "+item.coverageLimitations.join(" "));
     }
+    var open=append(c,"button","open-dossier","Olay dosyasını aç");
+    open.type="button";
+    open.addEventListener("click",function(){openDossier(item.id);});
     (item.articleIds||[]).slice(0,5).forEach(function(id){
       var article=state.articles.find(function(a){return a.id===id;});
       if(article){var row=append(c,"p","","");addSource(row,article.canonicalUrl,article.title);}
@@ -345,6 +381,116 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     pill(c,item.recordId||"kimlik yok");
     if(item.sourceUrl){var row=append(c,"p","","");addSource(row,item.sourceUrl,"İlgili kaynağı aç");}
     return c;
+  }
+  function renderDossierArticle(item){
+    var c=card(item.title,item.summary||"Bu haberde özet kayıtlı değil.");
+    pill(c,item.contentAvailability||"İçerik düzeyi bilinmiyor","gold");
+    pill(c,item.publisherDomain||"Yayıncı bilinmiyor");
+    append(c,"p","","Yayın zamanı: "+date(item.publishedAt)+" · Sistemin gözlemi: "+date(item.retrievedAt));
+    var row=append(c,"p","","");addSource(row,item.canonicalUrl,"Orijinal haberi aç");
+    return c;
+  }
+  function renderDossierStatement(item){
+    var c=card("“"+item.quote+"”",item.publisherName+" · "+item.publisherDomain);
+    pill(c,item.claimStatus||"durum bilinmiyor","gold");
+    pill(c,item.excerptField==="title"?"Başlık":item.excerptField==="summary"?"Özet":"Metin");
+    append(c,"p","","Haberde yayın tarihi: "+date(item.publishedAt));
+    var row=append(c,"p","","");addSource(row,item.sourceUrl,"İfadenin kaynağına git");
+    return c;
+  }
+  function renderDossierComparison(item){
+    var c=card(item.statement,item.assessment);
+    pill(c,item.articleCount+" haber","gold");
+    pill(c,item.publisherDomainCount+" yayıncı alan adı");
+    (item.occurrences||[]).forEach(function(o){
+      var row=append(c,"p","","");
+      addSource(row,o.canonicalUrl,(o.publisherName||o.publisherDomain)+" · "+o.publisherDomain);
+      append(c,"p","","“"+o.quote+"”");
+    });
+    append(c,"p","","Bu tekrar bağımsız doğrulama anlamına gelmez.");
+    return c;
+  }
+  function renderDossierConflict(item){
+    var c=card(item.context,item.assessment);
+    pill(c,"İnsan incelemesi gerekli","gold");
+    pill(c,item.assertionType);
+    var sides=[{label:"Olumlu biçimde bildirilen",items:item.positiveSources||[]},{label:"Olumsuz biçimde bildirilen",items:item.negativeSources||[]}];
+    sides.forEach(function(side){
+      append(c,"h4","",side.label);
+      side.items.forEach(function(o){
+        var row=append(c,"p","","");
+        addSource(row,o.canonicalUrl,(o.publisherName||o.publisherDomain)+" · "+date(o.publishedAt));
+        append(c,"p","","“"+o.quote+"”");
+      });
+    });
+    (item.limitations||[]).forEach(function(note){append(c,"p","","Sınır: "+note);});
+    return c;
+  }
+  function renderDossier(d){
+    var host=document.getElementById("content");
+    host.replaceChildren();
+    var back=append(host,"button","open-dossier","← Olay listesine dön");
+    back.type="button";
+    back.addEventListener("click",function(){selectedDossier=null;view="events";syncNav();draw();});
+    var summary=card(d.event.title,"Bu, NexNews'ten alınan bir olay adayıdır. Dosya yalnızca bu adaya bağlı haber ve kanıt kayıtlarını içerir; olayın doğruluğu bağımsız olarak doğrulanmış değildir.");
+    pill(summary,d.event.status||"durum bilinmiyor","gold");
+    pill(summary,d.articleCount+" haber");
+    pill(summary,d.publisherDomainCount+" yayıncı alan adı");
+    pill(summary,d.statementCount+" kaynak ifadesi");
+    pill(summary,(d.conflictCandidates||[]).length+" olası çelişki sinyali");
+    append(host,"div","cards","").appendChild(summary);
+    var metricsBox=append(host,"div","metrics","");
+    metric(metricsBox,"Haber",d.articleCount,"Bu olay adayına bağlı");
+    metric(metricsBox,"Yayıncı alan adı",d.publisherDomainCount,"Bağımsız kaynak sayısı değildir");
+    metric(metricsBox,"Yayın zamanı eksik",d.articlesWithoutDate,"Kronolojik kapsamı sınırlar");
+    metric(metricsBox,"Yalnızca başlık",d.titleOnlyArticles,"Özet/tam metin kapsamı sınırlı");
+    metric(metricsBox,"Kaynak ifadesi",d.statementCount,"Alıntısı saklanan ifadeler");
+    metric(metricsBox,"Tekrar grubu",(d.repeatedWordingGroups||[]).length,"Birebir tekrar; teyit değildir");
+    (d.limitations||[]).forEach(function(note){host.appendChild(el("div","warning",note));});
+
+    function heading(text,count){
+      var row=append(host,"div","section-head","");
+      append(row,"h2","",text);append(row,"span","count",count+" kayıt");
+    }
+    function filtered(list,textOf){
+      var q=document.getElementById("search").value.trim().toLocaleLowerCase("tr-TR");
+      return (list||[]).filter(function(item){return !q||textOf(item).toLocaleLowerCase("tr-TR").indexOf(q)>=0;});
+    }
+    var articles=filtered(d.articles,function(a){return [a.title,a.summary,a.publisherName,a.publisherDomain,a.canonicalUrl].join(" ");});
+    heading("Zaman çizelgesi · yayın sırasına göre",articles.length);
+    if(!articles.length)host.appendChild(el("div","empty","Aramayla eşleşen haber yok."));
+    articles.forEach(function(a){host.appendChild(renderDossierArticle(a));});
+
+    var statements=filtered(d.statements,function(x){return [x.quote,x.publisherName,x.publisherDomain,x.claimStatus,x.excerptField].join(" ");});
+    heading("Kaynak ifadeleri",statements.length);
+    if(!statements.length)host.appendChild(el("div","empty","Bu olay adayında aramayla eşleşen kaynak ifadesi yok."));
+    statements.forEach(function(x){host.appendChild(renderDossierStatement(x));});
+
+    var repeats=filtered(d.repeatedWordingGroups,function(x){return [x.statement,x.assessment,(x.occurrences||[]).map(function(o){return o.publisherName+" "+o.publisherDomain+" "+o.quote;}).join(" ")].join(" ");});
+    heading("Birebir tekrarlanan ifadeler",repeats.length);
+    if(!repeats.length)host.appendChild(el("div","empty","Aynı ifade tekrarına rastlanmadı. Farklı anlatımlar burada semantik olarak karşılaştırılmıyor."));
+    repeats.forEach(function(x){host.appendChild(renderDossierComparison(x));});
+
+    var conflicts=filtered(d.conflictCandidates,function(x){return [x.context,x.assertionType,x.assessment,(x.positiveSources||[]).concat(x.negativeSources||[]).map(function(o){return o.quote+" "+o.publisherDomain;}).join(" ")].join(" ");});
+    heading("Olası çelişkiler · inceleme adayları",conflicts.length);
+    if(!conflicts.length)host.appendChild(el("div","empty","Mevcut sınırlı kurallarla çelişki adayı bulunmadı. Bu, çelişki olmadığı anlamına gelmez."));
+    conflicts.forEach(function(x){host.appendChild(renderDossierConflict(x));});
+
+    var entities=filtered(d.entities,function(x){return [x.canonicalName,x.entityType,(x.mentions||[]).map(function(m){return m.quote+" "+m.publisherDomain+" "+m.articleTitle;}).join(" ")].join(" ");});
+    heading("Varlık anılmaları · kimlik kesin değil",entities.length);
+    if(!entities.length)host.appendChild(el("div","empty","Bu dosya için varlık anılması kaydı bulunmuyor."));
+    entities.forEach(function(x){
+      var c=card(x.canonicalName,x.entityType+" · "+x.identityStatus);
+      pill(c,x.articleCount+" haber");pill(c,x.mentionCount+" anılma");
+      (x.mentions||[]).forEach(function(m){
+        var row=append(c,"p","","“"+m.quote+"” · "+m.publisherDomain+" · "+m.field);
+        addSource(row,m.canonicalUrl,"Haberi aç");
+      });
+      host.appendChild(c);
+    });
+
+    heading("Açık sorular ve eksikler",(d.openChecks||[]).length);
+    (d.openChecks||[]).forEach(function(note){host.appendChild(el("div","warning",note));});
   }
   function renderComparison(item){
     var c=card(item.statement,item.assessment);
@@ -409,9 +555,36 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
     if(view==="relations")return state.relations.map(function(x){return {kind:"relation",data:x,search:[x.predicate,x.rationale,x.status].join(" ")};});
     return state.articles.map(function(x){return {kind:"article",data:x,search:[x.title,x.summary,x.sourceName,x.canonicalUrl].join(" ")};});
   }
+  function syncNav(){
+    document.querySelectorAll("[data-view]").forEach(function(b){
+      var buttonView=b.getAttribute("data-view");
+      b.classList.toggle("active",buttonView===(view==="dossier"?"events":view));
+    });
+  }
+  function openDossier(eventID){
+    var host=document.getElementById("content");
+    host.replaceChildren(el("div","empty","Olay dosyası oluşturuluyor…"));
+    document.getElementById("search").value="";
+    fetch("/api/event-dossier?eventId="+encodeURIComponent(eventID),{cache:"no-store"}).then(function(r){
+      if(!r.ok)throw new Error("HTTP "+r.status);
+      return r.json();
+    }).then(function(data){
+      selectedDossier=data;view="dossier";syncNav();draw();
+    }).catch(function(){
+      host.replaceChildren(el("div","error","Olay dosyası oluşturulamadı. Olay kaydını ve Intelligence veritabanını kontrol edin."));
+    });
+  }
   function draw(){
     if(!state)return;
     var info=titles[view];
+    document.getElementById("pageTitle").textContent=info[0];
+    document.getElementById("pageSub").textContent=info[1];
+    document.getElementById("sectionTitle").textContent=info[2];
+    if(view==="dossier"){
+      document.getElementById("resultCount").textContent=selectedDossier?selectedDossier.articleCount+" haber · "+selectedDossier.statementCount+" ifade":"yükleniyor";
+      renderDossier(selectedDossier||{event:{title:"Yükleniyor"},articles:[],statements:[],repeatedWordingGroups:[],conflictCandidates:[],entities:[],openChecks:[],limitations:[]});
+      return;
+    }
     document.getElementById("pageTitle").textContent=info[0];
     document.getElementById("pageSub").textContent=info[1];
     document.getElementById("sectionTitle").textContent=info[2];
@@ -454,8 +627,10 @@ main{min-width:0;padding:30px clamp(18px,3vw,42px) 50px}.top{display:flex;align-
   }
   document.querySelectorAll("[data-view]").forEach(function(button){
     button.addEventListener("click",function(){
-      document.querySelectorAll("[data-view]").forEach(function(b){b.classList.toggle("active",b===button);});
-      view=button.getAttribute("data-view");draw();
+      view=button.getAttribute("data-view");
+      selectedDossier=null;
+      syncNav();
+      draw();
     });
   });
   document.getElementById("search").addEventListener("input",draw);

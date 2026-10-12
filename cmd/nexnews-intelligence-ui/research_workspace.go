@@ -117,7 +117,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
       <section class="panel section" id="targetSelectionPanel">
         <div class="section-title"><h3>Hedef seçimi ve örüntü analizi</h3><span class="pill">Betimsel karşılaştırma</span></div>
         <p class="muted small">Bir olay örüntüsünü değerlendirmek için aynı ölçütlerle tanımlanmış tesis evreni, araştırma dönemi ve kaynaklı sahiplik kayıtları gir. “Hedef iddiası” fiilî saldırı olarak sayılmaz. Bu araç interneti otomatik taramaz veya saldırganın niyetini çıkarmaz.</p>
-        <form id="targetStudyForm">
+        <div id="targetStudyForm">
           <div class="grid2">
             <div class="field"><label for="targetStudyTitle">Çalışma başlığı</label><input id="targetStudyTitle" required maxlength="200" placeholder="Örn. Rafinerilerde hedef seçimi"></div>
             <div class="field"><label for="targetStudyQuestion">Sınanacak soru</label><input id="targetStudyQuestion" required maxlength="1000" placeholder="Sahiplik kategorileri arasında kayıtlı hedefleme oranı farklı mı?"></div>
@@ -163,7 +163,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
             <button class="button secondary" type="submit">Olay kaydına ekle</button>
           </form>
           <div class="stack section" id="targetIncidentList"><div class="empty">Henüz olay kaydı yok.</div></div>
-          <div class="row section"><button class="button" id="saveTargetStudy" type="submit" form="targetStudyForm">Çalışmayı kaydet ve analiz et</button><span class="muted small" id="targetStudyReadiness">Kaynak kanıtı ve en az bir tesis gereklidir.</span></div>
+          <div class="row section"><button class="button" id="saveTargetStudy" type="button">Çalışmayı kaydet ve analiz et</button><span class="muted small" id="targetStudyReadiness">Kaynak kanıtı ve en az bir tesis gereklidir.</span></div>
         </form>
         <hr class="rule">
         <div class="section-title"><h3>Kaydedilmiş karşılaştırmalar</h3><button class="button secondary" id="refreshTargetStudies" type="button">Yenile</button></div>
@@ -357,7 +357,8 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
   function targetDateISO(id) {
     var value=byId(id).value;
     if(!value)return null;
-    var date=new Date(value+"T00:00:00Z");
+    var endOfDay=(id==="targetPeriodEnd"||id==="targetOwnershipValidTo");
+    var date=new Date(value+(endOfDay?"T23:59:59.999Z":"T00:00:00.000Z"));
     return isNaN(date.getTime())?null:date.toISOString();
   }
   function fillEvidenceSelect(id, placeholder) {
@@ -516,7 +517,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     var evidenceID=byId("targetIncidentEvidence").value;
     if(!assetID||!occurredAt||!evidenceID){setMessage("Olay için tesis, tarih ve kanıt seçimi gereklidir.",true);return;}
     targetIncidents.push({
-      id:"incident-"+(targetIncidents.length+1),assetId:assetID,
+      id:"incident-"+Date.now()+"-"+(targetIncidents.length+1),assetId:assetID,
       actor:byId("targetIncidentActor").value.trim(),occurredAt:occurredAt,
       status:byId("targetIncidentStatus").value,
       description:byId("targetIncidentDescription").value.trim(),evidenceIds:[evidenceID]
@@ -525,7 +526,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     renderTargetIncidents();updateTargetReadiness();
     setMessage("Olay / iddia kaydı eklendi. Durum ayrı tutulacak.",false);
   });
-  byId("targetStudyForm").addEventListener("submit",async function(event){
+  byId("saveTargetStudy").addEventListener("click",async function(event){
     event.preventDefault();if(!selectedCase)return;
     var button=byId("saveTargetStudy");button.disabled=true;
     try {

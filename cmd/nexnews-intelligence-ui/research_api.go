@@ -145,6 +145,40 @@ func registerResearchRoutes(mux *http.ServeMux, repo *intelligence.JSONRepositor
 		if err != nil { researchOperationError(w, err); return }
 		writeResearchJSON(w, http.StatusOK, item)
 	})
+
+	mux.HandleFunc("/api/target-selection-studies", func(w http.ResponseWriter, r *http.Request) {
+		setResearchHeaders(w)
+		caseID := strings.TrimSpace(r.URL.Query().Get("caseId"))
+		if caseID == "" { writeResearchError(w, http.StatusBadRequest, "caseId is required"); return }
+		switch r.Method {
+		case http.MethodGet:
+			item, err := repo.GetResearchCase(caseID)
+			if err != nil { researchOperationError(w, err); return }
+			items := item.TargetSelectionStudies
+			if items == nil { items = []intelligence.TargetSelectionStudy{} }
+			writeResearchJSON(w, http.StatusOK, map[string]any{"items": items})
+		case http.MethodPost:
+			var input intelligence.TargetSelectionStudy
+			if err := decodeResearchJSON(w, r, &input); err != nil { writeResearchError(w, http.StatusBadRequest, err.Error()); return }
+			item, err := repo.CreateTargetSelectionStudy(caseID, input)
+			if err != nil { researchOperationError(w, err); return }
+			study := item.TargetSelectionStudies[len(item.TargetSelectionStudies)-1]
+			writeResearchJSON(w, http.StatusCreated, study)
+		default:
+			researchMethodNotAllowed(w, "GET, POST")
+		}
+	})
+
+	mux.HandleFunc("/api/target-selection-analysis", func(w http.ResponseWriter, r *http.Request) {
+		setResearchHeaders(w)
+		if !allowGET(w, r) { return }
+		caseID := strings.TrimSpace(r.URL.Query().Get("caseId"))
+		studyID := strings.TrimSpace(r.URL.Query().Get("studyId"))
+		if caseID == "" || studyID == "" { writeResearchError(w, http.StatusBadRequest, "caseId and studyId are required"); return }
+		report, err := repo.AnalyzeTargetSelectionStudy(caseID, studyID)
+		if err != nil { researchOperationError(w, err); return }
+		writeResearchJSON(w, http.StatusOK, report)
+	})
 }
 
 func setResearchHeaders(w http.ResponseWriter) {

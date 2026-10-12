@@ -320,7 +320,8 @@ func groundLiveSynthesis(draft liveSynthesisDraft, articles []LiveResearchArticl
 			allCitationIDs = append(allCitationIDs, citation.ArticleID)
 		}
 	}
-	overallConfidence := capLiveConfidence(normalizeLiveConfidence(draft.OverallConfidence), sourcesFor(allCitationIDs).1)
+	_, allCitations := sourcesFor(allCitationIDs)
+	overallConfidence := capLiveConfidence(normalizeLiveConfidence(draft.OverallConfidence), allCitations)
 	return &LiveResearchSynthesis{
 		Model: model, ExecutiveSummary: summary,
 		OverallConfidence: overallConfidence,

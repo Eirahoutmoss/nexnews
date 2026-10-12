@@ -180,11 +180,7 @@ Sadece geçerli JSON döndür; Markdown kod çiti ve JSON dışı açıklama ekl
  "limitations":["string"]
 }
 En fazla 6 ana bulgu, 5 çelişki sinyali, 4 alternatif açıklama, 8 zaman çizelgesi maddesi ve 6 takip sorusu üret. Zayıf kanıtı açıkça düşük güven olarak tanımla. `
-	user := "Araştırma sorusu:
-" + query + "
-
-Bulunan kaynak kayıtları (JSON):
-" + string(payload)
+	user := strings.Join([]string{"Araştırma sorusu:", query, "Bulunan kaynak kayıtları (JSON):", string(payload)}, string(rune(10)))
 	requestBody := liveChatCompletionRequest{
 		Model: s.Model, Temperature: 0.1,
 		ResponseFormat: map[string]string{"type": "json_object"},

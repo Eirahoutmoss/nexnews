@@ -114,6 +114,62 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
         <div class="section-title"><h3>Kaynak ve kanıt günlüğü</h3><span class="pill" id="evidenceCount">0 kayıt</span></div>
         <div class="stack" id="evidenceList"></div>
       </section>
+      <section class="panel section" id="targetSelectionPanel">
+        <div class="section-title"><h3>Hedef seçimi ve örüntü analizi</h3><span class="pill">Betimsel karşılaştırma</span></div>
+        <p class="muted small">Bir olay örüntüsünü değerlendirmek için aynı ölçütlerle tanımlanmış tesis evreni, araştırma dönemi ve kaynaklı sahiplik kayıtları gir. “Hedef iddiası” fiilî saldırı olarak sayılmaz. Bu araç interneti otomatik taramaz veya saldırganın niyetini çıkarmaz.</p>
+        <form id="targetStudyForm">
+          <div class="grid2">
+            <div class="field"><label for="targetStudyTitle">Çalışma başlığı</label><input id="targetStudyTitle" required maxlength="200" placeholder="Örn. Rafinerilerde hedef seçimi"></div>
+            <div class="field"><label for="targetStudyQuestion">Sınanacak soru</label><input id="targetStudyQuestion" required maxlength="1000" placeholder="Sahiplik kategorileri arasında kayıtlı hedefleme oranı farklı mı?"></div>
+            <div class="field"><label for="targetPeriodStart">Araştırma başlangıcı</label><input id="targetPeriodStart" type="date" required></div>
+            <div class="field"><label for="targetPeriodEnd">Araştırma bitişi</label><input id="targetPeriodEnd" type="date" required></div>
+          </div>
+          <div class="field"><label for="targetUniverseDefinition">Karşılaştırma evreni tanımı</label><textarea id="targetUniverseDefinition" required placeholder="Coğrafya, tesis türü, dâhil etme ölçütü ve dönemin nasıl seçildiği"></textarea></div>
+          <label class="row small"><input id="targetUniverseComplete" type="checkbox"> Bu tesis evreninin tanımlı kapsama göre eksiksiz olduğunu kaynaklarla kontrol ettim</label>
+          <div class="notice">Evrenin eksiksizliği işaretlenmediyse sistem iki sahiplik grubu arasındaki farkı örüntü sonucu olarak yayımlamaz. İşaretleme araştırmacının beyanıdır, otomatik doğrulama değildir.</div>
+          <hr class="rule">
+          <h3>Tesis envanteri</h3>
+          <p class="muted small">Her tesis için dâhil edilme gerekçesini ve sahiplik dönemini destekleyen, bu araştırma dosyasına daha önce kaydedilmiş kanıtları seç.</p>
+          <form id="targetAssetForm">
+            <div class="grid2">
+              <div class="field"><label for="targetAssetId">Tesis kimliği</label><input id="targetAssetId" required placeholder="Örn. refinery-01"></div>
+              <div class="field"><label for="targetAssetName">Tesis adı</label><input id="targetAssetName" required placeholder="Tesisin belgelerdeki adı"></div>
+              <div class="field"><label for="targetAssetType">Tesis türü</label><input id="targetAssetType" required value="refinery"></div>
+              <div class="field"><label for="targetAssetCategory">Araştırma dönemi sahiplik sınıfı</label><select id="targetAssetCategory"><option value="foreign_participation">Yabancı ortak/katılım var</option><option value="no_foreign_participation">Yabancı ortak/katılım yok</option><option value="unknown">Bilinmiyor / sınıflandırılamıyor</option></select></div>
+            </div>
+            <div class="field"><label for="targetAssetInclusion">Bu tesis neden karşılaştırma evrenine dâhil?</label><textarea id="targetAssetInclusion" required placeholder="Ölçütleri diğer tesislere de aynı biçimde uygulayan gerekçe"></textarea></div>
+            <div class="grid2">
+              <div class="field"><label for="targetAssetEligibilityEvidence">Tesisin uygunluğunu gösteren kaynak</label><select id="targetAssetEligibilityEvidence" required></select></div>
+              <div class="field"><label for="targetAssetOwnershipEvidence">Sahiplik sınıfını gösteren kaynak</label><select id="targetAssetOwnershipEvidence" required></select></div>
+              <div class="field"><label for="targetOwnershipValidFrom">Sahiplik kaydı geçerlilik başlangıcı</label><input id="targetOwnershipValidFrom" type="date" required></div>
+              <div class="field"><label for="targetOwnershipValidTo">Sahiplik kaydı geçerlilik bitişi (boşsa hâlen geçerli)</label><input id="targetOwnershipValidTo" type="date"></div>
+            </div>
+            <div class="field"><label for="targetAssetOwnershipDetails">Ortaklık, pay oranları ve kaynak notu</label><textarea id="targetAssetOwnershipDetails" required placeholder="Kaydın tam olarak neyi gösterdiği; paylar ve varsa belirsizlikler"></textarea></div>
+            <button class="button secondary" type="submit">Tesis envanterine ekle</button>
+          </form>
+          <div class="stack section" id="targetAssetList"><div class="empty">Henüz tesis eklenmedi.</div></div>
+          <hr class="rule">
+          <h3>Hedefleme / saldırı kayıtları</h3>
+          <p class="muted small">Yalnızca bu araştırma aralığı içindeki kayıtları ekle. İddiayı, bildirilen girişimi, önlenen saldırıyı, isabeti ve hasarı birbirine karıştırma.</p>
+          <form id="targetIncidentForm">
+            <div class="grid2">
+              <div class="field"><label for="targetIncidentAsset">İlgili tesis</label><select id="targetIncidentAsset" required></select></div>
+              <div class="field"><label for="targetIncidentActor">İsnat edilen aktör</label><input id="targetIncidentActor" required placeholder="Kaynakta adı geçen aktör"></div>
+              <div class="field"><label for="targetIncidentDate">Olay zamanı</label><input id="targetIncidentDate" type="date" required></div>
+              <div class="field"><label for="targetIncidentStatus">Kayıt durumu</label><select id="targetIncidentStatus"><option value="claim_only">Yalnızca hedefleme iddiası</option><option value="attempt_reported">Saldırı girişimi bildirildi</option><option value="intercepted">Önleme / havada imha bildirildi</option><option value="impact_reported">İsabet bildirildi</option><option value="damage_reported">Hasar bildirildi</option></select></div>
+            </div>
+            <div class="field"><label for="targetIncidentDescription">Kaydın tam açıklaması</label><textarea id="targetIncidentDescription" required placeholder="Kaynağın bildirdiği durum, neyin bağımsız doğrulanmadığı dâhil"></textarea></div>
+            <div class="field"><label for="targetIncidentEvidence">Olay / iddia kaynağı</label><select id="targetIncidentEvidence" required></select></div>
+            <button class="button secondary" type="submit">Olay kaydına ekle</button>
+          </form>
+          <div class="stack section" id="targetIncidentList"><div class="empty">Henüz olay kaydı yok.</div></div>
+          <div class="row section"><button class="button" id="saveTargetStudy" type="submit" form="targetStudyForm">Çalışmayı kaydet ve analiz et</button><span class="muted small" id="targetStudyReadiness">Kaynak kanıtı ve en az bir tesis gereklidir.</span></div>
+        </form>
+        <hr class="rule">
+        <div class="section-title"><h3>Kaydedilmiş karşılaştırmalar</h3><button class="button secondary" id="refreshTargetStudies" type="button">Yenile</button></div>
+        <div class="stack" id="targetStudyList"><div class="empty">Araştırma dosyası seçildiğinde kayıtlar gösterilecek.</div></div>
+        <div id="targetStudyReport" class="section"></div>
+      </section>
     </div>
     <div class="footer">NexNews Intelligence Research Core · Kaynak kökeni kaybolmaz. Kaynak sayısı tek başına doğrulama değildir. Sonuçlar ve yorumlar, kaynaklardan ayrı tutulur.</div>
   </main>
@@ -126,6 +182,8 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
   var caseSummaries = [];
   var linkedEventId = new URLSearchParams(window.location.search).get("eventId") || "";
   var messageTimer = null;
+  var targetAssets = [];
+  var targetIncidents = [];
   function byId(id){return document.getElementById(id);}
   function node(tag, cls, text){
     var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined&&text!==null)n.textContent=String(text);return n;
@@ -284,6 +342,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
       var c=add(host,"article","item","");add(c,"h4","",ev.title);
       var row=add(c,"div","meta","");pill(row,evidenceKindText(ev.kind));pill(row,sourceKind(ev.sourceKind));pill(row,levelText(ev.contentLevel));pill(row,originText(ev.sourceOrigin),ev.sourceOrigin==="unknown"?"gold":"");
       add(c,"p","",ev.excerpt);
+      add(c,"p","muted small","Kanıt kayıt kimliği: "+ev.id);
       var meta=add(c,"p","muted small","Yayıncı: "+ev.publisher+" ("+ev.publisherDomain+") · Yayın tarihi: "+date(ev.publishedAt)+" · Kaydedilme: "+date(ev.retrievedAt));
       if(ev.author)add(c,"p","muted small","Yazar / ekip: "+ev.author);
       if(ev.syndicationGroup)add(c,"p","muted small","Paylaşılan köken etiketi: "+ev.syndicationGroup);
@@ -295,6 +354,119 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
       });
     });
   }
+  function targetDateISO(id) {
+    var value=byId(id).value;
+    if(!value)return null;
+    var date=new Date(value+"T00:00:00Z");
+    return isNaN(date.getTime())?null:date.toISOString();
+  }
+  function fillEvidenceSelect(id, placeholder) {
+    var select=byId(id);if(!select)return;
+    var previous=select.value;clear(select);
+    var first=add(select,"option","",placeholder);first.value="";
+    (selectedCase&&selectedCase.evidence||[]).forEach(function(ev){
+      var option=add(select,"option","",ev.title+" · "+ev.publisherDomain+" · "+ev.id);
+      option.value=ev.id;
+    });
+    if((selectedCase&&selectedCase.evidence||[]).some(function(ev){return ev.id===previous;}))select.value=previous;
+  }
+  function renderTargetSelectors() {
+    fillEvidenceSelect("targetAssetEligibilityEvidence","Tesis uygunluk kanıtını seç");
+    fillEvidenceSelect("targetAssetOwnershipEvidence","Sahiplik kanıtını seç");
+    fillEvidenceSelect("targetIncidentEvidence","Olay kanıtını seç");
+    var select=byId("targetIncidentAsset"),prior=select.value;clear(select);
+    var empty=add(select,"option","","Önce tesis envanteri oluştur");empty.value="";
+    targetAssets.forEach(function(asset){var option=add(select,"option","",asset.name+" ("+asset.id+")");option.value=asset.id;});
+    if(targetAssets.some(function(asset){return asset.id===prior;}))select.value=prior;
+  }
+  function renderTargetAssets() {
+    var host=byId("targetAssetList");clear(host);
+    if(!targetAssets.length){host.appendChild(node("div","empty","Henüz tesis eklenmedi."));}
+    targetAssets.forEach(function(asset,index){
+      var c=add(host,"article","item","");
+      add(c,"h4","",asset.name+" · "+asset.id);
+      pill(c,asset.ownershipHistory[0].category==="foreign_participation"?"Yabancı katılım var":asset.ownershipHistory[0].category==="no_foreign_participation"?"Yabancı katılım yok":"Sınıf bilinmiyor");
+      add(c,"p","muted small",asset.assetType+" · Uygunluk kanıtı: "+asset.eligibilityEvidenceIds.join(", ")+" · Sahiplik kanıtı: "+asset.ownershipHistory[0].evidenceIds.join(", "));
+      var remove=add(c,"button","button secondary","Envanterden çıkar");remove.type="button";
+      remove.addEventListener("click",function(){
+        var removed=targetAssets[index].id;targetAssets.splice(index,1);
+        targetIncidents=targetIncidents.filter(function(incident){return incident.assetId!==removed;});
+        renderTargetAssets();renderTargetIncidents();renderTargetSelectors();updateTargetReadiness();
+      });
+    });
+  }
+  function renderTargetIncidents() {
+    var host=byId("targetIncidentList");clear(host);
+    if(!targetIncidents.length){host.appendChild(node("div","empty","Henüz olay kaydı yok."));}
+    targetIncidents.forEach(function(incident,index){
+      var asset=targetAssets.find(function(item){return item.id===incident.assetId;});
+      var c=add(host,"article","item","");
+      add(c,"h4","",date(incident.occurredAt)+" · "+(asset?asset.name:incident.assetId));
+      pill(c,({claim_only:"Yalnızca iddia",attempt_reported:"Girişim bildirildi",intercepted:"Önleme bildirildi",impact_reported:"İsabet bildirildi",damage_reported:"Hasar bildirildi"})[incident.status]||incident.status);
+      add(c,"p","","Aktör: "+incident.actor+" · "+incident.description);
+      add(c,"p","muted small","Kaynak kanıtı: "+incident.evidenceIds.join(", "));
+      var remove=add(c,"button","button secondary","Olay kaydını çıkar");remove.type="button";
+      remove.addEventListener("click",function(){targetIncidents.splice(index,1);renderTargetIncidents();updateTargetReadiness();});
+    });
+  }
+  function updateTargetReadiness() {
+    var evidenceCount=(selectedCase&&selectedCase.evidence||[]).length;
+    var valid=targetAssets.length>0 && evidenceCount>0 && byId("targetPeriodStart").value && byId("targetPeriodEnd").value;
+    byId("saveTargetStudy").disabled=!valid;
+    byId("targetStudyReadiness").textContent=valid
+      ? targetAssets.length+" tesis · "+targetIncidents.length+" olay kaydı · kaynaklar bağlı; kapsamı kaydetmeden önce kontrol et."
+      : "Kaynak kanıtı, geçerli dönem ve en az bir tesis gereklidir.";
+  }
+  function categoryText(value) {
+    return ({foreign_participation:"Yabancı katılım var",no_foreign_participation:"Yabancı katılım yok",unknown:"Sınıflandırılamıyor"})[value]||value;
+  }
+  async function loadTargetStudyAnalysis(studyID) {
+    if(!selectedCase)return;
+    var host=byId("targetStudyReport");clear(host);host.appendChild(node("div","empty","Karşılaştırma raporu hesaplanıyor…"));
+    try {
+      var report=await api("/api/target-selection-analysis?caseId="+encodeURIComponent(selectedCase.id)+"&studyId="+encodeURIComponent(studyID));
+      clear(host);
+      var heading=add(host,"div","section-title","");add(heading,"h3","","Analiz raporu");
+      var status=add(host,"p","muted small","Durum: "+report.comparisonStatus.replace(/_/g," "));
+      if(report.descriptiveDifferencePercentagePoints!==undefined && report.descriptiveDifferencePercentagePoints!==null) {
+        add(host,"div","notice","Betimsel oran farkı: "+Number(report.descriptiveDifferencePercentagePoints).toFixed(1)+" yüzde puan (yabancı katılım var eksi yabancı katılım yok). Bu, niyet veya nedensellik kanıtı değildir.");
+      } else { add(host,"div","notice","Ana gruplar için karşılaştırmalı oran farkı hesaplanmadı. Durum ve uyarıları incele."); }
+      var metrics=add(host,"div","metrics","");
+      [[ "Evren tesisi",report.universeAssetCount ],[ "Sınıflandırılan",report.classifiedAssetCount ],[ "Sınıflandırılamayan",report.unclassifiedAssetCount ],[ "Olay kaydı",report.incidentRecordCount ],[ "Yalnızca iddia",report.claimOnlyRecordCount ]].forEach(function(pair){
+        var m=add(metrics,"div","metric","");add(m,"strong","",pair[1]);add(m,"span","",pair[0]);
+      });
+      (report.groups||[]).forEach(function(group){
+        var box=add(host,"article","item","");
+        add(box,"h4","",categoryText(group.category));
+        add(box,"p","","Tesisler: "+group.eligibleAssetCount+" · Kayıtlı hedefleme görülen tesis: "+group.assetsWithRecordedTargeting+" · Yalnızca iddia bulunan tesis: "+group.assetsWithClaimOnly);
+        add(box,"p","","Gözlem kaydı: "+group.recordedTargetingIncidents+" · Yalnızca iddia kaydı: "+group.claimOnlyRecords+" · Kayıtlı hedefleme görülen tesis oranı: "+(group.rateAvailable?Number(group.targetedAssetRatePercent).toFixed(1)+"%":"hesaplanamadı"));
+        if(group.smallDenominator)add(box,"p","muted small","Küçük payda: tek kayıt oranı ciddi biçimde değiştirebilir.");
+      });
+      (report.warnings||[]).forEach(function(note){add(host,"div","notice",note);});
+      (report.interpretationLimitations||[]).forEach(function(note){add(host,"p","muted small",note);});
+    } catch(err) { clear(host);host.appendChild(node("div","notice","Analiz alınamadı: "+err.message)); }
+  }
+  async function loadTargetStudies() {
+    if(!selectedCase)return;
+    var host=byId("targetStudyList");clear(host);
+    try {
+      var result=await api("/api/target-selection-studies?caseId="+encodeURIComponent(selectedCase.id));
+      var items=result.items||[];
+      if(!items.length){host.appendChild(node("div","empty","Bu araştırma dosyasında henüz hedef seçimi çalışması yok."));return;}
+      items.slice().reverse().forEach(function(study){
+        var c=add(host,"article","item","");
+        add(c,"h4","",study.title);
+        add(c,"p","muted small",study.question);
+        add(c,"p","muted small",date(study.periodStart)+" – "+date(study.periodEnd)+" · "+(study.assets||[]).length+" tesis · "+(study.incidents||[]).length+" olay kaydı");
+        var row=add(c,"div","row","");
+        var analyze=add(row,"button","button","Analizi aç");analyze.type="button";analyze.addEventListener("click",function(){loadTargetStudyAnalysis(study.id);});
+      });
+    } catch(err) {host.appendChild(node("div","notice","Çalışmalar yüklenemedi: "+err.message));}
+  }
+  function renderTargetWorkspace() {
+    if(!selectedCase)return;
+    renderTargetSelectors();renderTargetAssets();renderTargetIncidents();updateTargetReadiness();loadTargetStudies();
+  }
   function renderCurrentCase(){
     if(!selectedCase)return;
     byId("welcome").classList.add("hidden");byId("workspace").classList.remove("hidden");
@@ -304,14 +476,82 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
     byId("refreshSources").classList.toggle("hidden",!selectedCase.relatedEventId);
     var summary=caseSummaries.find(function(s){return s.case.id===selectedCase.id;});
     renderMetrics(summary||{evidenceCount:(selectedCase.evidence||[]).length,hypothesisCount:(selectedCase.hypotheses||[]).length,openQuestionCount:(selectedCase.openQuestions||[]).filter(function(q){return q.status!=="resolved";}).length,publisherDomainCount:new Set((selectedCase.evidence||[]).map(function(e){return e.publisherDomain;})).size,limitations:[]});
-    renderHypotheses();renderQuestions();renderEvidence();loadAnalysis();
+    renderHypotheses();renderQuestions();renderEvidence();loadAnalysis();renderTargetWorkspace();
     renderCaseList();
   }
   async function loadCase(id){
+    if(selectedCaseId!==id){targetAssets=[];targetIncidents=[];}
     var item=await api("/api/research-case?caseId="+encodeURIComponent(id));selectedCaseId=id;selectedCase=item;
     await api("/api/research-cases").then(function(result){caseSummaries=result.items||[];});
     renderCurrentCase();return item;
   }
+  byId("targetAssetForm").addEventListener("submit",function(event){
+    event.preventDefault();if(!selectedCase)return;
+    var id=byId("targetAssetId").value.trim();
+    if(targetAssets.some(function(asset){return asset.id===id;})){setMessage("Bu tesis kimliği zaten kullanılıyor.",true);return;}
+    var validFrom=targetDateISO("targetOwnershipValidFrom");
+    var validTo=targetDateISO("targetOwnershipValidTo");
+    if(!validFrom){setMessage("Sahiplik dönemi başlangıcını gir.",true);return;}
+    if(validTo && validTo<validFrom){setMessage("Sahiplik bitişi başlangıçtan önce olamaz.",true);return;}
+    var eligibility=byId("targetAssetEligibilityEvidence").value;
+    var ownershipEvidence=byId("targetAssetOwnershipEvidence").value;
+    if(!eligibility||!ownershipEvidence){setMessage("Tesis ve sahiplik için kaynak kanıtlarını seç.",true);return;}
+    targetAssets.push({
+      id:id,name:byId("targetAssetName").value.trim(),assetType:byId("targetAssetType").value.trim(),
+      inclusionRationale:byId("targetAssetInclusion").value.trim(),eligibilityEvidenceIds:[eligibility],
+      ownershipHistory:[{
+        validFrom:validFrom,validTo:validTo,category:byId("targetAssetCategory").value,
+        details:byId("targetAssetOwnershipDetails").value.trim(),evidenceIds:[ownershipEvidence]
+      }]
+    });
+    byId("targetAssetForm").reset();
+    byId("targetAssetType").value="refinery";
+    renderTargetAssets();renderTargetSelectors();updateTargetReadiness();
+    setMessage("Tesis, uygunluk ve sahiplik kaynağıyla geçici envantere eklendi.",false);
+  });
+  byId("targetIncidentForm").addEventListener("submit",function(event){
+    event.preventDefault();if(!selectedCase)return;
+    var assetID=byId("targetIncidentAsset").value;
+    var occurredAt=targetDateISO("targetIncidentDate");
+    var evidenceID=byId("targetIncidentEvidence").value;
+    if(!assetID||!occurredAt||!evidenceID){setMessage("Olay için tesis, tarih ve kanıt seçimi gereklidir.",true);return;}
+    targetIncidents.push({
+      id:"incident-"+(targetIncidents.length+1),assetId:assetID,
+      actor:byId("targetIncidentActor").value.trim(),occurredAt:occurredAt,
+      status:byId("targetIncidentStatus").value,
+      description:byId("targetIncidentDescription").value.trim(),evidenceIds:[evidenceID]
+    });
+    byId("targetIncidentForm").reset();
+    renderTargetIncidents();updateTargetReadiness();
+    setMessage("Olay / iddia kaydı eklendi. Durum ayrı tutulacak.",false);
+  });
+  byId("targetStudyForm").addEventListener("submit",async function(event){
+    event.preventDefault();if(!selectedCase)return;
+    var button=byId("saveTargetStudy");button.disabled=true;
+    try {
+      var periodStart=targetDateISO("targetPeriodStart"),periodEnd=targetDateISO("targetPeriodEnd");
+      if(!periodStart||!periodEnd||periodEnd<periodStart)throw new Error("Araştırma dönemi geçersiz.");
+      if(!targetAssets.length)throw new Error("En az bir kaynakla desteklenmiş tesis ekle.");
+      var input={
+        title:byId("targetStudyTitle").value.trim(),question:byId("targetStudyQuestion").value.trim(),
+        periodStart:periodStart,periodEnd:periodEnd,
+        universeDefinition:byId("targetUniverseDefinition").value.trim(),
+        universeComplete:byId("targetUniverseComplete").checked,
+        assets:targetAssets,incidents:targetIncidents
+      };
+      var saved=await api("/api/target-selection-studies?caseId="+encodeURIComponent(selectedCase.id),{method:"POST",body:JSON.stringify(input)});
+      selectedCase=await api("/api/research-case?caseId="+encodeURIComponent(selectedCase.id));
+      targetAssets=[];targetIncidents=[];
+      renderCurrentCase();
+      await loadTargetStudyAnalysis(saved.id);
+      setMessage("Hedef seçimi çalışması kaydedildi. Rapor, evren ve kanıt kapsamı sınırlarını koruyarak oluşturuldu.",false);
+    } catch(err) {setMessage(err.message,true);}
+    finally {button.disabled=false;updateTargetReadiness();}
+  });
+  byId("refreshTargetStudies").addEventListener("click",function(){loadTargetStudies();});
+  ["targetPeriodStart","targetPeriodEnd","targetUniverseComplete"].forEach(function(id){
+    byId(id).addEventListener("change",updateTargetReadiness);
+  });
   byId("analysisRefresh").addEventListener("click",function(){loadAnalysis();});
   byId("refreshSources").addEventListener("click",async function(){
     if(!selectedCase||!selectedCase.relatedEventId)return;

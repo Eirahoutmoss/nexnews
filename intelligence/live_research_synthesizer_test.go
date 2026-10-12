@@ -23,7 +23,7 @@ func TestGroundLiveSynthesisDropsUnknownSourceIDs(t *testing.T) {
 	if len(got.KeyFindings)!=1{t.Fatalf("expected only grounded finding, got %d",len(got.KeyFindings))}
 	if len(got.KeyFindings[0].Sources)!=1{t.Fatalf("expected one validated citation, got %d",len(got.KeyFindings[0].Sources))}
 	if got.KeyFindings[0].Sources[0].URL!=article.URL{t.Fatalf("unexpected citation URL: %s",got.KeyFindings[0].Sources[0].URL)}
-	if got.OverallConfidence!="high"{t.Fatalf("unexpected normalized confidence: %s",got.OverallConfidence)}
+	if got.OverallConfidence!="low"{t.Fatalf("single-source overall confidence should be low, got: %s",got.OverallConfidence)}
 }
 
 func TestOpenAICompatibleSynthesizerUsesProvidedSourcesOnly(t *testing.T) {

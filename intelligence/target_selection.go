@@ -57,6 +57,7 @@ type TargetIncident struct {
 }
 
 type TargetSelectionStudy struct {
+	ID                   string           `json:"id,omitempty"`
 	Title                string           `json:"title"`
 	Question             string           `json:"question"`
 	PeriodStart          time.Time        `json:"periodStart"`
@@ -65,6 +66,8 @@ type TargetSelectionStudy struct {
 	UniverseComplete     bool             `json:"universeComplete"`
 	Assets               []TargetAsset    `json:"assets"`
 	Incidents            []TargetIncident `json:"incidents"`
+	CreatedAt            time.Time        `json:"createdAt,omitempty"`
+	UpdatedAt            time.Time        `json:"updatedAt,omitempty"`
 }
 
 type TargetSelectionGroup struct {

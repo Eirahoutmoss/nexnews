@@ -10,7 +10,7 @@ import (
 	"nexnews/intelligence"
 )
 
-func datePtr(t time.Time) *time.Time { return &t }
+func targetSelectionTestTimePtr(t time.Time) *time.Time { return &t }
 
 func apiTestDate(value string) time.Time {
 	t,err:=time.Parse(time.RFC3339,value)
@@ -55,7 +55,7 @@ func TestTargetSelectionStudyAPIStoresAndReturnsDescriptiveComparison(t *testing
 		UniverseDefinition:"All eligible refineries in the documented study geography and time window.",
 		UniverseComplete:true,
 		Assets:[]intelligence.TargetAsset{
-			{ID:"foreign",Name:"Facility A",AssetType:"refinery",InclusionRationale:"Matches the predefined facility type and geography.",EligibilityEvidenceIDs:[]string{eligibilityID},OwnershipHistory:[]intelligence.TargetOwnershipPeriod{{ValidFrom:apiTestDate("2023-01-01T00:00:00Z"),ValidTo:datePtr(apiTestDate("2025-01-01T00:00:00Z")),Category:intelligence.TargetOwnershipForeignParticipation,Details:"Ownership classification sourced in the case.",EvidenceIDs:[]string{ownershipID}}}},
+			{ID:"foreign",Name:"Facility A",AssetType:"refinery",InclusionRationale:"Matches the predefined facility type and geography.",EligibilityEvidenceIDs:[]string{eligibilityID},OwnershipHistory:[]intelligence.TargetOwnershipPeriod{{ValidFrom:apiTestDate("2023-01-01T00:00:00Z"),ValidTo:targetSelectionTestTimePtr(apiTestDate("2025-01-01T00:00:00Z")),Category:intelligence.TargetOwnershipForeignParticipation,Details:"Ownership classification sourced in the case.",EvidenceIDs:[]string{ownershipID}}}},
 			{ID:"domestic",Name:"Facility B",AssetType:"refinery",InclusionRationale:"Matches the predefined facility type and geography.",EligibilityEvidenceIDs:[]string{eligibilityID},OwnershipHistory:[]intelligence.TargetOwnershipPeriod{{ValidFrom:apiTestDate("2023-01-01T00:00:00Z"),ValidTo:datePtr(apiTestDate("2025-01-01T00:00:00Z")),Category:intelligence.TargetOwnershipNoForeignParticipation,Details:"Ownership classification sourced in the case.",EvidenceIDs:[]string{ownershipID}}}},
 		},
 		Incidents:[]intelligence.TargetIncident{{ID:"recorded-attempt",AssetID:"foreign",Actor:"Actor X",OccurredAt:apiTestDate("2024-07-01T00:00:00Z"),Status:intelligence.TargetIncidentAttemptReported,Description:"Reported attempt; not treated as independent confirmation by this analysis.",EvidenceIDs:[]string{incidentID}}},
@@ -87,8 +87,10 @@ func TestTargetSelectionStudyAPIStoresAndReturnsDescriptiveComparison(t *testing
 
 func TestTargetSelectionStudyAPIRejectsCrossCaseReferencesAndWrongMethods(t *testing.T) {
 	h:=newHandler(testRepository(t))
-	rec:=requestJSON(t,h,http.MethodGet,"/api/target-selection-analysis?caseId=case&studyId=study",nil)
+	rec:=requestJSON(t,h,http.MethodGet,"/api/target-selection-analysis",nil)
 	if rec.Code!=http.StatusBadRequest {t.Fatalf("missing case and study IDs should be rejected, got %d",rec.Code)}
+	rec=requestJSON(t,h,http.MethodPost,"/api/target-selection-analysis?caseId=case&studyId=study",map[string]any{})
+	if rec.Code!=http.StatusMethodNotAllowed {t.Fatalf("analysis endpoint should reject POST, got %d",rec.Code)}
 	rec=requestJSON(t,h,http.MethodPost,"/api/target-selection-studies",map[string]any{})
 	if rec.Code!=http.StatusBadRequest {t.Fatalf("missing case id should be rejected, got %d",rec.Code)}
 }

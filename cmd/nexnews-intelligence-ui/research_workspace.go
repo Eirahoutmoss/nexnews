@@ -164,7 +164,7 @@ a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
           </form>
           <div class="stack section" id="targetIncidentList"><div class="empty">Henüz olay kaydı yok.</div></div>
           <div class="row section"><button class="button" id="saveTargetStudy" type="button">Çalışmayı kaydet ve analiz et</button><span class="muted small" id="targetStudyReadiness">Kaynak kanıtı ve en az bir tesis gereklidir.</span></div>
-        </form>
+        </div>
         <hr class="rule">
         <div class="section-title"><h3>Kaydedilmiş karşılaştırmalar</h3><button class="button secondary" id="refreshTargetStudies" type="button">Yenile</button></div>
         <div class="stack" id="targetStudyList"><div class="empty">Araştırma dosyası seçildiğinde kayıtlar gösterilecek.</div></div>

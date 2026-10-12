@@ -64,6 +64,9 @@ type LiveResearchReport struct {
 	GeneratedAt time.Time "json:\"generatedAt\""
 	Status string "json:\"status\""
 	Summary string "json:\"summary\""
+	AnalysisMode string "json:\"analysisMode\""
+	AnalysisNotice string "json:\"analysisNotice\""
+	Synthesis *LiveResearchSynthesis "json:\"synthesis,omitempty\""
 	ArticleCount int "json:\"articleCount\""
 	PublisherCount int "json:\"publisherCount\""
 	Themes []LiveResearchTheme "json:\"themes\""
@@ -81,6 +84,8 @@ type LiveSearchProvider interface {
 type LiveResearchEngine struct {
 	Providers []LiveSearchProvider
 	MaxDuration time.Duration
+	SynthesisTimeout time.Duration
+	Synthesizer LiveResearchSynthesizer
 	Now func() time.Time
 }
 func NewLiveResearchEngine() *LiveResearchEngine {
@@ -90,7 +95,8 @@ func NewLiveResearchEngine() *LiveResearchEngine {
 			GoogleNewsRSSProvider{Locale:"en", Client:liveSearchClient()},
 			GDELTSearchProvider{Client:liveSearchClient()},
 		},
-		MaxDuration: 12*time.Second, Now:time.Now,
+		MaxDuration: 12*time.Second, SynthesisTimeout: 14*time.Second,
+		Synthesizer: NewOpenAICompatibleSynthesizerFromEnv(), Now:time.Now,
 	}
 }
 func liveSearchClient() *http.Client { return &http.Client{Timeout:7*time.Second} }
@@ -112,6 +118,8 @@ func (e *LiveResearchEngine) Run(ctx context.Context, input LiveResearchRequest)
 	wg.Wait()
 	report:=LiveResearchReport{
 		Query:query,GeneratedAt:now().UTC(),Status:"no_results",
+		AnalysisMode:"rule-based",
+		AnalysisNotice:"Model sentezi yapılandırılmadı. Kaynak kapsamı, tekrar ve tema analizi gösteriliyor; derin yorum ve niyet çıkarımı yapılmıyor.",
 		Themes:[]LiveResearchTheme{},Findings:[]LiveResearchFinding{},Articles:[]LiveResearchArticle{},ProviderStatuses:[]LiveResearchProviderStatus{},
 		OpenQuestions:[]string{
 			"Bulunan haberler aynı birincil belgeye veya haber ajansına mı dayanıyor?",
@@ -144,6 +152,23 @@ func (e *LiveResearchEngine) Run(ctx context.Context, input LiveResearchRequest)
 	report.Themes=buildLiveThemes(report.Articles)
 	report.SimilarHeadlineSignals=findSimilarLiveHeadlines(report.Articles)
 	report.Findings=buildLiveFindings(report)
+	if len(report.Articles)>0 && e.Synthesizer!=nil {
+		synthesisTimeout:=e.SynthesisTimeout
+		if synthesisTimeout<=0 { synthesisTimeout=14*time.Second }
+		synthesisCtx,stopSynthesis:=context.WithTimeout(ctx,synthesisTimeout)
+		synthesis, synthesisErr:=e.Synthesizer.Synthesize(synthesisCtx,query,report.Articles)
+		stopSynthesis()
+		if synthesisErr!=nil {
+			report.AnalysisMode="rule-based-fallback"
+			report.AnalysisNotice="Model sentezi tamamlanamadı; kaynak kapsamı ve kural tabanlı bulgular gösteriliyor. "+liveSafeError(synthesisErr)
+			report.Findings=append(report.Findings,LiveResearchFinding{Kind:"model-gap",Title:"Derin analiz tamamlanamadı",Detail:report.AnalysisNotice})
+		} else if synthesis!=nil {
+			report.AnalysisMode="model-assisted"
+			report.AnalysisNotice="Model sentezi kaynak kimliklerine geri bağlandı; doğruluk ve kaynak bağımsızlığı yine insan incelemesi gerektirir."
+			report.Synthesis=synthesis
+			report.Summary=synthesis.ExecutiveSummary
+		}
+	}
 	if report.ArticleCount==0 {
 		report.Summary="Bu sorguda kullanılabilir sonuç bulunamadı. Sağlayıcı durumlarını kontrol edin veya soruyu daha ayırt edici ifadelerle deneyin."
 	} else {

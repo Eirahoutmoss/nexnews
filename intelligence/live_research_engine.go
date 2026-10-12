@@ -51,6 +51,14 @@ type LiveResearchFinding struct {
 	Detail string "json:\"detail\""
 	SourceURLs []string "json:\"sourceUrls,omitempty\""
 }
+type LiveResearchDuplicateSignal struct {
+	TitleA string "json:\"titleA\""
+	TitleB string "json:\"titleB\""
+	DomainA string "json:\"domainA\""
+	DomainB string "json:\"domainB\""
+	Similarity float64 "json:\"similarity\""
+	URLs []string "json:\"urls\""
+}
 type LiveResearchReport struct {
 	Query string "json:\"query\""
 	GeneratedAt time.Time "json:\"generatedAt\""
@@ -60,6 +68,7 @@ type LiveResearchReport struct {
 	PublisherCount int "json:\"publisherCount\""
 	Themes []LiveResearchTheme "json:\"themes\""
 	Findings []LiveResearchFinding "json:\"findings\""
+	SimilarHeadlineSignals []LiveResearchDuplicateSignal "json:\"similarHeadlineSignals\""
 	Articles []LiveResearchArticle "json:\"articles\""
 	ProviderStatuses []LiveResearchProviderStatus "json:\"providerStatuses\""
 	OpenQuestions []string "json:\"openQuestions\""
@@ -133,6 +142,7 @@ func (e *LiveResearchEngine) Run(ctx context.Context, input LiveResearchRequest)
 	for _,a:=range report.Articles { if a.Domain!="" {domains[a.Domain]=true} }
 	report.PublisherCount=len(domains)
 	report.Themes=buildLiveThemes(report.Articles)
+	report.SimilarHeadlineSignals=findSimilarLiveHeadlines(report.Articles)
 	report.Findings=buildLiveFindings(report)
 	if report.ArticleCount==0 {
 		report.Summary="Bu sorguda kullanılabilir sonuç bulunamadı. Sağlayıcı durumlarını kontrol edin veya soruyu daha ayırt edici ifadelerle deneyin."
@@ -191,9 +201,9 @@ func (p GDELTSearchProvider) Search(ctx context.Context,query string,limit int)(
 	out:=make([]LiveResearchArticle,0,len(payload.Articles))
 	for _,row:=range payload.Articles { if len(out)>=limit{break};title:=cleanLiveText(row.Title);link:=normalizeLiveURL(row.URL);if title==""||link==""{continue}
 		domain:=strings.ToLower(strings.TrimPrefix(strings.TrimSpace(row.Domain),"www."));if domain==""{domain=liveDomainOf(link)}
-		var published *time.Time;if t,e:=time.Parse("20060102150405",strings.TrimSpace(row.Seendate));e==nil{u:=t.UTC();published=&u}
+		// GDELT's seendate is when it observed the article, not a verified publication date.
 		publisher:=domain;if row.SourceCountry!=""{publisher+=" · "+strings.TrimSpace(row.SourceCountry)}
-		out=append(out,LiveResearchArticle{Title:title,URL:link,Publisher:publisher,Domain:domain,PublishedAt:published,Providers:[]string{p.Name()}})
+		out=append(out,LiveResearchArticle{Title:title,URL:link,Publisher:publisher,Domain:domain,Providers:[]string{p.Name()}})
 	}
 	return out,nil
 }
@@ -234,8 +244,42 @@ func buildLiveThemes(articles []LiveResearchArticle) []LiveResearchTheme {
 func buildLiveFindings(r LiveResearchReport) []LiveResearchFinding {
 	out:=[]LiveResearchFinding{{Kind:"coverage",Title:"Kaynak kapsamı",Detail:fmt.Sprintf("%d bağlantı, %d farklı yayıncı alan adı. Alan adı sayısı bağımsız doğrulama sayısı değildir.",r.ArticleCount,r.PublisherCount)}}
 	for _,t:=range r.Themes{if len(out)>=6{break};urls:=[]string{};for _,a:=range r.Articles{for _,ex:=range t.Examples{if a.Title==ex&&len(urls)<2{urls=append(urls,a.URL)}}};out=append(out,LiveResearchFinding{Kind:"recurring-theme",Title:"Tekrarlanan konu: "+t.Term,Detail:fmt.Sprintf("Bu terim %d haber kaydında ve %d yayıncı alan adında görülüyor. Bu bir metin-kapsam sinyalidir, olayın kanıtı değildir.",t.ArticleCount,t.SourceCount),SourceURLs:urls})}
+	for _,d:=range r.SimilarHeadlineSignals{
+		out=append(out,LiveResearchFinding{
+			Kind:"possible-copy",Title:"Benzer başlıklar: olası kopya/ortak kaynak",
+			Detail:fmt.Sprintf("“%s” ve “%s” farklı yayıncı alan adlarında yaklaşık %.0f%% sözcüksel benzerlik gösteriyor. Aynı ajans metni veya aynı olay olup olmadığı doğrulanmadı.",d.TitleA,d.TitleB,d.Similarity*100),
+			SourceURLs:d.URLs,
+		})
+		if len(out)>=10 { break }
+	}
 	for _,p:=range r.ProviderStatuses{if p.Status=="failed"{out=append(out,LiveResearchFinding{Kind:"provider-gap",Title:p.Name+" araması tamamlanamadı",Detail:p.Message+" Sonuç kümesi bu nedenle eksik olabilir."})}}
 	if r.ArticleCount==0{out=append(out,LiveResearchFinding{Kind:"gap",Title:"İncelenecek kaynak bulunamadı",Detail:"Soru için dizin sonucu gelmedi. Farklı bir ifade, kişi/kurum adı veya zaman aralığıyla yeniden deneyin."})}
+	return out
+}
+func liveHeadlineSimilarity(a,b string)float64{
+	left,right:=map[string]bool{},map[string]bool{}
+	for _,token:=range liveWords(a){if len([]rune(token))>=3&&!liveStopwords[token]{left[token]=true}}
+	for _,token:=range liveWords(b){if len([]rune(token))>=3&&!liveStopwords[token]{right[token]=true}}
+	if len(left)==0||len(right)==0{return 0}
+	intersection:=0
+	for token:=range left{if right[token]{intersection++}}
+	union:=len(left)+len(right)-intersection
+	if union==0{return 0}
+	return float64(intersection)/float64(union)
+}
+func findSimilarLiveHeadlines(articles []LiveResearchArticle)[]LiveResearchDuplicateSignal{
+	out:=[]LiveResearchDuplicateSignal{}
+	seen:=map[string]bool{}
+	for i:=0;i<len(articles);i++{for j:=i+1;j<len(articles);j++{
+		a,b:=articles[i],articles[j]
+		if a.Domain==""||b.Domain==""||a.Domain==b.Domain{continue}
+		similarity:=liveHeadlineSimilarity(a.Title,b.Title)
+		if similarity<0.68{continue}
+		urls:=[]string{a.URL,b.URL};sort.Strings(urls);key:=urls[0]+"\x00"+urls[1]
+		if seen[key]{continue};seen[key]=true
+		out=append(out,LiveResearchDuplicateSignal{TitleA:a.Title,TitleB:b.Title,DomainA:a.Domain,DomainB:b.Domain,Similarity:similarity,URLs:urls})
+		if len(out)>=10{return out}
+	}}
 	return out
 }
 func minLiveResearch(a,b int)int{if a<b{return a};return b}

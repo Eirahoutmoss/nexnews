@@ -280,9 +280,11 @@ func groundLiveSynthesis(draft liveSynthesisDraft, articles []LiveResearchArticl
 			if title == "" || assessment == "" || len(citations) == 0 {
 				continue
 			}
+			confidence := normalizeLiveConfidence(item.Confidence)
+			confidence = capLiveConfidence(confidence, citations)
 			out = append(out, LiveResearchInsight{
 				Title: title, Assessment: assessment,
-				Confidence: normalizeLiveConfidence(item.Confidence),
+				Confidence: confidence,
 				ArticleIDs: ids, Sources: citations,
 			})
 		}
@@ -312,9 +314,16 @@ func groundLiveSynthesis(draft liveSynthesisDraft, articles []LiveResearchArticl
 	if len(keyFindings) == 0 {
 		return nil, errors.New("analiz modeli kaynak bağlantısı doğrulanabilen ana bulgu üretmedi")
 	}
+	allCitationIDs := []string{}
+	for _, item := range keyFindings {
+		for _, citation := range item.Sources {
+			allCitationIDs = append(allCitationIDs, citation.ArticleID)
+		}
+	}
+	overallConfidence := capLiveConfidence(normalizeLiveConfidence(draft.OverallConfidence), sourcesFor(allCitationIDs).1)
 	return &LiveResearchSynthesis{
 		Model: model, ExecutiveSummary: summary,
-		OverallConfidence: normalizeLiveConfidence(draft.OverallConfidence),
+		OverallConfidence: overallConfidence,
 		KeyFindings: keyFindings,
 		ConflictingSignals: insights(draft.ConflictingSignals, 5),
 		AlternativeExplanations: insights(draft.AlternativeExplanations, 4),
@@ -323,6 +332,23 @@ func groundLiveSynthesis(draft liveSynthesisDraft, articles []LiveResearchArticl
 		RecommendedFollowups: truncateLiveList(draft.RecommendedFollowups, 6, 500),
 		Limitations: truncateLiveList(draft.Limitations, 8, 500),
 	}, nil
+}
+
+func capLiveConfidence(confidence string, citations []LiveResearchCitation) string {
+	domains := map[string]bool{}
+	for _, citation := range citations {
+		domain := liveDomainOf(citation.URL)
+		if domain != "" {
+			domains[domain] = true
+		}
+	}
+	if len(domains) <= 1 {
+		return "low"
+	}
+	if len(domains) == 2 && confidence == "high" {
+		return "medium"
+	}
+	return confidence
 }
 
 func normalizeLiveConfidence(value string) string {

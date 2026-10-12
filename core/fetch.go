@@ -505,7 +505,8 @@ func dedupeAcrossCategories(ranked []*Story) []*Story {
 	for _, st := range ranked {
 		dup := false
 		for _, it := range st.items {
-			if seen[it.Link] {
+			key := storyItemIdentity(it)
+			if key != "" && seen[key] {
 				dup = true
 				break
 			}
@@ -514,11 +515,29 @@ func dedupeAcrossCategories(ranked []*Story) []*Story {
 			continue
 		}
 		for _, it := range st.items {
-			seen[it.Link] = true
+			if key := storyItemIdentity(it); key != "" {
+				seen[key] = true
+			}
 		}
 		out = append(out, st)
 	}
 	return out
+}
+
+// storyItemIdentity normalizes article identity before comparing story clusters
+// from different feed categories. Tracking query parameters must not make the
+// same article look like two unrelated documents.
+func storyItemIdentity(it Item) string {
+	if canonical := canonicalURL(it.Link); canonical != "" {
+		return "url:" + canonical
+	}
+	if id := strings.TrimSpace(it.ID); id != "" {
+		return "id:" + id
+	}
+	if title := strings.ToLower(strings.TrimSpace(it.Title)); title != "" {
+		return "title:" + title + "\x00" + strings.ToLower(strings.TrimSpace(it.Source))
+	}
+	return ""
 }
 
 // recluster re-runs clustering on the cached items (no network).

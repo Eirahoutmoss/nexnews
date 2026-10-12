@@ -3,7 +3,6 @@ package intelligence
 import (
 	"path/filepath"
 	"testing"
-	"time"
 )
 
 func addTargetStudyEvidence(t *testing.T, repo *JSONRepository, caseID, title string) string {
@@ -113,5 +112,4 @@ func TestCreateTargetSelectionStudyRejectsDuplicateTitleAndPeriod(t *testing.T) 
 	if err!=nil {t.Fatal(err)}
 	if _,err:=repo.CreateTargetSelectionStudy(item.ID,study);err==nil {t.Fatal("duplicate study should be rejected")}
 	if len(created.TargetSelectionStudies)!=1 {t.Fatalf("unexpected duplicate persistence")}
-	_ = time.UTC
 }

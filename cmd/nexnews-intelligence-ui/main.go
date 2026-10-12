@@ -153,6 +153,7 @@ func newHandler(repo *intelligence.JSONRepository) http.Handler {
 		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "mode": "read-only"})
 	})
 	registerResearchRoutes(mux, repo)
+	registerLiveResearchRoutes(mux)
 	return mux
 }
 

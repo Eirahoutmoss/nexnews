@@ -84,17 +84,18 @@ const (
 )
 
 type ResearchCase struct {
-	ID             string                  `json:"id"`
-	Title          string                  `json:"title"`
-	Question       string                  `json:"question"`
-	Context        string                  `json:"context,omitempty"`
-	Status         ResearchCaseStatus      `json:"status"`
-	RelatedEventID string                  `json:"relatedEventId,omitempty"`
-	CreatedAt      time.Time               `json:"createdAt"`
-	UpdatedAt      time.Time               `json:"updatedAt"`
-	Hypotheses     []ResearchHypothesis    `json:"hypotheses"`
-	Evidence       []ResearchEvidence      `json:"evidence"`
-	OpenQuestions  []ResearchQuestion      `json:"openQuestions"`
+	ID                     string                  `json:"id"`
+	Title                  string                  `json:"title"`
+	Question               string                  `json:"question"`
+	Context                string                  `json:"context,omitempty"`
+	Status                 ResearchCaseStatus      `json:"status"`
+	RelatedEventID         string                  `json:"relatedEventId,omitempty"`
+	CreatedAt              time.Time               `json:"createdAt"`
+	UpdatedAt              time.Time               `json:"updatedAt"`
+	Hypotheses             []ResearchHypothesis    `json:"hypotheses"`
+	Evidence               []ResearchEvidence      `json:"evidence"`
+	OpenQuestions          []ResearchQuestion      `json:"openQuestions"`
+	TargetSelectionStudies []TargetSelectionStudy  `json:"targetSelectionStudies,omitempty"`
 }
 
 type ResearchHypothesis struct {
@@ -346,6 +347,7 @@ func (r *JSONRepository) CreateResearchCase(in CreateResearchCaseInput) (Researc
 		Context: strings.TrimSpace(in.Context), Status: ResearchCaseDraft,
 		RelatedEventID: strings.TrimSpace(in.RelatedEventID), CreatedAt: now, UpdatedAt: now,
 		Hypotheses: []ResearchHypothesis{}, Evidence: []ResearchEvidence{}, OpenQuestions: []ResearchQuestion{},
+		TargetSelectionStudies: []TargetSelectionStudy{},
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()

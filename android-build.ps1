@@ -13,7 +13,11 @@ param(
     [string]$Keystore = "",           # boşsa ..\android-imza\nexnews-release.jks ya da .\android-imza\... aranır
     [string]$SdkDir = "$env:LOCALAPPDATA\Android\Sdk"
 )
-$ErrorActionPreference = 'Stop'
+# Windows PowerShell 5.1, 'Stop' kipinde stderr'e yazan her programı (java -version,
+# go get, gradle…) hata sayıp durdurur. Bu yüzden 'Continue' kullanılır ve her
+# programın sonucu çıkış koduyla (Check) denetlenir.
+$ErrorActionPreference = 'Continue'
+function Check($what) { if ($LASTEXITCODE -ne 0) { throw "$what başarısız (çıkış kodu $LASTEXITCODE)." } }
 try { [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false) } catch {}
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Android = Join-Path $Root 'android'
@@ -27,27 +31,44 @@ function Step($t) { Write-Host ''; Write-Host "==> $t" -ForegroundColor Cyan }
 # ---- 1. Go -----------------------------------------------------------------
 Step 'Go denetleniyor'
 if (-not (Get-Command go -ErrorAction SilentlyContinue)) { throw 'Go bulunamadı (https://go.dev/dl). Kurduktan sonra PowerShell''i yeniden açın.' }
-go version
+$gv = (go version) | Out-String
+Write-Host $gv.Trim()
+if ($gv -match 'windows/386') {
+    Write-Warning 'Go 32 bit (windows/386) kurulu. Derleme büyük olasılıkla çalışır ama bellek sınırı nedeniyle sorun çıkarsa 64 bit Go (windows-amd64) kurun: https://go.dev/dl'
+}
 
 # ---- 2. Java 17 ------------------------------------------------------------
-Step 'Java 17 denetleniyor'
-$javaOk = $false
-if ($env:JAVA_HOME -and (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe'))) {
-    $v = & (Join-Path $env:JAVA_HOME 'bin\java.exe') -version 2>&1 | Out-String
-    if ($v -match 'version "(17|21)') { $javaOk = $true }
+# Proje jvmToolchain(17) istiyor; Gradle başka sürümle (21 dahil) çalışmaz.
+# Sistemdeki Java'ya dokunulmaz, yalnızca bu derleme için JDK 17 seçilir.
+Step 'Java 17 aranıyor'
+function JavaMajor($jdkDir) {
+    $exe = Join-Path $jdkDir 'bin\java.exe'
+    if (-not (Test-Path $exe)) { return 0 }
+    $out = cmd /c "`"$exe`" -version 2>&1" | Out-String
+    if ($out -match 'version "(\d+)') { return [int]$Matches[1] }
+    return 0
 }
-if (-not $javaOk) {
-    $cand = Get-ChildItem 'C:\Program Files\Eclipse Adoptium' -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^jdk-(17|21)' } | Select-Object -First 1
-    if (-not $cand) {
-        Write-Host 'Java 17 kuruluyor (winget)…'
-        winget install --id EclipseAdoptium.Temurin.17.JDK -e --accept-source-agreements --accept-package-agreements | Out-Host
-        $cand = Get-ChildItem 'C:\Program Files\Eclipse Adoptium' -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^jdk-17' } | Select-Object -First 1
+function FindJdk17 {
+    $roots = @("$env:ProgramFiles\Eclipse Adoptium", "$env:ProgramFiles\Microsoft", "$env:ProgramFiles\Java", "$env:ProgramFiles\Zulu", "$env:ProgramFiles\Amazon Corretto", "$env:LOCALAPPDATA\Programs\Eclipse Adoptium")
+    foreach ($r in $roots) {
+        if (-not (Test-Path $r)) { continue }
+        foreach ($d in (Get-ChildItem $r -Directory -ErrorAction SilentlyContinue)) {
+            if ((JavaMajor $d.FullName) -eq 17) { return $d.FullName }
+        }
     }
-    if (-not $cand) { throw 'Java 17 bulunamadı. https://adoptium.net adresinden Temurin 17 JDK kurun.' }
-    $env:JAVA_HOME = $cand.FullName
+    if ($env:JAVA_HOME -and (JavaMajor $env:JAVA_HOME) -eq 17) { return $env:JAVA_HOME }
+    return $null
 }
-$env:Path = (Join-Path $env:JAVA_HOME 'bin') + ';' + $env:Path
-Write-Host "JAVA_HOME = $env:JAVA_HOME"
+$jdk = FindJdk17
+if (-not $jdk) {
+    Write-Host 'JDK 17 bulunamadı; Temurin 17 kuruluyor (winget). Mevcut Java sürümünüz etkilenmez…'
+    winget install --id EclipseAdoptium.Temurin.17.JDK -e --silent --accept-source-agreements --accept-package-agreements | Out-Host
+    $jdk = FindJdk17
+}
+if (-not $jdk) { throw 'JDK 17 kurulamadı. https://adoptium.net/temurin/releases/?version=17 adresinden "JDK 17 - Windows x64 .msi" kurup betiği yeniden çalıştırın.' }
+$env:JAVA_HOME = $jdk
+$env:Path = (Join-Path $jdk 'bin') + ';' + $env:Path
+Write-Host "Bu derleme için JAVA_HOME = $jdk"
 
 # ---- 3. Android SDK + NDK ---------------------------------------------------
 Step 'Android SDK denetleniyor'
@@ -57,14 +78,14 @@ if (-not (Test-Path $sdkmanager)) {
     New-Item -ItemType Directory -Force -Path (Join-Path $SdkDir 'cmdline-tools') | Out-Null
     $zip = Join-Path $env:TEMP 'android-cmdline-tools.zip'
     try {
-        Invoke-WebRequest 'https://dl.google.com/android/repository/commandlinetools-win-13114758_latest.zip' -OutFile $zip
+        Invoke-WebRequest 'https://dl.google.com/android/repository/commandlinetools-win-13114758_latest.zip' -OutFile $zip -UseBasicParsing -ErrorAction Stop
     } catch {
         throw 'Android komut satırı araçları indirilemedi. https://developer.android.com/studio#command-line-tools-only adresinden "commandlinetools-win" zip dosyasını indirip içindeki cmdline-tools klasörünü ' + (Join-Path $SdkDir 'cmdline-tools\latest') + ' olarak çıkarın ve betiği yeniden çalıştırın.'
     }
     $tmp = Join-Path $env:TEMP 'android-cmdline-tools'
     if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
-    Expand-Archive $zip -DestinationPath $tmp -Force
-    Move-Item (Join-Path $tmp 'cmdline-tools') (Join-Path $SdkDir 'cmdline-tools\latest') -Force
+    Expand-Archive $zip -DestinationPath $tmp -Force -ErrorAction Stop
+    Move-Item (Join-Path $tmp 'cmdline-tools') (Join-Path $SdkDir 'cmdline-tools\latest') -Force -ErrorAction Stop
 }
 $env:ANDROID_HOME = $SdkDir
 $env:ANDROID_SDK_ROOT = $SdkDir
@@ -74,6 +95,7 @@ if (-not (Test-Path (Join-Path $SdkDir 'platforms\android-35')) -or -not (Test-P
     $yes = ('y' + [Environment]::NewLine) * 20
     $yes | & $sdkmanager --sdk_root=$SdkDir --licenses | Out-Null
     & $sdkmanager --sdk_root=$SdkDir 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0' "ndk;$NdkVersion" | Out-Host
+    Check 'Android SDK kurulumu'
 }
 $env:ANDROID_NDK_HOME = $ndkDir
 Set-Content -Path (Join-Path $Android 'local.properties') -Value ("sdk.dir=" + ($SdkDir -replace '\\', '\\')) -Encoding ASCII
@@ -82,9 +104,9 @@ Set-Content -Path (Join-Path $Android 'local.properties') -Value ("sdk.dir=" + (
 Step 'Go çekirdeği Android kütüphanesine çevriliyor (gomobile)'
 Push-Location $Root
 try {
-    go install "golang.org/x/mobile/cmd/gomobile@$GomobileVersion"
-    go install "golang.org/x/mobile/cmd/gobind@$GomobileVersion"
-    go get "golang.org/x/mobile/bind@$GomobileVersion"
+    go install "golang.org/x/mobile/cmd/gomobile@$GomobileVersion"; Check 'gomobile kurulumu'
+    go install "golang.org/x/mobile/cmd/gobind@$GomobileVersion"; Check 'gobind kurulumu'
+    go get "golang.org/x/mobile/bind@$GomobileVersion"; Check 'x/mobile bağımlılığı'
     $gopathBin = Join-Path (go env GOPATH) 'bin'
     $env:Path = "$gopathBin;" + $env:Path
     go test ./core ./mobile

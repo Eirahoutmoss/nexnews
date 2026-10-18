@@ -37,11 +37,16 @@ aynı olayı farklı kaynaklardan tek habere toplar, ajans metinlerini ayırt ed
 
 ## Derleme
 
-- **Masaüstü:** `build.ps1` (Windows, Go 1.24+) → `dist\NexNews.exe`. Hedef bilgisayarda Microsoft Edge WebView2 Runtime gerekir.
-- **Android:** GitHub Actions (`.github/workflows/ci.yml`) Go çekirdeğini gomobile ile `nexcore.aar`'a çevirir, ardından Gradle ile APK üretir.
-  Yerelde: `gomobile bind -target=android/arm64,android/arm -androidapi 24 -javapkg=com.eirahoutmoss.nexnews.go -o android/app/libs/nexcore.aar ./mobile`, sonra `cd android && ./gradlew :app:assembleRelease`.
-- **İndirme:** her `main` gönderiminden sonra APK ve `NexNews.exe` **Releases** sayfasında yayınlanır.
-  İmza anahtarı tanımlı değilse "deneme" ön sürümü olarak yayınlanır.
+- **Masaüstü:** `.\build.ps1` (Windows, Go 1.24+) → `dist\NexNews.exe`. Hedef bilgisayarda Microsoft Edge WebView2 Runtime gerekir.
+- **Android (yerel, önerilen):** `.\android-build.ps1` → `dist\NexNews-<sürüm>.apk`; `-Install` ile USB'deki telefona kurar.
+  İlk çalıştırmada Java 17 (winget), Android SDK 35 + NDK ve gomobile kendiliğinden kurulur (~2–3 GB). İmza anahtarı
+  `android-imza\nexnews-release.jks` (depo klasöründe ya da bir üst klasörde) bulunursa parolası sorulur ve APK kalıcı
+  anahtarla imzalanır; bulunmazsa "deneme" APK'sı üretilir.
+- **Android (elle):** `gomobile bind '-target=android/arm64,android/arm' -androidapi 24 '-javapkg=com.eirahoutmoss.nexnews.go' -o android/app/libs/nexcore.aar ./mobile`,
+  sonra `cd android; .\gradlew.bat :app:assembleRelease`. (PowerShell'de virgüllü bağımsız değişkenler tırnak içinde yazılmalı.)
+- **CI:** GitHub Actions (`.github/workflows/ci.yml`) aynı adımları çalıştırır; her `main` gönderiminden sonra APK ve `NexNews.exe`
+  **Releases** sayfasında yayınlanır (Actions dakikası varsa).
+- **Sürümler:** masaüstü `core/globals.go` (`appVersion`), Android `android/SURUM`; sürüm notları `android/surum-notlari/`.
 
 ### Android imza anahtarı (bir kez)
 

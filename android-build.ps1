@@ -33,8 +33,28 @@ Step 'Go denetleniyor'
 if (-not (Get-Command go -ErrorAction SilentlyContinue)) { throw 'Go bulunamadı (https://go.dev/dl). Kurduktan sonra PowerShell''i yeniden açın.' }
 $gv = (go version) | Out-String
 Write-Host $gv.Trim()
-if ($gv -match 'windows/386') {
-    Write-Warning 'Go 32 bit (windows/386) kurulu. Derleme büyük olasılıkla çalışır ama bellek sınırı nedeniyle sorun çıkarsa 64 bit Go (windows-amd64) kurun: https://go.dev/dl'
+if ($gv -notmatch 'windows/amd64') {
+    # gomobile, NDK derleyicilerini kendi mimarisine göre arar; 32 bit Go
+    # 'prebuilt\windows' klasörüne bakar ama güncel NDK'larda yalnızca
+    # 'prebuilt\windows-x86_64' vardır. Bu yüzden bu derleme için taşınabilir
+    # 64 bit Go kullanılır (kurulu Go'ya dokunulmaz).
+    $GoPortable = Join-Path $env:LOCALAPPDATA 'NexNewsBuild\go'
+    $GoExe = Join-Path $GoPortable 'bin\go.exe'
+    if (-not (Test-Path $GoExe)) {
+        Write-Host 'Kurulu Go 32 bit; bu derleme için 64 bit Go indiriliyor (~70 MB, bir kez)…'
+        $gz = Join-Path $env:TEMP 'go-windows-amd64.zip'
+        Invoke-WebRequest 'https://go.dev/dl/go1.24.7.windows-amd64.zip' -OutFile $gz -UseBasicParsing -ErrorAction Stop
+        $parent = Split-Path $GoPortable -Parent
+        New-Item -ItemType Directory -Force -Path $parent | Out-Null
+        if (Test-Path $GoPortable) { Remove-Item $GoPortable -Recurse -Force }
+        Expand-Archive $gz -DestinationPath $parent -Force -ErrorAction Stop
+    }
+    $env:GOROOT = $GoPortable
+    $env:Path = (Join-Path $GoPortable 'bin') + ';' + $env:Path
+    $env:GOTOOLCHAIN = 'local'
+    $gv = (go version) | Out-String
+    Write-Host ('Bu derleme için: ' + $gv.Trim())
+    if ($gv -notmatch 'windows/amd64') { throw '64 bit Go hazırlanamadı.' }
 }
 
 # ---- 2. Java 17 ------------------------------------------------------------

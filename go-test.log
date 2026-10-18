@@ -1,0 +1,84 @@
+?   	nexnews/cmd/nexnews	[no test files]
+ok  	nexnews/core	1.038s
+?   	nexnews/mobile	[no test files]
+=== CANLI ===
+=== RUN   TestLiveStandings
+    live_test.go:24: futbol Süper Lig · 2026–27 · ESPN asOf="" err="" satır=18
+    live_test.go:26:    1 Galatasaray                O8  G6  B1  M1  17:11 (+6) P19 Şampiyonlar Ligi
+    live_test.go:26:    2 Amed SFK                   O8  G5  B2  M1  18:9 (+9) P17 Şampiyonlar Ligi
+    live_test.go:26:    3 Fenerbahçe                 O8  G5  B1  M2  22:6 (+16) P16 Avrupa Ligi
+    live_test.go:26:    4 Beşiktaş                   O7  G5  B0  M2  16:8 (+8) P15 Konferans Ligi
+    live_test.go:26:    5 Trabzonspor                O7  G4  B1  M2  16:5 (+11) P13 
+    live_test.go:26:    6 Çorum FK                   O8  G4  B1  M3  18:13 (+5) P13 
+    live_test.go:26:    7 Kocaelispor                O7  G4  B0  M3  8:6 (+2) P12 
+    live_test.go:26:    8 Alanyaspor                 O8  G3  B3  M2  8:9 (-1) P12 
+    live_test.go:26:    9 Erzurum BB                 O8  G3  B2  M3  5:11 (-6) P11 
+    live_test.go:26:   10 Kasımpaşa                  O7  G2  B4  M1  8:8 (+0) P10 
+    live_test.go:26:   11 Çaykur Rizespor            O8  G3  B1  M4  8:11 (-3) P10 
+    live_test.go:26:   12 İstanbul Başakşehir        O7  G2  B2  M3  10:11 (-1) P8 
+    live_test.go:26:   13 Gaziantep FK               O7  G2  B2  M3  7:10 (-3) P8 
+    live_test.go:26:   14 Gençlerbirliği             O8  G2  B2  M4  7:16 (-9) P8 
+    live_test.go:26:   15 Göztepe                    O7  G1  B3  M3  15:15 (+0) P6 
+    live_test.go:26:   16 Konyaspor                  O8  G1  B2  M5  4:9 (-5) P5 
+    live_test.go:26:   17 Samsunspor                 O7  G1  B1  M5  6:15 (-9) P4 
+    live_test.go:26:   18 Eyüpspor                   O8  G1  B0  M7  2:22 (-20) P3 
+    live_test.go:24: basketbol Basketbol Süper Ligi · 2026–27 · Wikipedia asOf="17 Ekim 2026" err="" satır=16
+    live_test.go:26:    1 Bahçeşehir Koleji          O4  G4  B0  M0  364:321 (+43) P8 Play-off
+    live_test.go:26:    2 Türk Telekom               O4  G3  B0  M1  305:283 (+22) P7 Play-off
+    live_test.go:26:    3 Anadolu Efes               O3  G3  B0  M0  265:236 (+29) P6 Play-off
+    live_test.go:26:    4 Karşıyaka Basket           O4  G2  B0  M2  327:315 (+12) P6 Play-off
+    live_test.go:26:    5 Biotekno Körfez Basket     O4  G2  B0  M2  332:325 (+7) P6 Play-off
+    live_test.go:26:    6 Tofaş                      O4  G2  B0  M2  327:346 (-19) P6 Play-off
+    live_test.go:26:    7 Esenler Erokspor           O3  G2  B0  M1  262:254 (+8) P5 Play-off
+    live_test.go:26:    8 Pizzabulls Bandırma Bordo  O4  G1  B0  M3  327:324 (+3) P5 Play-off
+    live_test.go:26:    9 Fenerbahçe Tarfin          O3  G2  B0  M1  268:267 (+1) P5 
+    live_test.go:26:   10 Trabzonspor                O3  G2  B0  M1  246:246 (+0) P5 
+    live_test.go:26:   11 Bursaspor Basketbol        O4  G1  B0  M3  318:338 (-20) P5 
+    live_test.go:26:   12 Galatasaray MCT Technic    O3  G1  B0  M2  261:250 (+11) P4 
+    live_test.go:26:   13 Yukatel Denizli Basket     O3  G1  B0  M2  258:257 (+1) P4 
+    live_test.go:26:   14 Petkim Spor                O3  G1  B0  M2  262:268 (-6) P4 
+    live_test.go:26:   15 Beşiktaş                   O3  G1  B0  M2  234:264 (-30) P4 Küme düşme
+    live_test.go:26:   16 Glint Çayırova Belediyesi  O4  G0  B0  M4  319:381 (-62) P4 Küme düşme
+--- PASS: TestLiveStandings (0.29s)
+=== RUN   TestLiveFinance
+    live_test.go:46: ^XU100         11721.72 TRY  gün -2.89%  5g -3.53% err=""
+    live_test.go:46: ^XU030         14558.43 TRY  gün -2.86%  5g -2.95% err=""
+    live_test.go:46: THYAO.IS         273.50 TRY  gün -1.17%  5g -4.29% err=""
+    live_test.go:46: ASELS.IS         340.25 TRY  gün -3.06%  5g -0.44% err=""
+    live_test.go:46: GARAN.IS         131.50 TRY  gün -1.79%  5g +1.31% err=""
+    live_test.go:46: BIMAS.IS         381.00 TRY  gün -5.11%  5g -3.91% err=""
+    live_test.go:46: USDTRY=X          49.51 TRY  gün -0.03%  5g +0.35% err=""
+    live_test.go:46: EURTRY=X          55.65 TRY  gün +0.15%  5g +0.62% err=""
+    live_test.go:46: GC=F            4181.10 USD  gün +0.26%  5g +0.09% err=""
+--- PASS: TestLiveFinance (0.19s)
+=== RUN   TestLiveSports
+    live_test.go:59: futbol: 3 maç err=<nil>
+    live_test.go:64:    10-18 10:30 Kasımpaşa 3-1 Samsunspor [in 71']
+    live_test.go:64:    10-18 13:00 Kocaelispor - Göztepe [prematch ]
+    live_test.go:64:    10-18 16:00 İstanbul Başakşehir - Gaziantep FK [prematch ]
+    live_test.go:59: premier: 4 maç err=<nil>
+    live_test.go:64:    10-18 13:00 AFC Bournemouth - Sunderland [prematch ]
+    live_test.go:64:    10-18 13:00 Brighton & Hove Albion - Crystal Palace [prematch ]
+    live_test.go:64:    10-18 13:00 Leeds United - Manchester United [prematch ]
+    live_test.go:64:    10-18 15:30 Nottingham Forest - Arsenal [prematch ]
+    live_test.go:59: ucl: 9 maç err=<nil>
+    live_test.go:64:    10-20 16:45 Fenerbahçe - Slavia Prague [prematch ]
+    live_test.go:64:    10-20 16:45 Sabah FK - Borussia Dortmund [prematch ]
+    live_test.go:64:    10-20 19:00 AS Roma - Slovan Bratislava [prematch ]
+    live_test.go:64:    10-20 19:00 FC Porto - PSV Eindhoven [prematch ]
+    live_test.go:59: nba: 3 maç err=<nil>
+    live_test.go:64:    10-20 19:00 Detroit Pistons - Boston Celtics [prematch ]
+    live_test.go:64:    10-20 23:00 New York Knicks - Philadelphia 76ers [prematch ]
+    live_test.go:64:    10-21 01:30 San Antonio Spurs - Oklahoma City Thunder [prematch ]
+    live_test.go:71: pano: 19 maç, ilk 8:
+    live_test.go:76:    fav=true Şampiyonlar Ligi Fenerbahçe vs Slavia Prague [prematch ]
+    live_test.go:76:    fav=false Süper Lig Kasımpaşa vs Samsunspor [in 71']
+    live_test.go:76:    fav=false Süper Lig Kocaelispor vs Göztepe [prematch ]
+    live_test.go:76:    fav=false Premier League AFC Bournemouth vs Sunderland [prematch ]
+    live_test.go:76:    fav=false Premier League Brighton & Hove Albion vs Crystal Palace [prematch ]
+    live_test.go:76:    fav=false Premier League Leeds United vs Manchester United [prematch ]
+    live_test.go:76:    fav=false Premier League Nottingham Forest vs Arsenal [prematch ]
+    live_test.go:76:    fav=false Süper Lig İstanbul Başakşehir vs Gaziantep FK [prematch ]
+--- PASS: TestLiveSports (0.39s)
+PASS
+ok  	nexnews/core	0.878s

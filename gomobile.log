@@ -1,0 +1,717 @@
++ go version
+go version go1.24.13 linux/amd64
++ go install golang.org/x/mobile/cmd/gomobile@v0.0.0-20260203041319-574ceaa2f723
++ go install golang.org/x/mobile/cmd/gobind@v0.0.0-20260203041319-574ceaa2f723
++ go get golang.org/x/mobile/bind@v0.0.0-20260203041319-574ceaa2f723
+go: added golang.org/x/mobile v0.0.0-20260203041319-574ceaa2f723
+go: upgraded golang.org/x/mod v0.17.0 => v0.32.0
+go: upgraded golang.org/x/net v0.39.0 => v0.49.0
+go: upgraded golang.org/x/sync v0.13.0 => v0.19.0
+go: upgraded golang.org/x/sys v0.39.0 => v0.40.0
+go: upgraded golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d => v0.41.0
++ export ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk/30.0.16248370
++ ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk/30.0.16248370
++ echo 'NDK: /usr/local/lib/android/sdk/ndk/30.0.16248370'
+NDK: /usr/local/lib/android/sdk/ndk/30.0.16248370
++ ls /usr/local/lib/android/sdk/ndk/30.0.16248370
++ head
+CHANGELOG.md
+NOTICE
+NOTICE.toolchain
+README.md
+build
+meta
+ndk-build
+ndk-gdb
+ndk-lldb
+ndk-stack
+++ go env GOPATH
++ export PATH=/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64/bin:/home/runner/go/bin:/opt/hostedtoolcache/go/1.24.13/x64/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/runner/go/bin
++ PATH=/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64/bin:/home/runner/go/bin:/opt/hostedtoolcache/go/1.24.13/x64/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/runner/go/bin
++ gomobile bind -v -target=android/arm64,android/arm,android/amd64 -androidapi 24 -javapkg=com.eirahoutmoss.nexnews.go -trimpath '-ldflags=-s -w' -o android/app/libs/nexcore.aar ./mobile
+write /tmp/gomobile-work-2355809128/src-android-amd64/go.mod
+write /tmp/gomobile-work-2355809128/src-android-arm64/go.mod
+write /tmp/gomobile-work-2355809128/src-android-arm/go.mod
+go: found nexnews/mobile in nexnews v0.0.0-00010101000000-000000000000
+go: found nexnews/mobile in nexnews v0.0.0-00010101000000-000000000000
+go: found nexnews/mobile in nexnews v0.0.0-00010101000000-000000000000
+unused github.com/google/go-cmp
+unused github.com/yuin/goldmark
+unused golang.org/x/exp/shiny
+unused golang.org/x/image
+unused golang.org/x/mod
+unused golang.org/x/sync
+unused golang.org/x/telemetry
+unused golang.org/x/tools
+unused golang.org/x/tools/go/expect
+unused golang.org/x/tools/go/packages/packagestest
+unused github.com/google/go-cmp
+unused github.com/google/go-cmp
+unused github.com/yuin/goldmark
+unused golang.org/x/exp/shiny
+unused golang.org/x/image
+unused golang.org/x/mod
+unused golang.org/x/sync
+unused golang.org/x/telemetry
+unused golang.org/x/tools
+unused golang.org/x/tools/go/expect
+unused golang.org/x/tools/go/packages/packagestest
+unused github.com/yuin/goldmark
+unused golang.org/x/exp/shiny
+unused golang.org/x/image
+unused golang.org/x/mod
+unused golang.org/x/sync
+unused golang.org/x/telemetry
+unused golang.org/x/tools
+unused golang.org/x/tools/go/expect
+unused golang.org/x/tools/go/packages/packagestest
+internal/unsafeheader
+internal/goarch
+internal/unsafeheader
+internal/goarch
+internal/goarch
+internal/unsafeheader
+internal/cpu
+internal/abi
+internal/abi
+internal/cpu
+internal/abi
+internal/cpu
+internal/bytealg
+internal/bytealg
+internal/bytealg
+internal/byteorder
+internal/byteorder
+internal/chacha8rand
+internal/byteorder
+internal/chacha8rand
+internal/chacha8rand
+internal/coverage/rtcov
+internal/godebugs
+internal/coverage/rtcov
+internal/godebugs
+internal/goexperiment
+internal/goos
+internal/goexperiment
+internal/profilerecord
+internal/coverage/rtcov
+internal/goos
+internal/runtime/atomic
+internal/profilerecord
+internal/runtime/atomic
+internal/asan
+internal/godebugs
+internal/msan
+internal/goexperiment
+internal/race
+internal/goos
+internal/runtime/math
+internal/profilerecord
+internal/runtime/sys
+internal/runtime/atomic
+internal/runtime/exithook
+internal/runtime/exithook
+internal/asan
+internal/runtime/maps
+internal/msan
+internal/runtime/syscall
+internal/asan
+internal/msan
+internal/race
+internal/race
+internal/runtime/math
+internal/runtime/sys
+internal/runtime/syscall
+internal/runtime/math
+internal/stringslite
+internal/runtime/exithook
+internal/runtime/sys
+internal/stringslite
+internal/runtime/syscall
+cmp
+internal/runtime/maps
+internal/runtime/maps
+internal/itoa
+internal/stringslite
+cmp
+math/bits
+internal/itoa
+math/bits
+cmp
+internal/itoa
+math/bits
+math
+math
+math
+runtime
+runtime
+runtime
+unicode/utf8
+unicode/utf8
+sync/atomic
+sync/atomic
+unicode/utf8
+internal/sync
+internal/sync
+sync/atomic
+unicode
+unicode
+internal/sync
+unicode
+log/internal
+unicode/utf16
+log/internal
+unicode/utf16
+crypto/internal/fips140/alias
+crypto/internal/fips140/alias
+crypto/internal/fips140deps/byteorder
+crypto/internal/fips140deps/byteorder
+crypto/internal/fips140deps/cpu
+crypto/internal/fips140deps/cpu
+crypto/internal/fips140/subtle
+crypto/internal/boring/sig
+log/internal
+unicode/utf16
+encoding
+golang.org/x/net/html/atom
+crypto/internal/boring/sig
+crypto/internal/fips140/alias
+encoding
+crypto/internal/fips140deps/byteorder
+golang.org/x/net/html/atom
+golang.org/x/text/encoding/internal/identifier
+crypto/internal/fips140deps/cpu
+crypto/internal/fips140/subtle
+golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/internal/utf8internal
+crypto/internal/boring/sig
+internal/nettrace
+encoding
+container/list
+golang.org/x/net/html/atom
+internal/nettrace
+container/list
+vendor/golang.org/x/crypto/cryptobyte/asn1
+golang.org/x/text/encoding/internal/identifier
+vendor/golang.org/x/crypto/internal/alias
+vendor/golang.org/x/crypto/cryptobyte/asn1
+golang.org/x/text/internal/utf8internal
+vendor/golang.org/x/crypto/internal/alias
+internal/nettrace
+container/list
+vendor/golang.org/x/crypto/cryptobyte/asn1
+vendor/golang.org/x/crypto/internal/alias
+iter
+internal/reflectlite
+sync
+iter
+internal/reflectlite
+sync
+errors
+slices
+strconv
+io
+errors
+slices
+strconv
+io
+internal/oserror
+path
+internal/bisect
+internal/oserror
+path
+internal/godebug
+internal/bisect
+reflect
+reflect
+internal/godebug
+syscall
+internal/reflectlite
+iter
+sync
+syscall
+errors
+strconv
+slices
+io
+time
+internal/oserror
+path
+internal/bisect
+reflect
+internal/godebug
+syscall
+time
+io/fs
+internal/fmtsort
+internal/filepathlite
+internal/syscall/unix
+internal/syscall/execenv
+internal/testlog
+internal/poll
+bytes
+internal/fmtsort
+internal/syscall/unix
+strings
+internal/syscall/execenv
+internal/testlog
+os
+bytes
+time
+io/fs
+internal/poll
+bufio
+internal/filepathlite
+strings
+os
+bufio
+fmt
+io/fs
+internal/filepathlite
+internal/fmtsort
+internal/syscall/unix
+internal/syscall/execenv
+internal/testlog
+bytes
+internal/poll
+strings
+log
+os
+bufio
+fmt
+context
+hash
+crypto
+crypto/internal/fips140deps/godebug
+crypto/internal/fips140
+crypto/internal/fips140/sha256
+crypto/internal/fips140/subtle
+crypto/internal/fips140/sha3
+runtime/cgo
+runtime/cgo
+runtime/cgo
+crypto/internal/fips140/sha512
+crypto/internal/fips140/hmac
+crypto/internal/fips140/check
+crypto/internal/fips140/aes
+crypto/internal/sysrand
+crypto/internal/entropy
+log
+math/rand/v2
+crypto/internal/randutil
+context
+crypto/internal/fips140/drbg
+crypto/internal/fips140/aes/gcm
+fmt
+hash
+log
+crypto
+crypto/internal/fips140only
+crypto/subtle
+crypto/internal/fips140deps/godebug
+context
+crypto/cipher
+crypto/internal/fips140
+crypto/internal/impl
+hash
+crypto
+crypto/internal/fips140/sha256
+crypto/internal/fips140deps/godebug
+crypto/internal/boring
+crypto/internal/fips140
+math/rand
+crypto/internal/impl
+crypto/internal/fips140/sha3
+crypto/internal/fips140/sha256
+math/big
+crypto/internal/fips140/sha512
+crypto/internal/fips140/sha3
+crypto/internal/fips140/hmac
+crypto/internal/fips140/check
+crypto/internal/fips140/aes
+crypto/internal/fips140/sha512
+crypto/internal/sysrand
+crypto/internal/fips140/hmac
+crypto/internal/entropy
+crypto/internal/fips140/check
+math/rand/v2
+crypto/internal/fips140/aes
+crypto/internal/randutil
+crypto/internal/fips140/drbg
+crypto/internal/sysrand
+crypto/internal/fips140/aes/gcm
+crypto/internal/entropy
+math/rand/v2
+crypto/internal/fips140only
+crypto/internal/randutil
+crypto/rand
+crypto/internal/fips140/drbg
+crypto/subtle
+crypto/sha256
+crypto/cipher
+embed
+crypto/internal/fips140/aes/gcm
+encoding/csv
+crypto/internal/fips140only
+crypto/subtle
+crypto/cipher
+crypto/internal/boring
+encoding/hex
+math/rand
+encoding/binary
+crypto/internal/boring
+math/big
+math/rand
+math/big
+encoding/base64
+encoding/json
+crypto/rand
+crypto/sha256
+embed
+encoding/csv
+crypto/rand
+encoding/hex
+crypto/sha256
+encoding/binary
+embed
+encoding/csv
+encoding/hex
+encoding/xml
+encoding/binary
+encoding/base64
+encoding/json
+encoding/base64
+encoding/json
+golang.org/x/mobile/internal/mobileinit
+golang.org/x/net/html
+golang.org/x/mobile/internal/mobileinit
+golang.org/x/mobile/internal/mobileinit
+encoding/xml
+golang.org/x/text/transform
+golang.org/x/text/encoding
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/charmap
+encoding/xml
+golang.org/x/mobile/bind/java
+golang.org/x/mobile/bind/java
+golang.org/x/mobile/bind/java
+golang.org/x/mobile/bind/seq
+golang.org/x/text/encoding/japanese
+golang.org/x/mobile/bind/seq
+golang.org/x/net/html
+golang.org/x/mobile/bind/seq
+golang.org/x/net/html
+golang.org/x/text/encoding/korean
+golang.org/x/text/transform
+golang.org/x/text/encoding
+golang.org/x/text/transform
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/runes
+golang.org/x/text/encoding/unicode
+sort
+golang.org/x/text/encoding/korean
+maps
+golang.org/x/text/internal/tag
+mime
+golang.org/x/text/internal/language
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/traditionalchinese
+html
+vendor/golang.org/x/net/dns/dnsmessage
+golang.org/x/text/internal/language/compact
+golang.org/x/text/language
+golang.org/x/text/runes
+sort
+golang.org/x/text/runes
+golang.org/x/text/encoding/unicode
+sort
+golang.org/x/text/encoding/unicode
+golang.org/x/text/internal/tag
+maps
+internal/singleflight
+golang.org/x/text/internal/language
+maps
+mime
+weak
+mime
+unique
+golang.org/x/text/encoding/htmlindex
+golang.org/x/net/html/charset
+compress/flate
+net/netip
+golang.org/x/text/internal/tag
+golang.org/x/text/internal/language
+hash/crc32
+html
+compress/gzip
+crypto/aes
+crypto/des
+vendor/golang.org/x/net/dns/dnsmessage
+html
+golang.org/x/text/internal/language/compact
+crypto/internal/fips140/nistec/fiat
+vendor/golang.org/x/net/dns/dnsmessage
+golang.org/x/text/language
+golang.org/x/text/internal/language/compact
+internal/singleflight
+weak
+unique
+golang.org/x/text/language
+golang.org/x/text/encoding/htmlindex
+internal/singleflight
+golang.org/x/net/html/charset
+weak
+unique
+net
+compress/flate
+net/netip
+net/netip
+golang.org/x/text/encoding/htmlindex
+golang.org/x/net/html/charset
+hash/crc32
+compress/flate
+compress/gzip
+crypto/aes
+crypto/des
+crypto/internal/fips140/nistec/fiat
+hash/crc32
+compress/gzip
+crypto/aes
+crypto/internal/fips140/nistec
+crypto/des
+crypto/internal/fips140/nistec/fiat
+net
+net
+crypto/internal/fips140/nistec
+crypto/internal/fips140/nistec
+crypto/internal/fips140/ecdh
+crypto/internal/fips140/edwards25519/field
+crypto/ecdh
+crypto/elliptic
+crypto/internal/fips140/ecdh
+crypto/internal/boring/bbig
+crypto/internal/impl
+crypto/internal/fips140/edwards25519/field
+crypto/internal/fips140/bigmod
+crypto/ecdh
+crypto/internal/fips140/ecdsa
+crypto/elliptic
+crypto/internal/fips140/ecdh
+crypto/internal/fips140/edwards25519/field
+crypto/sha3
+crypto/internal/fips140hash
+crypto/sha512
+crypto/internal/boring/bbig
+crypto/ecdh
+internal/saferio
+crypto/internal/fips140/bigmod
+encoding/asn1
+crypto/elliptic
+crypto/internal/fips140/ecdsa
+crypto/internal/boring/bbig
+crypto/internal/fips140/bigmod
+vendor/golang.org/x/crypto/cryptobyte
+crypto/sha3
+crypto/internal/fips140hash
+crypto/sha512
+internal/saferio
+crypto/internal/fips140/ecdsa
+encoding/asn1
+crypto/ecdsa
+crypto/sha3
+crypto/internal/fips140hash
+crypto/sha512
+vendor/golang.org/x/crypto/cryptobyte
+internal/saferio
+encoding/asn1
+crypto/ecdsa
+crypto/internal/fips140/edwards25519
+vendor/golang.org/x/crypto/cryptobyte
+crypto/hmac
+crypto/internal/fips140/hkdf
+crypto/internal/fips140/mlkem
+crypto/internal/fips140/ed25519
+crypto/ed25519
+crypto/internal/fips140/tls12
+crypto/internal/fips140/edwards25519
+crypto/ecdsa
+crypto/internal/fips140/tls13
+vendor/golang.org/x/crypto/chacha20
+vendor/golang.org/x/crypto/internal/poly1305
+crypto/md5
+vendor/golang.org/x/crypto/chacha20poly1305
+crypto/rc4
+crypto/internal/hpke
+crypto/internal/fips140/rsa
+crypto/internal/fips140/ed25519
+crypto/sha1
+crypto/tls/internal/fips140tls
+crypto/dsa
+crypto/ed25519
+crypto/x509/pkix
+crypto/rsa
+crypto/hmac
+encoding/pem
+crypto/internal/fips140/hkdf
+crypto/internal/fips140/mlkem
+net/url
+path/filepath
+crypto/internal/fips140/edwards25519
+crypto/internal/fips140/tls12
+crypto/internal/fips140/tls13
+crypto/hmac
+vendor/golang.org/x/crypto/chacha20
+vendor/golang.org/x/text/transform
+crypto/internal/fips140/hkdf
+crypto/x509
+crypto/internal/fips140/mlkem
+vendor/golang.org/x/text/unicode/bidi
+crypto/internal/fips140/ed25519
+vendor/golang.org/x/crypto/internal/poly1305
+vendor/golang.org/x/crypto/chacha20poly1305
+crypto/internal/hpke
+crypto/ed25519
+crypto/internal/fips140/tls12
+crypto/internal/fips140/tls13
+crypto/md5
+vendor/golang.org/x/crypto/chacha20
+vendor/golang.org/x/crypto/internal/poly1305
+crypto/rc4
+vendor/golang.org/x/sys/cpu
+vendor/golang.org/x/text/secure/bidirule
+crypto/internal/fips140/rsa
+crypto/sha1
+crypto/md5
+vendor/golang.org/x/text/unicode/norm
+crypto/rc4
+vendor/golang.org/x/crypto/chacha20poly1305
+crypto/tls/internal/fips140tls
+crypto/internal/fips140/rsa
+crypto/dsa
+crypto/x509/pkix
+encoding/pem
+crypto/internal/hpke
+crypto/rsa
+net/url
+crypto/sha1
+path/filepath
+crypto/rsa
+crypto/tls/internal/fips140tls
+crypto/dsa
+vendor/golang.org/x/net/idna
+crypto/x509/pkix
+vendor/golang.org/x/text/transform
+crypto/x509
+encoding/pem
+net/url
+vendor/golang.org/x/text/unicode/bidi
+path/filepath
+crypto/tls
+vendor/golang.org/x/text/transform
+net/textproto
+vendor/golang.org/x/text/unicode/bidi
+crypto/x509
+vendor/golang.org/x/text/secure/bidirule
+vendor/golang.org/x/text/unicode/norm
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+vendor/golang.org/x/net/http2/hpack
+vendor/golang.org/x/text/secure/bidirule
+vendor/golang.org/x/text/unicode/norm
+mime/quotedprintable
+mime/multipart
+net/http/internal
+net/http/internal/ascii
+regexp/syntax
+vendor/golang.org/x/net/idna
+vendor/golang.org/x/net/idna
+crypto/tls
+net/textproto
+net/textproto
+regexp
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+vendor/golang.org/x/net/http2/hpack
+crypto/tls
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+mime/quotedprintable
+vendor/golang.org/x/net/http2/hpack
+mime/multipart
+os/signal
+mime/quotedprintable
+mime/multipart
+net/http/internal
+net/http/internal/ascii
+regexp/syntax
+net/http/internal
+net/http/internal/ascii
+regexp/syntax
+regexp
+regexp
+net/http/httptrace
+net/http
+os/signal
+os/signal
+net/http/httptrace
+net/http
+net/http/httptrace
+net/http
+net/http/cookiejar
+nexnews/core
+net/http/cookiejar
+net/http/cookiejar
+nexnews/core
+nexnews/core
+nexnews/mobile
+gobind/gobind
+nexnews/mobile
+gobind/gobind
+nexnews/mobile
+gobind/gobind
+aar: AndroidManifest.xml
+aar: proguard.txt
+aar: classes.jar
+jar: META-INF/MANIFEST.MF
+jar: com/eirahoutmoss/nexnews/go/nexcore/Nexcore.class
+jar: go/Seq$GoObject.class
+jar: go/Seq$GoRef.class
+jar: go/Seq$GoRefQueue$1.class
+jar: go/Seq$GoRefQueue.class
+jar: go/Seq$Proxy.class
+jar: go/Seq$Ref.class
+jar: go/Seq$RefMap.class
+jar: go/Seq$RefTracker.class
+jar: go/Seq.class
+jar: go/Universe$proxyerror.class
+jar: go/Universe.class
+jar: go/error.class
+aar: jni/arm64-v8a/libgojni.so
+aar: jni/armeabi-v7a/libgojni.so
+aar: jni/x86_64/libgojni.so
+aar: R.txt
+aar: res/
+jar: META-INF/MANIFEST.MF
+jar: com/eirahoutmoss/nexnews/go/nexcore/Nexcore.java
+jar: go/Seq.java
+jar: go/Universe.java
+jar: go/error.java
++ ls -la android/app/libs
+total 10532
+drwxr-xr-x 2 runner runner     4096 Oct 18 12:05 .
+drwxr-xr-x 4 runner runner     4096 Oct 18 12:02 ..
+-rw-r--r-- 1 runner runner        0 Oct 18 12:02 .gitkeep
+-rw-r--r-- 1 runner runner     5993 Oct 18 12:05 nexcore-sources.jar
+-rw-r--r-- 1 runner runner 10767687 Oct 18 12:05 nexcore.aar

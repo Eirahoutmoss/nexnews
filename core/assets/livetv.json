@@ -5,8 +5,12 @@
   "meta": "Türkiye · Haber",
   "continent": "Türkiye",
   "country": "Türkiye",
-  "url": "https://tv-trthaber.medya.trt.com.tr/master.m3u8",
-  "official": "https://www.trthaber.com/canli-yayin-izle/trt-haber/"
+  "urls": [
+   "https://tv-trthaber.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trthaber.com/canli-yayin-izle/trt-haber/",
+  "tvg": "TRTHaber.tr",
+  "rep": "tr"
  },
  {
   "id": "trt-world",
@@ -14,8 +18,12 @@
   "meta": "International · English",
   "continent": "Türkiye",
   "country": "Türkiye",
-  "url": "https://tv-trtworld.medya.trt.com.tr/master.m3u8",
-  "official": "https://www.trtworld.com/live/europe"
+  "urls": [
+   "https://tv-trtworld.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trtworld.com/live/europe",
+  "tvg": "TRTWorld.tr",
+  "rep": "tr"
  },
  {
   "id": "trt-spor",
@@ -23,8 +31,12 @@
   "meta": "Türkiye · Spor",
   "continent": "Türkiye",
   "country": "Türkiye",
-  "url": "https://tv-trtspor1.medya.trt.com.tr/master.m3u8",
-  "official": "https://www.trtspor.com.tr/canli-yayin"
+  "urls": [
+   "https://tv-trtspor1.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trtspor.com.tr/canli-yayin",
+  "tvg": "TRTSpor.tr",
+  "rep": "tr"
  },
  {
   "id": "trt-1",
@@ -32,8 +44,12 @@
   "meta": "Türkiye · Genel",
   "continent": "Türkiye",
   "country": "Türkiye",
-  "url": "https://tv-trt1.medya.trt.com.tr/master.m3u8",
-  "official": "https://www.trt1.com.tr/canli-izle"
+  "urls": [
+   "https://tv-trt1.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trt1.com.tr/canli-izle",
+  "tvg": "TRT1.tr",
+  "rep": "tr"
  },
  {
   "id": "trt-spor-yildiz",
@@ -41,8 +57,12 @@
   "meta": "Türkiye · Spor",
   "continent": "Türkiye",
   "country": "Türkiye",
-  "url": "https://trt.daioncdn.net/trtspor-yildiz/master.m3u8?app=clean",
-  "official": "https://www.trtspor.com.tr/"
+  "urls": [
+   "https://trt.daioncdn.net/trtspor-yildiz/master.m3u8?app=web&platform=trtspor",
+   "https://trt.daioncdn.net/trtspor-yildiz/master.m3u8?app=clean"
+  ],
+  "official": "https://www.trtspor.com.tr/",
+  "geo": "Türkiye"
  },
  {
   "id": "trt-kurdi",
@@ -68,8 +88,12 @@
   "meta": "Türkiye · Belgesel",
   "continent": "Türkiye",
   "country": "Türkiye",
-  "url": "https://tv-trtbelgesel.medya.trt.com.tr/master.m3u8",
-  "official": "https://www.trtbelgesel.com.tr/"
+  "urls": [
+   "https://tv-trtbelgesel.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trtbelgesel.com.tr/",
+  "tvg": "TRTBelgesel.tr",
+  "rep": "tr"
  },
  {
   "id": "atv",
@@ -81,7 +105,9 @@
    "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_1080p.m3u8",
    "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_480p.m3u8"
   ],
-  "official": "https://www.atv.com.tr/canli-yayin"
+  "official": "https://www.atv.com.tr/canli-yayin",
+  "tvg": "ATV.tr",
+  "rep": "tr"
  },
  {
   "id": "kanal-d",
@@ -93,7 +119,9 @@
    "https://demiroren-live.daioncdn.net/kanald/kanald.m3u8",
    "https://demiroren.daioncdn.net/kanald/kanald.m3u8?app=kanald_web&ce=3"
   ],
-  "official": "https://www.kanald.com.tr/canli-yayin/"
+  "official": "https://www.kanald.com.tr/canli-yayin/",
+  "tvg": "KanalD.tr",
+  "rep": "tr"
  },
  {
   "id": "show-tv",
@@ -105,7 +133,9 @@
    "https://ciner.daioncdn.net/showtv/showtv.m3u8?ce=3&app=4bc856ef-4c68-4a94-bc87-37dfaaa66558",
    "https://ciner-live.daioncdn.net/showtv/showtv.m3u8"
   ],
-  "official": "https://www.showtv.com.tr/canli-yayin"
+  "official": "https://www.showtv.com.tr/canli-yayin",
+  "tvg": "ShowTV.tr",
+  "rep": "tr"
  },
  {
   "id": "star-tv",
@@ -117,7 +147,9 @@
    "https://dogus-live.daioncdn.net/startv/startv_720p.m3u8",
    "https://dogus.daioncdn.net/startv/startv.m3u8?ce=3&app=a20ac41e-bdc3-4aa1-934d-26b484480ac9"
   ],
-  "official": "https://www.startv.com.tr/canli-yayin"
+  "official": "https://www.startv.com.tr/canli-yayin",
+  "tvg": "StarTV.tr",
+  "rep": "tr"
  },
  {
   "id": "now",
@@ -126,10 +158,11 @@
   "continent": "Türkiye",
   "country": "Türkiye",
   "urls": [
-   "https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv.m3u8",
-   "https://streams.uzunmuhalefet.com/stream/f9368c57-16e5-44a2-a559-46377a476b04.m3u8"
+   "https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv.m3u8"
   ],
-  "official": "https://www.nowtv.com.tr/canli-yayin"
+  "official": "https://www.nowtv.com.tr/canli-yayin",
+  "tvg": "NOWTV.tr",
+  "rep": "tr"
  },
  {
   "id": "tv8",
@@ -142,7 +175,9 @@
    "https://tv8.daioncdn.net/tv8/tv8.m3u8?app=7ddc255a-ef47-4e81-ab14-c0e5f2949788&ce=3",
    "https://tv8-live.daioncdn.net/tv8/tv8.m3u8"
   ],
-  "official": "https://www.tv8.com.tr/canli-yayin"
+  "official": "https://www.tv8.com.tr/canli-yayin",
+  "tvg": "TV8.tr",
+  "rep": "tr"
  },
  {
   "id": "kanal-7",
@@ -150,20 +185,13 @@
   "meta": "Türkiye · Genel",
   "continent": "Türkiye",
   "country": "Türkiye",
-  "url": "https://kanal7-live.daioncdn.net/kanal7/kanal7.m3u8",
-  "official": "https://www.kanal7.com/canli-izle"
- },
- {
-  "id": "tv100",
-  "name": "TV100",
-  "meta": "Türkiye · Haber",
-  "continent": "Türkiye",
-  "country": "Türkiye",
   "urls": [
-   "https://tv100-live.daioncdn.net/tv100/tv100.m3u8",
-   "https://tv100-live.daioncdn.net/tv100/tv100_1080p.m3u8"
+   "https://kanal7-live.daioncdn.net/kanal7/kanal7.m3u8",
+   "https://kanal7.blutv.com/blutv_kanal7_live/live.m3u8"
   ],
-  "official": "https://www.tv100.com/canli-yayin"
+  "official": "https://www.kanal7.com/canli-izle",
+  "tvg": "Kanal7.tr",
+  "rep": "tr"
  },
  {
   "id": "haberturk",
@@ -173,10 +201,11 @@
   "country": "Türkiye",
   "urls": [
    "https://ciner-live.daioncdn.net/haberturktv/haberturktv.m3u8",
-   "https://rmtftbjlne.turknet.ercdn.net/bpeytmnqyp/haberturktv/haberturktv_1080p.m3u8",
-   "https://tv.ensonhaber.com/haberturk/haberturk.m3u8"
+   "https://rmtftbjlne.turknet.ercdn.net/bpeytmnqyp/haberturktv/haberturktv_1080p.m3u8"
   ],
-  "official": "https://tv.haberturk.com/"
+  "official": "https://tv.haberturk.com/",
+  "tvg": "HaberturkTV.tr",
+  "rep": "tr"
  },
  {
   "id": "beyaz-tv",
@@ -184,8 +213,13 @@
   "meta": "Türkiye · Genel",
   "continent": "Türkiye",
   "country": "Türkiye",
-  "url": "https://beyaztv-live.daioncdn.net/beyaztv/beyaztv.m3u8",
-  "official": "https://www.beyaztv.com.tr/canli-yayin/"
+  "urls": [
+   "https://beyaztv-live.daioncdn.net/beyaztv/beyaztv.m3u8",
+   "https://mn-nl.mncdn.com/blutv_beyaztv2/live.m3u8"
+  ],
+  "official": "https://www.beyaztv.com.tr/canli-yayin/",
+  "tvg": "BeyazTV.tr",
+  "rep": "tr"
  },
  {
   "id": "tgrt-haber",
@@ -198,7 +232,9 @@
    "https://tgrthaber-live.daioncdn.net/tgrthaber/tgrthaber_720p.m3u8",
    "https://canli.tgrthaber.com/tgrt.m3u8"
   ],
-  "official": "https://www.tgrthaber.com/canli"
+  "official": "https://www.tgrthaber.com/canli",
+  "tvg": "TGRTHaber.tr",
+  "rep": "tr"
  },
  {
   "id": "a-haber",
@@ -210,7 +246,9 @@
    "https://trkvz-live.ercdn.net/ahaberhd/ahaberhd.m3u8",
    "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/ahaber/ahaber.m3u8"
   ],
-  "official": "https://www.ahaber.com.tr/canli-yayin"
+  "official": "https://www.ahaber.com.tr/canli-yayin",
+  "tvg": "AHaber.tr",
+  "rep": "tr"
  },
  {
   "id": "a-spor",
@@ -219,9 +257,13 @@
   "continent": "Türkiye",
   "country": "Türkiye",
   "urls": [
-   "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor.m3u8"
+   "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor.m3u8",
+   "https://trkvz-live.ercdn.net/asporhd/asporhd.m3u8",
+   "https://trkvz-live.ercdn.net/aspor/aspor.m3u8"
   ],
-  "official": "https://www.aspor.com.tr/webtv/canli-yayin"
+  "official": "https://www.aspor.com.tr/webtv/canli-yayin",
+  "tvg": "ASpor.tr",
+  "rep": "tr"
  },
  {
   "id": "tv8-5",
@@ -254,6 +296,475 @@
   "official": "https://www.trtcocuk.net.tr/canli-izle"
  },
  {
+  "id": "ntv",
+  "name": "NTV",
+  "meta": "Türkiye · Haber",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://dogus.daioncdn.net/ntv/ntv.m3u8?app=ntv_web",
+   "https://dogus-live.daioncdn.net/ntv/ntv.m3u8"
+  ],
+  "official": "https://www.ntv.com.tr/canli-yayin/ntv",
+  "tvg": "NTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "halk-tv",
+  "name": "Halk TV",
+  "meta": "Türkiye · Haber",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://halktv-live.daioncdn.net/halktv/halktv.m3u8"
+  ],
+  "official": "https://halktv.com.tr/canli-yayin",
+  "tvg": "HalkTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "tele1",
+  "name": "Tele 1",
+  "meta": "Türkiye · Haber",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tele1-live.ercdn.net/tele1/tele1.m3u8"
+  ],
+  "official": "https://www.tele1.com.tr/canli-yayin",
+  "tvg": "Tele1.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "tv24",
+  "name": "TV 24",
+  "meta": "Türkiye · Haber",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://turkmedya-live.ercdn.net/tv24/tv24.m3u8"
+  ],
+  "official": "https://www.yirmidort.tv/canli-izle",
+  "tvg": "24TV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "tv360",
+  "name": "360",
+  "meta": "Türkiye · Haber",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://turkmedya-live.ercdn.net/tv360/tv360.m3u8"
+  ],
+  "official": "https://www.tv360.com.tr/canli-yayin",
+  "tvg": "360.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "flash-haber",
+  "name": "Flash Haber TV",
+  "meta": "Türkiye · Haber",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://b01c02nl.mediatriple.net/videoonlylive/mtyycglqauzjhlive/broadcast_67c053c48829f.smil/playlist.m3u8"
+  ],
+  "official": "https://www.flashhaber.com.tr/",
+  "tvg": "FlashHaberTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "tbmm-tv",
+  "name": "TBMM TV",
+  "meta": "Türkiye · Meclis",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://meclistv-live.ercdn.net/meclistv/meclistv.m3u8"
+  ],
+  "official": "https://www.tbmm.gov.tr/",
+  "tvg": "TBMMTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "bloomberg-ht",
+  "name": "Bloomberg HT",
+  "meta": "Türkiye · Ekonomi",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://ciner-live.daioncdn.net/bloomberght/bloomberght.m3u8"
+  ],
+  "official": "https://www.bloomberght.com/tv",
+  "tvg": "BloombergHT.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "cnbc-e",
+  "name": "CNBC-e",
+  "meta": "Türkiye · Ekonomi",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://hnpsechtsc.turknet.ercdn.net/xpnvudnlsv/cnbc-e/cnbc-e.m3u8"
+  ],
+  "official": "https://www.cnbce.com/canli-yayin",
+  "tvg": "CNBCe.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "ekoturk",
+  "name": "Ekotürk",
+  "meta": "Türkiye · Ekonomi",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://cdn.ekoturk.net/hls/master.m3u8"
+  ],
+  "official": "https://www.ekoturk.com/canli-yayin",
+  "tvg": "Ekoturk.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "trt-turk",
+  "name": "TRT Türk",
+  "meta": "Türkiye · Genel",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tv-trtturk.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trtturk.com/",
+  "tvg": "TRTTurk.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "trt-avaz",
+  "name": "TRT Avaz",
+  "meta": "Türkiye · Genel",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tv-trtavaz.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trtavaz.com.tr/",
+  "tvg": "TRTAvaz.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "trt-2",
+  "name": "TRT 2",
+  "meta": "Türkiye · Kültür / Sanat",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tv-trt2.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trt2.com.tr/",
+  "tvg": "TRT2.tr",
+  "rep": "tr",
+  "geo": "Türkiye"
+ },
+ {
+  "id": "trt-genc",
+  "name": "TRT Genç",
+  "meta": "Türkiye · Genel",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tv-trtgenc.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trtgenc.com.tr/",
+  "tvg": "TRTGenc.tr",
+  "rep": "tr",
+  "geo": "Türkiye"
+ },
+ {
+  "id": "trt-diyanet-cocuk",
+  "name": "TRT Diyanet Çocuk",
+  "meta": "Türkiye · Çocuk",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tv-trtdiyanetcocuk.medya.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.trtdiyanetcocuk.com/",
+  "tvg": "TRTDiyanetCocuk.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "trt-eba-ilkokul",
+  "name": "TRT EBA İlkokul",
+  "meta": "Türkiye · Eğitim",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tv-e-okul00.medya.trt.com.tr/master.m3u8",
+   "https://tv-e-okul00.live.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.eba.gov.tr/",
+  "tvg": "TRTEBAIlkokul.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "trt-eba-ortaokul",
+  "name": "TRT EBA Ortaokul",
+  "meta": "Türkiye · Eğitim",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tv-e-okul01.medya.trt.com.tr/master.m3u8",
+   "https://tv-e-okul01.live.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.eba.gov.tr/",
+  "tvg": "TRTEBA.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "trt-eba-lise",
+  "name": "TRT EBA Lise",
+  "meta": "Türkiye · Eğitim",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tv-e-okul02.medya.trt.com.tr/master.m3u8",
+   "https://tv-e-okul02.live.trt.com.tr/master.m3u8"
+  ],
+  "official": "https://www.eba.gov.tr/",
+  "tvg": "TRTEBALise.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "diyanet-tv",
+  "name": "Diyanet TV",
+  "meta": "Türkiye · Genel",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://eustr73.mediatriple.net/videoonlylive/mtikoimxnztxlive/broadcast_5e3bf95a47e07.smil/playlist.m3u8"
+  ],
+  "official": "https://www.diyanettv.com.tr/",
+  "tvg": "DiyanetTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "a2tv",
+  "name": "A2",
+  "meta": "Türkiye · Genel",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/a2tv/a2tv.m3u8"
+  ],
+  "official": "https://www.atv.com.tr/a2tv/canli-yayin",
+  "tvg": "A2TV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "tv4",
+  "name": "TV4",
+  "meta": "Türkiye · Genel",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://turkmedya-live.ercdn.net/tv4/tv4.m3u8"
+  ],
+  "official": "https://www.tv4.com.tr/canli-yayin",
+  "tvg": "TV4.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "euro-d",
+  "name": "Euro D",
+  "meta": "Türkiye · Genel",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://live.duhnet.tv/S2/HLS_LIVE/eurodnp/playlist.m3u8"
+  ],
+  "official": "https://www.eurod.com.tr/",
+  "tvg": "EuroD.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "dream-turk",
+  "name": "Dream Türk",
+  "meta": "Türkiye · Müzik",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://live.duhnet.tv/S2/HLS_LIVE/dreamturknp/playlist.m3u8"
+  ],
+  "official": "https://www.dreamturk.com.tr/",
+  "tvg": "DreamTurk.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "kral-pop",
+  "name": "Kral Pop TV",
+  "meta": "Türkiye · Müzik",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   {
+    "u": "https://dogus-live.daioncdn.net/kralpoptv/playlist.m3u8",
+    "r": "https://www.kralmuzik.com.tr/"
+   },
+   {
+    "u": "https://dogus-live.daioncdn.net/kralpoptv/kralpoptv.m3u8",
+    "r": "https://www.kralmuzik.com.tr/"
+   }
+  ],
+  "official": "https://www.kralmuzik.com.tr/",
+  "tvg": "KralPopTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "power-tv",
+  "name": "Power TV",
+  "meta": "Türkiye · Müzik",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://livetv.powerapp.com.tr/powerTV/powerhd.smil/playlist.m3u8"
+  ],
+  "official": "https://www.powerapp.com.tr/",
+  "tvg": "PowerTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "power-turk",
+  "name": "Power Türk",
+  "meta": "Türkiye · Müzik",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://livetv.powerapp.com.tr/powerturkTV/powerturkhd.smil/playlist.m3u8"
+  ],
+  "official": "https://www.powerapp.com.tr/",
+  "tvg": "PowerTurkTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "number1",
+  "name": "Number 1 TV",
+  "meta": "Türkiye · Müzik",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://b01c02nl.mediatriple.net/videoonlylive/mtkgeuihrlfwlive/broadcast_5c9e17cd59e8b.smil/playlist.m3u8"
+  ],
+  "official": "https://www.numberone.com.tr/",
+  "tvg": "Number1TV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "minika-cocuk",
+  "name": "Minika Çocuk",
+  "meta": "Türkiye · Çocuk",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/minikago_cocuk/minikago_cocuk.m3u8"
+  ],
+  "official": "https://www.minikacocuk.com.tr/",
+  "tvg": "MinikaCocuk.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "minika-go",
+  "name": "Minika GO",
+  "meta": "Türkiye · Çocuk",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/minikago/minikago.m3u8"
+  ],
+  "official": "https://www.minikago.com.tr/",
+  "tvg": "MinikaGo.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "ht-spor",
+  "name": "HT Spor",
+  "meta": "Türkiye · Spor",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://ciner.daioncdn.net/ht-spor/ht-spor.m3u8?app=web"
+  ],
+  "official": "https://www.htspor.com/",
+  "tvg": "HTSporTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "fb-tv",
+  "name": "FB TV",
+  "meta": "Türkiye · Spor",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "http://1hskrdto.rocketcdn.com/fenerbahcetv.smil/playlist.m3u8"
+  ],
+  "official": "https://www.fenerbahce.org/",
+  "tvg": "FBTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "tjk-tv",
+  "name": "TJK TV",
+  "meta": "Türkiye · Spor · At yarışı",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tjktv-live.tjk.org/tjktv.m3u8"
+  ],
+  "official": "https://www.tjk.org/",
+  "tvg": "TJKTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "tjk-tv2",
+  "name": "TJK TV 2",
+  "meta": "Türkiye · Spor · At yarışı",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://tjktv-live.tjk.org/tjktv2/tjktv2.m3u8"
+  ],
+  "official": "https://www.tjk.org/",
+  "tvg": "TJKTV2.tr",
+  "rep": "tr",
+  "note": "Yarış günleri dışında yayın olmayabilir."
+ },
+ {
+  "id": "vav-tv",
+  "name": "Vav TV",
+  "meta": "Türkiye · Belgesel · Kültür / Sanat",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://playlist.fasttvcdn.com/pl/rfrk9821hdy9dayo8wfyha/kltr-sanat-tv/playlist.m3u8"
+  ],
+  "official": "https://www.vav.tv/",
+  "tvg": "VavTV.tr",
+  "rep": "tr"
+ },
+ {
+  "id": "ciftci-tv",
+  "name": "Çiftçi TV",
+  "meta": "Türkiye · Belgesel · Tarım",
+  "continent": "Türkiye",
+  "country": "Türkiye",
+  "urls": [
+   "https://live.artidijitalmedya.com/artidijital_ciftcitv/ciftcitv/playlist.m3u8"
+  ],
+  "official": "https://www.ciftcitv.com/",
+  "tvg": "CiftciTV.tr",
+  "rep": "tr"
+ },
+ {
   "id": "bbc-news",
   "name": "BBC News",
   "meta": "Birleşik Krallık · Haber",
@@ -262,7 +773,10 @@
   "urls": [
    "https://vs-hls-push-uk.live.fastly.md.bbci.co.uk/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/iptv_hd_abr_v1.m3u8"
   ],
-  "official": "https://www.bbc.com/news/live"
+  "official": "https://www.bbc.com/news/live",
+  "geo": "Birleşik Krallık",
+  "tvg": "BBCNews.uk",
+  "rep": "uk"
  },
  {
   "id": "dw",
@@ -452,9 +966,13 @@
   "continent": "Avrupa",
   "country": "Almanya",
   "urls": [
-   "https://zdf-hls-15.akamaized.net/hls/live/2016498/de/veryhigh/master.m3u8"
+   "https://zdf-hls-15.akamaized.net/hls/live/2016498/de/veryhigh/master.m3u8",
+   "https://zdf-hls-15.akamaized.net/hls/live/2016498/de/high/master.m3u8"
   ],
-  "official": "https://www.zdf.de/live-tv"
+  "official": "https://www.zdf.de/live-tv",
+  "geo": "Almanya",
+  "tvg": "ZDF.de",
+  "rep": "de"
  },
  {
   "id": "tagesschau24",
@@ -476,7 +994,10 @@
   "urls": [
    "https://artesimulcast.akamaized.net/hls/live/2031003/artelive_fr/index.m3u8"
   ],
-  "official": "https://www.arte.tv/fr/direct/"
+  "official": "https://www.arte.tv/fr/direct/",
+  "geo": "Fransa / Almanya",
+  "tvg": "arte.fr",
+  "rep": "fr"
  },
  {
   "id": "bfmtv",
@@ -507,9 +1028,12 @@
   "continent": "Avrupa",
   "country": "İtalya",
   "urls": [
+   "https://d15umi5iaezxgx.cloudfront.net/LA7/CLN/HLS-B/Live.m3u8",
    "https://d3749synfikwkv.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-74ylxpgd78bpb/Live.m3u8"
   ],
-  "official": "https://www.la7.it/dirette"
+  "official": "https://www.la7.it/dirette",
+  "tvg": "LA7.it",
+  "rep": "it"
  },
  {
   "id": "rtp1",
@@ -541,9 +1065,15 @@
   "continent": "Avrupa",
   "country": "Portekiz",
   "urls": [
-   "https://sicnot.live.impresa.pt/sicnot.m3u8"
+   {
+    "u": "https://sicnot.live.impresa.pt/sicnot.m3u8",
+    "r": "https://sicnoticias.pt/"
+   }
   ],
-  "official": "https://sicnoticias.pt/direto"
+  "official": "https://sicnoticias.pt/direto",
+  "geo": "Portekiz",
+  "tvg": "SICNoticias.pt",
+  "rep": "pt"
  },
  {
   "id": "srf1",
@@ -554,7 +1084,10 @@
   "urls": [
    "https://viamotionhsi.netplus.ch/live/eds/srf1hd/browser-HLS8/srf1hd.m3u8"
   ],
-  "official": "https://www.srf.ch/play/tv"
+  "official": "https://www.srf.ch/play/tv",
+  "geo": "İsviçre",
+  "tvg": "SRF1.ch",
+  "rep": "ch"
  },
  {
   "id": "srf-info",
@@ -565,7 +1098,10 @@
   "urls": [
    "https://viamotionhsi.netplus.ch/live/eds/srfinfo/browser-HLS8/srfinfo.m3u8"
   ],
-  "official": "https://www.srf.ch/play/tv"
+  "official": "https://www.srf.ch/play/tv",
+  "geo": "İsviçre",
+  "tvg": "SRFinfo.ch",
+  "rep": "ch"
  },
  {
   "id": "svt1",
@@ -574,9 +1110,12 @@
   "continent": "Avrupa",
   "country": "İsveç",
   "urls": [
-   "https://svt-live-channel.akamaized.net/l4/se/svt1/master-fmp4.m3u8?format=hls&defaultSubLang=1"
+   "https://svt-live-channel.akamaized.net/l4/se/svt1/master-fmp4.m3u8?defaultSubLang=1&format=hls"
   ],
-  "official": "https://www.svtplay.se/kanaler"
+  "official": "https://www.svtplay.se/kanaler",
+  "geo": "İsveç",
+  "tvg": "SVT1.se",
+  "rep": "se"
  },
  {
   "id": "nrk1",
@@ -585,15 +1124,551 @@
   "continent": "Avrupa",
   "country": "Norveç",
   "urls": [
+   "https://nrk-live-no.akamaized.net/nrk1/muxed.m3u8",
    "https://nrk-nrk1.akamaized.net/21/0/hls/nrk_1/playlist.m3u8"
   ],
-  "official": "https://tv.nrk.no/direkte"
+  "official": "https://tv.nrk.no/direkte",
+  "geo": "Norveç",
+  "tvg": "NRK1.no",
+  "rep": "no"
+ },
+ {
+  "id": "orf2-at",
+  "name": "ORF 2",
+  "meta": "Avusturya · Genel",
+  "continent": "Avrupa",
+  "country": "Avusturya",
+  "kind": "genel",
+  "urls": [
+   "https://orf2-247.mdn.ors.at/orf/orf2/qxa-247/manifest.m3u8"
+  ],
+  "tvg": "ORF2.at",
+  "rep": "at"
+ },
+ {
+  "id": "orfiii-at",
+  "name": "ORF III",
+  "meta": "Avusturya · Kültür",
+  "continent": "Avrupa",
+  "country": "Avusturya",
+  "kind": "kultur",
+  "urls": [
+   "https://orf3.mdn.ors.at/orf/orf3/qxa/manifest.m3u8"
+  ],
+  "tvg": "ORFIII.at",
+  "rep": "at"
+ },
+ {
+  "id": "rtsinfo-ch",
+  "name": "RTS Info",
+  "meta": "İsviçre · Haber",
+  "continent": "Avrupa",
+  "country": "İsviçre",
+  "kind": "haber",
+  "urls": [
+   "https://rtsinfo-d.akamaized.net/out/v1/2b7ae2e1ba3f43c6aba15bced153baf5/index.m3u8"
+  ],
+  "tvg": "RTSInfo.ch",
+  "rep": "ch"
+ },
+ {
+  "id": "3catinfo-es",
+  "name": "3CatInfo",
+  "meta": "İspanya · Haber",
+  "continent": "Avrupa",
+  "country": "İspanya",
+  "kind": "haber",
+  "urls": [
+   "https://directes-tv-int.3catdirectes.cat/live-origin/canal324-hls/master.m3u8"
+  ],
+  "tvg": "3CatInfo.es",
+  "rep": "es"
+ },
+ {
+  "id": "24horas-es",
+  "name": "24 Horas",
+  "meta": "İspanya · Haber",
+  "continent": "Avrupa",
+  "country": "İspanya",
+  "kind": "haber",
+  "urls": [
+   "https://ztnr.rtve.es/ztnr/1694255.m3u8"
+  ],
+  "tvg": "24Horas.es",
+  "rep": "es"
+ },
+ {
+  "id": "euronewsfrench-fr",
+  "name": "Euronews French",
+  "meta": "Fransa · Haber",
+  "continent": "Avrupa",
+  "country": "Fransa",
+  "kind": "haber",
+  "urls": [
+   "https://2f6c5bf4.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmxheHhUVi1ldV9FdXJvbmV3c0ZyYW5jYWlzX0hMUw/playlist.m3u8"
+  ],
+  "tvg": "EuronewsFrench.fr",
+  "rep": "fr"
+ },
+ {
+  "id": "euronewsgerman-fr",
+  "name": "Euronews German",
+  "meta": "Fransa · Haber",
+  "continent": "Avrupa",
+  "country": "Fransa",
+  "kind": "haber",
+  "urls": [
+   "https://575b7833.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmxheHhUVi1ldV9FdXJvbmV3c0RldXRzY2hfSExT/playlist.m3u8"
+  ],
+  "tvg": "EuronewsGerman.fr",
+  "rep": "fr"
+ },
+ {
+  "id": "rai1-it",
+  "name": "Rai 1",
+  "meta": "İtalya · Genel",
+  "continent": "Avrupa",
+  "country": "İtalya",
+  "kind": "genel",
+  "urls": [
+   "https://mediapolisevent.rai.it/relinker/relinkerServlet.htm?cont=2606803"
+  ],
+  "tvg": "Rai1.it",
+  "rep": "it"
+ },
+ {
+  "id": "raistoria-it",
+  "name": "Rai Storia",
+  "meta": "İtalya · Genel",
+  "continent": "Avrupa",
+  "country": "İtalya",
+  "kind": "genel",
+  "urls": [
+   {
+    "u": "https://d3k8wzt41aflvx.cloudfront.net/RAIStoria/Live.m3u8",
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+   }
+  ],
+  "tvg": "RaiStoria.it",
+  "rep": "it"
+ },
+ {
+  "id": "gbnews-uk",
+  "name": "GB News",
+  "meta": "Birleşik Krallık · Haber",
+  "continent": "Avrupa",
+  "country": "Birleşik Krallık",
+  "kind": "haber",
+  "urls": [
+   "https://amg01076-lightningintern-gbnewsau-samsungau-et7fz.amagi.tv/playlist/amg01076-lightningintern-gbnewsau-samsungau/playlist.m3u8",
+   "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg01076-lightningintern-gbnewsnz-samsungnz/playlist.m3u8",
+   "https://amg01076-lightning-amg01076c7-lg-gb-2019.playouts.now.amagi.tv/playlist/amg01076-lightning-gbnews-lggb/playlist.m3u8"
+  ],
+  "tvg": "GBNews.uk",
+  "rep": "au_samsung,nz_samsung,uk,uk_samsung"
+ },
+ {
+  "id": "ert3-gr",
+  "name": "ERT3",
+  "meta": "Yunanistan · Genel",
+  "continent": "Avrupa",
+  "country": "Yunanistan",
+  "kind": "genel",
+  "urls": [
+   "https://ert-ucdn.broadpeak-aas.com/bpk-tv/ERT3/default/index.m3u8"
+  ],
+  "tvg": "ERT3.gr",
+  "rep": "gr"
+ },
+ {
+  "id": "tvr1-ro",
+  "name": "TVR 1",
+  "meta": "Romanya · Genel",
+  "continent": "Avrupa",
+  "country": "Romanya",
+  "kind": "genel",
+  "urls": [
+   "https://tvr-1.lg.mncdn.com/tvr1/smil:tvr1.smil/playlist.m3u8"
+  ],
+  "tvg": "TVR1.ro",
+  "rep": "ro"
+ },
+ {
+  "id": "moldova1-md",
+  "name": "Moldova 1",
+  "meta": "Moldova · Genel",
+  "continent": "Avrupa",
+  "country": "Moldova",
+  "kind": "genel",
+  "urls": [
+   "https://v0.trm.md/static/streaming-playlists/hls/9b79338b-1870-4cd7-91d4-0f6ce5cac7ca/master.m3u8"
+  ],
+  "tvg": "Moldova1.md",
+  "rep": "md"
+ },
+ {
+  "id": "ltv1-lv",
+  "name": "LTV1",
+  "meta": "Letonya · Genel",
+  "continent": "Avrupa",
+  "country": "Letonya",
+  "kind": "genel",
+  "urls": [
+   "https://lsm.eu.cdns-redge.media/livehls/o2/lsm-live/live/ltv1_pasaule/live.livx/playlist.m3u8"
+  ],
+  "tvg": "LTV1.lv",
+  "rep": "lv"
+ },
+ {
+  "id": "etv-ee",
+  "name": "ETV",
+  "meta": "Estonya · Genel",
+  "continent": "Avrupa",
+  "country": "Estonya",
+  "kind": "genel",
+  "urls": [
+   "https://sb.err.ee/live/etv.m3u8"
+  ],
+  "tvg": "ETV.ee",
+  "rep": "ee"
+ },
+ {
+  "id": "ruv-is",
+  "name": "RUV",
+  "meta": "İzlanda · Genel",
+  "continent": "Avrupa",
+  "country": "İzlanda",
+  "kind": "genel",
+  "urls": [
+   "https://ruv-web-live.akamaized.net/streymi/ruverl/ruverl.m3u8"
+  ],
+  "tvg": "RUV.is",
+  "rep": "is"
+ },
+ {
+  "id": "tg4-ie",
+  "name": "TG4",
+  "meta": "İrlanda · Genel",
+  "continent": "Avrupa",
+  "country": "İrlanda",
+  "kind": "genel",
+  "urls": [
+   "https://fastly.live.brightcove.com/6384196213112/eu-west-1/1555966122001/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoieDl2YzlnLmVncmVzcy55ODN1ZWIiLCJhY2NvdW50X2lkIjoiMTU1NTk2NjEyMjAwMSIsImVobiI6ImZhc3RseS5saXZlLmJyaWdodGNvdmUuY29tIiwiaXNzIjoiYmxpdmUtcGxheWJhY2stc291cmNlLWFwaSIsInN1YiI6InBhdGhtYXB0b2tlbiIsImF1ZCI6WyIxNTU1OTY2MTIyMDAxIl0sImp0aSI6IjYzODQxOTYyMTMxMTIifQ.Co2xR3kmJBoxTaFTpwU0b37lJ05vNt-y32-SwfM26EA/chunklist.m3u8"
+  ],
+  "tvg": "TG4.ie",
+  "rep": "ie"
+ },
+ {
+  "id": "drtv-dk",
+  "name": "DRTV",
+  "meta": "Danimarka · Genel",
+  "continent": "Avrupa",
+  "country": "Danimarka",
+  "kind": "genel",
+  "urls": [
+   "https://drlivedrtvahls.akamaized.net/hls/live/2113613/drlivedrtva/master.m3u8"
+  ],
+  "tvg": "DRTV.dk",
+  "rep": "dk"
+ },
+ {
+  "id": "currenttimetv-cz",
+  "name": "Current Time TV",
+  "meta": "Çekya · Haber",
+  "continent": "Avrupa",
+  "country": "Çekya",
+  "kind": "haber",
+  "urls": [
+   "https://rfe-ingest.akamaized.net/hls/live/2033043/tvmc05/master.m3u8"
+  ],
+  "tvg": "CurrentTimeTV.cz",
+  "rep": "cz"
+ },
+ {
+  "id": "ndrfernsehen-de",
+  "name": "NDR Fernsehen",
+  "meta": "Almanya · Genel",
+  "continent": "Avrupa",
+  "country": "Almanya",
+  "kind": "genel",
+  "urls": [
+   "https://mcdn.ndr.de/ndr/hls/ndr_fs/ndr_hh/master.m3u8",
+   "https://mcdn.ndr.de/ndr/hls/ndr_fs/ndr_mv/master.m3u8",
+   "https://mcdn.ndr.de/ndr/hls/ndr_fs/ndr_nds/master.m3u8"
+  ],
+  "tvg": "NDRFernsehen.de",
+  "rep": "de"
+ },
+ {
+  "id": "canalz-be",
+  "name": "Canal Z",
+  "meta": "Belçika · Ekonomi",
+  "continent": "Avrupa",
+  "country": "Belçika",
+  "kind": "ekonomi",
+  "urls": [
+   "https://d1hz1p2gea2zy4.cloudfront.net/live/rmgtv/RMG-TRENDSZFR-LIVE/index.m3u8"
+  ],
+  "tvg": "CanalZ.be",
+  "rep": "be"
+ },
+ {
+  "id": "fifaplus-uk",
+  "name": "FIFA+",
+  "meta": "Birleşik Krallık · Spor",
+  "continent": "Avrupa",
+  "country": "Birleşik Krallık",
+  "kind": "spor",
+  "urls": [
+   "https://a62dad94.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0ZJRkFQbHVzRW5nbGlzaF9ITFM/playlist.m3u8",
+   "https://37b4c228.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWZyX0ZJRkFQbHVzRnJlbmNoX0hMUw/playlist.m3u8",
+   "https://4397879b.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWRlX0ZJRkFQbHVzR2VybWFuX0hMUw/playlist.m3u8"
+  ],
+  "tvg": "FIFAPlus.uk",
+  "rep": "uk,uk_samsung,us_samsung"
+ },
+ {
+  "id": "terramaterwild-de",
+  "name": "Terra Mater WILD",
+  "meta": "Almanya · Belgesel",
+  "continent": "Avrupa",
+  "country": "Almanya",
+  "kind": "belgesel",
+  "urls": [
+   "https://53ff3982.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmxheHhUVi1ldV9UZXJyYU1hdGVyV2lsZF9ITFM/playlist.m3u8",
+   "https://amg01775-amg01775c1-amgplt0343.playout.now3.amagi.tv/playlist/amg01775-amg01775c1-amgplt0343/playlist.m3u8"
+  ],
+  "tvg": "TerraMaterWILD.de",
+  "rep": "de"
+ },
+ {
+  "id": "waterbear-ch",
+  "name": "WaterBear",
+  "meta": "İsviçre · Belgesel",
+  "continent": "Avrupa",
+  "country": "İsviçre",
+  "kind": "belgesel",
+  "urls": [
+   "https://amg01415-waterbearnetwor-waterbear-samsunguk-1h0y8.amagi.tv/playlist/amg01415-waterbearnetwor-waterbear-samsunguk/playlist.m3u8"
+  ],
+  "tvg": "WaterBear.ch",
+  "rep": "uk_samsung"
+ },
+ {
+  "id": "skynewsarabia-ae",
+  "name": "Sky News Arabia",
+  "meta": "BAE · Haber",
+  "continent": "Orta Doğu",
+  "country": "BAE",
+  "kind": "haber",
+  "urls": [
+   "https://live-stream.skynewsarabia.com/c-horizontal-channel/horizontal-stream/index.m3u8"
+  ],
+  "tvg": "SkyNewsArabia.ae",
+  "rep": "ae"
+ },
+ {
+  "id": "alekhbariya-sa",
+  "name": "Al Ekhbariya",
+  "meta": "S. Arabistan · Haber",
+  "continent": "Orta Doğu",
+  "country": "S. Arabistan",
+  "kind": "haber",
+  "urls": [
+   "https://cdn-globecast.akamaized.net/live/eds/al_ekhbariya/hls_roku/index.m3u8"
+  ],
+  "tvg": "AlEkhbariya.sa",
+  "rep": "sa"
+ },
+ {
+  "id": "alsaudiya-sa",
+  "name": "Al Saudiya",
+  "meta": "S. Arabistan · Genel",
+  "continent": "Orta Doğu",
+  "country": "S. Arabistan",
+  "kind": "genel",
+  "urls": [
+   "https://cdn-globecast.akamaized.net/live/eds/saudi_tv/hls_roku/index.m3u8"
+  ],
+  "tvg": "AlSaudiya.sa",
+  "rep": "sa"
+ },
+ {
+  "id": "qatartelevision-qa",
+  "name": "Qatar Television",
+  "meta": "Katar · Genel",
+  "continent": "Orta Doğu",
+  "country": "Katar",
+  "kind": "genel",
+  "urls": [
+   "https://qatartv.akamaized.net/hls/live/20000609/qtv1/master.m3u8"
+  ],
+  "tvg": "QatarTelevision.qa",
+  "rep": "qa"
+ },
+ {
+  "id": "almashhad-ae",
+  "name": "Al Mashhad",
+  "meta": "BAE · Haber",
+  "continent": "Orta Doğu",
+  "country": "BAE",
+  "kind": "haber",
+  "urls": [
+   "https://amg30483-amg30483c23-amgplt0794.playout.now3.amagi.tv/ts-ap-s1-n1/playlist/amg30483-amg30483c23-amgplt0794/playlist.m3u8?ads.appversion=[APP_VERSION]&ads.devicemodel=[DEVICE_MODEL]&ads.lat=[LMT]&ads.bundleid=[APP_BUNDLE]&ads.donotsell=[DNS]&ads.ifa=[IFA]&ads.targetad=[TARGETAD_ALLOWED]&ads.appstoreurl=[APP_STOREURL]&ads.deviceid=[DEVICE_ID]&ads.devicemake=[DEVICE_MAKE]&ads.devicetype=[DEVICE_TYPE]&ads.gdpr=[GDPR]&ads.gdprconsent=[GDPR_CONSENT]&ads.ifatype=[IFA_TYPE]&ads.ip=[IP]&ads.appname=[APP_NAME]&ads.country=[COUNTRY]&ads.fck=[FCK]&ads.givn=[NONCE]&ads.ua=[UA]&ads.usprivacy=[US_PRIVACY]&ads.viewsize=[VIEWSIZE]&ads.coppa=0&ads.ic=[IC]&ads.network_name=[networkname]"
+  ],
+  "tvg": "AlMashhad.ae",
+  "rep": "ae"
+ },
+ {
+  "id": "kurdistan24-iq",
+  "name": "Kurdistan 24",
+  "meta": "Irak · Haber",
+  "continent": "Orta Doğu",
+  "country": "Irak",
+  "kind": "haber",
+  "urls": [
+   "https://hlspackager.akamaized.net/live/DB/K24/HLS/K24.m3u8"
+  ],
+  "tvg": "Kurdistan24.iq",
+  "rep": "iq"
+ },
+ {
+  "id": "kurdsatnews-iq",
+  "name": "Kurdsat News",
+  "meta": "Irak · Haber",
+  "continent": "Orta Doğu",
+  "country": "Irak",
+  "kind": "haber",
+  "urls": [
+   "https://hlspackager.akamaized.net/live/DB/KURDSAT_NEWS/HLS/KURDSAT_NEWS.m3u8"
+  ],
+  "tvg": "KurdsatNews.iq",
+  "rep": "iq"
+ },
+ {
+  "id": "aliraqianews-iq",
+  "name": "Al Iraqia News",
+  "meta": "Irak · Haber",
+  "continent": "Orta Doğu",
+  "country": "Irak",
+  "kind": "haber",
+  "urls": [
+   "https://imn-live.esite-lab.com/hls/iraqia-news.m3u8"
+  ],
+  "tvg": "AlIraqiaNews.iq",
+  "rep": "iq"
+ },
+ {
+  "id": "i24newsenglishworld-il",
+  "name": "i24NEWS English World",
+  "meta": "İsrail · Haber",
+  "continent": "Orta Doğu",
+  "country": "İsrail",
+  "kind": "haber",
+  "urls": [
+   "https://i24newsenglish-cdn.encoders.immergo.tv/master.m3u8",
+   "https://hlspackager.akamaized.net/live/DB/i24_ENGLISH/HLS/i24_ENGLISH.m3u8"
+  ],
+  "tvg": "i24NEWSEnglishWorld.il",
+  "rep": "il"
+ },
+ {
+  "id": "i24newsarabic-il",
+  "name": "i24NEWS Arabic",
+  "meta": "İsrail · Haber",
+  "continent": "Orta Doğu",
+  "country": "İsrail",
+  "kind": "haber",
+  "urls": [
+   "https://i24newsarabic-cdn.encoders.immergo.tv/master.m3u8",
+   "https://hlspackager.akamaized.net/live/DB/i24_ARABIC/HLS/i24_ARABIC.m3u8"
+  ],
+  "tvg": "i24NEWSArabic.il",
+  "rep": "il"
+ },
+ {
+  "id": "presstv-ir",
+  "name": "Press TV",
+  "meta": "İran · Haber",
+  "continent": "Orta Doğu",
+  "country": "İran",
+  "kind": "haber",
+  "urls": [
+   "https://live.presstv.co.uk/hls/presstv.m3u8"
+  ],
+  "tvg": "PressTV.ir",
+  "rep": "ir"
+ },
+ {
+  "id": "jordantv-jo",
+  "name": "Jordan TV",
+  "meta": "Ürdün · Genel",
+  "continent": "Orta Doğu",
+  "country": "Ürdün",
+  "kind": "genel",
+  "urls": [
+   "https://jrtv-live.ercdn.net/jordanhd/jordanhd.m3u8"
+  ],
+  "tvg": "JordanTV.jo",
+  "rep": "jo"
+ },
+ {
+  "id": "ammantv-jo",
+  "name": "Amman TV",
+  "meta": "Ürdün · Genel",
+  "continent": "Orta Doğu",
+  "country": "Ürdün",
+  "kind": "genel",
+  "urls": [
+   "https://ammantv-live.ercdn.net/ammantvhd/ammantvhd.m3u8"
+  ],
+  "tvg": "AmmanTV.jo",
+  "rep": "jo"
+ },
+ {
+  "id": "ktvnews-kw",
+  "name": "KTV News",
+  "meta": "Kuveyt · Haber",
+  "continent": "Orta Doğu",
+  "country": "Kuveyt",
+  "kind": "haber",
+  "urls": [
+   "https://cdn-globecast.akamaized.net/live/eds/ktv_al_akhbar/hls_roku/ktv_al_akhbar.m3u8"
+  ],
+  "tvg": "KTVNews.kw",
+  "rep": "kw"
+ },
+ {
+  "id": "ktv1-kw",
+  "name": "KTV 1",
+  "meta": "Kuveyt · Genel",
+  "continent": "Orta Doğu",
+  "country": "Kuveyt",
+  "kind": "genel",
+  "urls": [
+   "https://cdn-globecast.akamaized.net/live/eds/kuwait_tv1/hls_roku/index.m3u8"
+  ],
+  "tvg": "KTV1.kw",
+  "rep": "kw"
+ },
+ {
+  "id": "alrayyantv-qa",
+  "name": "Al Rayyan TV",
+  "meta": "Katar · Genel",
+  "continent": "Orta Doğu",
+  "country": "Katar",
+  "kind": "genel",
+  "urls": [
+   "https://alrayyancdn.vidgyor.com/pub-noalrayy3pwz0l/liveabr/playlist_dvr.m3u8"
+  ],
+  "tvg": "AlRayyanTV.qa",
+  "rep": "qa"
  },
  {
   "id": "al-jazeera",
   "name": "Al Jazeera English",
   "meta": "Katar · Haber",
-  "continent": "Asya",
+  "continent": "Orta Doğu",
   "country": "Katar",
   "urls": [
    "https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8",
@@ -605,7 +1680,7 @@
   "id": "al-jazeera-ar",
   "name": "Al Jazeera Arabic",
   "meta": "Katar · العربية",
-  "continent": "Asya",
+  "continent": "Orta Doğu",
   "country": "Katar",
   "urls": [
    "https://live-hls-apps-aja-fa.getaj.net/AJA/index.m3u8",
@@ -617,7 +1692,7 @@
   "id": "al-jazeera-doc",
   "name": "Al Jazeera Documentary",
   "meta": "Katar · Belgesel",
-  "continent": "Asya",
+  "continent": "Orta Doğu",
   "country": "Katar",
   "url": "https://live-hls-apps-ajd-fa.getaj.net/AJD/index.m3u8",
   "official": "https://www.aljazeera.net/documentary"
@@ -665,7 +1740,9 @@
    "https://n24-cdn-live.ntv.co.jp/ch01/index.m3u8",
    "https://n24-cdn-live-x.ntv.co.jp/ch01/index.m3u8"
   ],
-  "official": "https://www.news24.jp/livestream/"
+  "official": "https://www.news24.jp/livestream/",
+  "geo": "Japonya",
+  "rep": "jp"
  },
  {
   "id": "arirang",
@@ -685,8 +1762,12 @@
   "meta": "Güney Kore · Genel",
   "continent": "Asya",
   "country": "Güney Kore",
-  "url": "https://kbsworld-ott.akamaized.net/hls/live/2002341/kbsworld/master.m3u8",
-  "official": "https://kbsworld.kbs.co.kr/"
+  "urls": [
+   "https://kbsworld-ott.akamaized.net/hls/live/2002341/kbsworld/master.m3u8"
+  ],
+  "official": "https://kbsworld.kbs.co.kr/",
+  "tvg": "KBSWorld.kr",
+  "rep": "kr"
  },
  {
   "id": "cna",
@@ -703,32 +1784,21 @@
   "meta": "Tayvan · Haber",
   "continent": "Asya",
   "country": "Tayvan",
-  "url": "https://bcovlive-a.akamaihd.net/rce33d845cb9e42dfa302c7ac345f7858/ap-northeast-1/6282251407001/playlist.m3u8",
-  "official": "https://www.taiwanplus.com/live"
- },
- {
-  "id": "tvbs-asia",
-  "name": "TVBS Asia",
-  "meta": "Tayvan · Haber",
-  "continent": "Asya",
-  "country": "Tayvan",
-  "url": "http://38.64.72.148/hls/modn/list/4005/playlist.m3u8",
-  "official": "https://news.tvbs.com.tw/live"
- },
- {
-  "id": "ttv-taiwan",
-  "name": "TTV News",
-  "meta": "Tayvan · Haber",
-  "continent": "Asya",
-  "country": "Tayvan",
-  "url": "http://162.19.247.76:22222/live/taishi/index.m3u8",
-  "official": "https://www.ttv.com.tw/"
+  "urls": [
+   {
+    "u": "https://bcovlive-a.akamaihd.net/rce33d845cb9e42dfa302c7ac345f7858/ap-northeast-1/6282251407001/playlist.m3u8",
+    "r": "https://www.taiwanplus.com/"
+   }
+  ],
+  "official": "https://www.taiwanplus.com/live",
+  "tvg": "TaiwanPlusTV.tw",
+  "rep": "tw"
  },
  {
   "id": "al-arabiya",
   "name": "Al Arabiya",
   "meta": "BAE · Haber",
-  "continent": "Asya",
+  "continent": "Orta Doğu",
   "country": "Birleşik Arap Emirlikleri",
   "urls": [
    "https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8",
@@ -740,7 +1810,7 @@
   "id": "al-arabiya-english",
   "name": "Al Arabiya English",
   "meta": "BAE · Haber",
-  "continent": "Asya",
+  "continent": "Orta Doğu",
   "country": "Birleşik Arap Emirlikleri",
   "url": "https://live.alarabiya.net/alarabiapublish/english/playlist_dvr.m3u8",
   "official": "https://english.alarabiya.net/"
@@ -749,7 +1819,7 @@
   "id": "al-hadath",
   "name": "Al Hadath",
   "meta": "Suudi Arabistan · Haber",
-  "continent": "Asya",
+  "continent": "Orta Doğu",
   "country": "Suudi Arabistan",
   "url": "https://av.alarabiya.net/alarabiapublish/alhadath.smil/playlist.m3u8",
   "official": "https://www.alarabiya.net/alarabiya-live"
@@ -758,7 +1828,7 @@
   "id": "asharq-news",
   "name": "Asharq News",
   "meta": "Suudi Arabistan · Haber",
-  "continent": "Asya",
+  "continent": "Orta Doğu",
   "country": "Suudi Arabistan",
   "url": "https://live-news.asharq.com/asharq.m3u8",
   "official": "https://asharq.com/live/"
@@ -857,6 +1927,272 @@
   "official": "https://sansadtv.nic.in/live"
  },
  {
+  "id": "arirangun-kr",
+  "name": "Arirang UN",
+  "meta": "Güney Kore · Haber",
+  "continent": "Asya",
+  "country": "Güney Kore",
+  "kind": "haber",
+  "urls": [
+   "https://amdlive-ch02-ctnd-com.akamaized.net/arirang_2ch/smil:arirang_2ch.smil/playlist.m3u8"
+  ],
+  "tvg": "ArirangUN.kr",
+  "rep": "kr"
+ },
+ {
+  "id": "weathernews-jp",
+  "name": "Weathernews",
+  "meta": "Japonya · Haber",
+  "continent": "Asya",
+  "country": "Japonya",
+  "kind": "haber",
+  "urls": [
+   "https://rch01e-alive-hls.akamaized.net/38fb45b25cdb05a1/out/v1/4e907bfabc684a1dae10df8431a84d21/index.m3u8"
+  ],
+  "tvg": "Weathernews.jp",
+  "rep": "jp"
+ },
+ {
+  "id": "nationtv-th",
+  "name": "Nation TV",
+  "meta": "Tayland · Haber",
+  "continent": "Asya",
+  "country": "Tayland",
+  "kind": "haber",
+  "urls": [
+   "https://nationtv-1jdcjo.cdn.byteark.com/fleetstream/nationtvlive/index.m3u8"
+  ],
+  "tvg": "NationTV.th",
+  "rep": "th"
+ },
+ {
+  "id": "mcothd-th",
+  "name": "MCOT HD",
+  "meta": "Tayland · Genel",
+  "continent": "Asya",
+  "country": "Tayland",
+  "kind": "genel",
+  "urls": [
+   "https://mcothd-streaming-edge-cdn.mcot.net/tencentmcot/smil:tencentmcot.smil/playlist.m3u8"
+  ],
+  "tvg": "MCOTHD.th",
+  "rep": "th"
+ },
+ {
+  "id": "abpnews-in",
+  "name": "ABP News",
+  "meta": "Hindistan · Haber",
+  "continent": "Asya",
+  "country": "Hindistan",
+  "kind": "haber",
+  "urls": [
+   "https://d1rc86nwwc9fag.cloudfront.net/vglive-sk-472500/abpnews/master.m3u8",
+   "https://d2l4ar6y3mrs4k.cloudfront.net/live-streaming/abpnews-livetv/master.m3u8"
+  ],
+  "tvg": "ABPNews.in",
+  "rep": "in"
+ },
+ {
+  "id": "aajtak-in",
+  "name": "Aaj Tak",
+  "meta": "Hindistan · Haber",
+  "continent": "Asya",
+  "country": "Hindistan",
+  "kind": "haber",
+  "urls": [
+   "https://d1rc86nwwc9fag.cloudfront.net/vglive-sk-791258/master.m3u8",
+   "https://aajtaklive-amd.akamaized.net/hls/live/2014416/aajtak/aajtaklive/live_404p/chunks.m3u8"
+  ],
+  "tvg": "AajTak.in",
+  "rep": "in"
+ },
+ {
+  "id": "abpananda-in",
+  "name": "ABP Ananda",
+  "meta": "Hindistan · Haber",
+  "continent": "Asya",
+  "country": "Hindistan",
+  "kind": "haber",
+  "urls": [
+   "https://d2l4ar6y3mrs4k.cloudfront.net/live-streaming/ananda-livetv/master.m3u8"
+  ],
+  "tvg": "ABPAnanda.in",
+  "rep": "in"
+ },
+ {
+  "id": "asianetnews-in",
+  "name": "Asianet News",
+  "meta": "Hindistan · Haber",
+  "continent": "Asya",
+  "country": "Hindistan",
+  "kind": "haber",
+  "urls": [
+   "https://amg13737-amg13737c1-amgplt0016.playout.now3.amagi.tv/playlist/amg13737-amg13737c1-amgplt0016/playlist.m3u8",
+   "https://asianetnews.vgcdn.net/vglive-sk-917600/playlist.m3u8"
+  ],
+  "tvg": "AsianetNews.in",
+  "rep": "in"
+ },
+ {
+  "id": "zoomoo-sg",
+  "name": "ZooMoo",
+  "meta": "Singapur · Çocuk",
+  "continent": "Asya",
+  "country": "Singapur",
+  "kind": "cocuk",
+  "urls": [
+   "https://zoomoo-samsungau.amagi.tv/playlist.m3u8",
+   "https://amg01553-blueantmediaasi-zoomoonz-samsungnz-rdufn.amagi.tv/playlist/amg01553-blueantmediaasi-zoomoonz-samsungnz/playlist.m3u8",
+   "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg01553-blueantmediaasi-zoomoonz-samsungnz/playlist.m3u8"
+  ],
+  "tvg": "ZooMoo.sg",
+  "rep": "au_samsung,nz_samsung,us_samsung"
+ },
+ {
+  "id": "cnaoriginals-sg",
+  "name": "CNA Originals",
+  "meta": "Singapur · Belgesel",
+  "continent": "Asya",
+  "country": "Singapur",
+  "kind": "belgesel",
+  "urls": [
+   "https://amg01082-cna-amg01082c1-rlaxx-us-11304.playouts.now.amagi.tv/playlist.m3u8",
+   "https://amg01082-cna-amg01082c1-vidaa-gb-7580.playouts.now.amagi.tv/playlist.m3u8"
+  ],
+  "tvg": "CNAOriginals.sg",
+  "rep": "sg"
+ },
+ {
+  "id": "bakutv-az",
+  "name": "Baku.TV",
+  "meta": "Azerbaycan · Haber",
+  "continent": "Asya",
+  "country": "Azerbaycan",
+  "kind": "haber",
+  "urls": [
+   "https://rtmp.baku.tv/hls/bakutv.m3u8"
+  ],
+  "tvg": "BakuTV.az",
+  "rep": "az"
+ },
+ {
+  "id": "ictimaitv-az",
+  "name": "Ictimai TV",
+  "meta": "Azerbaycan · Genel",
+  "continent": "Asya",
+  "country": "Azerbaycan",
+  "kind": "genel",
+  "urls": [
+   "https://live.itv.az/itv.m3u8"
+  ],
+  "tvg": "IctimaiTV.az",
+  "rep": "az"
+ },
+ {
+  "id": "abaitv-kz",
+  "name": "Abai TV",
+  "meta": "Kazakistan · Kültür",
+  "continent": "Asya",
+  "country": "Kazakistan",
+  "kind": "kultur",
+  "urls": [
+   "https://abaitv-stream.qazcdn.com/abaitv/abaitv/playlist.m3u8"
+  ],
+  "tvg": "AbaiTV.kz",
+  "rep": "kz"
+ },
+ {
+  "id": "balapan-kz",
+  "name": "Balapan",
+  "meta": "Kazakistan · Çocuk",
+  "continent": "Asya",
+  "country": "Kazakistan",
+  "kind": "cocuk",
+  "urls": [
+   "https://balapantv-stream.qazcdn.com/balapantv/balapantv/playlist.m3u8"
+  ],
+  "tvg": "Balapan.kz",
+  "rep": "kz"
+ },
+ {
+  "id": "ntv7-my",
+  "name": "NTV7",
+  "meta": "Malezya · Genel",
+  "continent": "Asya",
+  "country": "Malezya",
+  "kind": "genel",
+  "urls": [
+   "https://tonton-live-switch-ssar.akamaized.net/stream-ntv7/master.m3u8?bpkio_serviceid=6c0958d82a830a02ca0936d9cfab8311"
+  ],
+  "tvg": "NTV7.my",
+  "rep": "my"
+ },
+ {
+  "id": "tv9-my",
+  "name": "TV9",
+  "meta": "Malezya · Genel",
+  "continent": "Asya",
+  "country": "Malezya",
+  "kind": "genel",
+  "urls": [
+   "https://tonton-live-switch-ssar.akamaized.net/stream-tv9/master.m3u8?bpkio_serviceid=6c0958d82a830a02ca0936d9cfab8311"
+  ],
+  "tvg": "TV9.my",
+  "rep": "my"
+ },
+ {
+  "id": "gmm25-th",
+  "name": "GMM 25",
+  "meta": "Tayland · Genel",
+  "continent": "Asya",
+  "country": "Tayland",
+  "kind": "genel",
+  "urls": [
+   "https://bcovlive-a.akamaihd.net/57d4bf695e80436d9335f4f50adbe438/ap-southeast-1/6415628290001/7e85dc4a59904e45b4fdffebd62e1d82/playlist_ssaiM.m3u8"
+  ],
+  "tvg": "GMM25.th",
+  "rep": "th"
+ },
+ {
+  "id": "premiersports-ph",
+  "name": "Premier Sports",
+  "meta": "Filipinler · Spor",
+  "continent": "Asya",
+  "country": "Filipinler",
+  "kind": "spor",
+  "urls": [
+   "https://amg19223-amg19223c3-amgplt0351.playout.now3.amagi.tv/playlist/amg19223-amg19223c3-amgplt0351/playlist.m3u8"
+  ],
+  "tvg": "PremierSports.ph",
+  "rep": "ph"
+ },
+ {
+  "id": "biztv-uz",
+  "name": "BIZ TV",
+  "meta": "Özbekistan · Genel",
+  "continent": "Asya",
+  "country": "Özbekistan",
+  "kind": "genel",
+  "urls": [
+   "https://fl.biztv.media/biz_tv_720_uni8jhub4h8fub4idejswh8dh3j94finbu4nidj39inwsj92in3d/index.m3u8"
+  ],
+  "tvg": "BIZTV.uz",
+  "rep": "uz"
+ },
+ {
+  "id": "taiwanindigenoustv-tw",
+  "name": "Taiwan Indigenous TV",
+  "meta": "Tayvan · Genel",
+  "continent": "Asya",
+  "country": "Tayvan",
+  "kind": "genel",
+  "urls": [
+   "https://streamipcfapp.akamaized.net/live/_definst_/live_720/key_b1500.m3u8"
+  ],
+  "tvg": "TaiwanIndigenousTV.tw",
+  "rep": "tw"
+ },
+ {
   "id": "africa24",
   "name": "Africa 24 English",
   "meta": "Pan-Afrika · Haber",
@@ -874,6 +2210,8 @@
   "continent": "Afrika",
   "country": "Pan-Afrika",
   "urls": [
+   "https://cdn-euronews.akamaized.net/live/eds/africanews-en/25049/index.m3u8",
+   "https://cdn-euronews.akamaized.net/live/eds/africanews-fr/25050/index.m3u8",
    "https://rakuten-africanews-1-gb.samsung.wurl.tv/playlist.m3u8"
   ],
   "official": "https://www.africanews.com/live/"
@@ -885,10 +2223,12 @@
   "continent": "Afrika",
   "country": "Güney Afrika",
   "urls": [
-   "https://sabconetanw.cdn.mangomolo.com/news/smil:news.stream.smil/master.m3u8",
-   "https://sabconetanw.cdn.mangomolo.com/news/smil:news.stream.smil/chunklist_b1600000_t64NzIwcA==.m3u8"
+   "https://sabconetanw.cdn.mangomolo.com/news/smil:news.stream.smil/master.m3u8"
   ],
-  "official": "https://www.sabcnews.com/sabcnews/live/"
+  "official": "https://www.sabcnews.com/sabcnews/live/",
+  "geo": "Güney Afrika",
+  "tvg": "SABCNews.za",
+  "rep": "za"
  },
  {
   "id": "sabc1",
@@ -897,9 +2237,12 @@
   "continent": "Afrika",
   "country": "Güney Afrika",
   "urls": [
-   "https://sabconeta.cdn.mangomolo.com/sabc1/smil:sabc1.stream.smil/chunklist_b1600000_t64NzIwcA==.m3u8"
+   "https://sabconeta.cdn.mangomolo.com/sabc1/smil:sabc1.stream.smil/master.m3u8"
   ],
-  "official": "https://sabc-plus.com/live"
+  "official": "https://sabc-plus.com/live",
+  "geo": "Güney Afrika",
+  "tvg": "SABC1.za",
+  "rep": "za"
  },
  {
   "id": "sabc2",
@@ -908,9 +2251,12 @@
   "continent": "Afrika",
   "country": "Güney Afrika",
   "urls": [
-   "https://sabctwota.cdn.mangomolo.com/sabc2/smil:sabc2.stream.smil/chunklist_b1600000_t64NzIwcA==.m3u8"
+   "https://sabctwota.cdn.mangomolo.com/sabc2/smil:sabc2.stream.smil/master.m3u8"
   ],
-  "official": "https://sabc-plus.com/live"
+  "official": "https://sabc-plus.com/live",
+  "geo": "Güney Afrika",
+  "tvg": "SABC2.za",
+  "rep": "za"
  },
  {
   "id": "sabc3",
@@ -919,9 +2265,12 @@
   "continent": "Afrika",
   "country": "Güney Afrika",
   "urls": [
-   "https://sabctreta.cdn.mangomolo.com/sabc3/smil:sabc3.stream.smil/chunklist_b1600000_t64NzIwcA==.m3u8"
+   "https://sabctreta.cdn.mangomolo.com/sabc3/smil:sabc3.stream.smil/master.m3u8"
   ],
-  "official": "https://sabc-plus.com/live"
+  "official": "https://sabc-plus.com/live",
+  "geo": "Güney Afrika",
+  "tvg": "SABC3.za",
+  "rep": "za"
  },
  {
   "id": "channel-africa",
@@ -941,9 +2290,11 @@
   "continent": "Afrika",
   "country": "Fildişi Sahili",
   "urls": [
-   "http://185.59.221.143:1935/rticdn/smil:rti1.smil/chunklist_w1667872862_b250000.m3u8"
+   "https://video1.getstreamhosting.com:1936/8336/8336/playlist.m3u8"
   ],
-  "official": "https://www.rti.ci/"
+  "official": "https://www.rti.ci/",
+  "tvg": "RTI1.ci",
+  "rep": "ci"
  },
  {
   "id": "rti2",
@@ -951,10 +2302,9 @@
   "meta": "Fildişi Sahili · Genel",
   "continent": "Afrika",
   "country": "Fildişi Sahili",
-  "urls": [
-   "http://185.59.221.143:1935/rticdn/smil:rti2.smil/chunklist_w411228344_b250000.m3u8"
-  ],
-  "official": "https://www.rti.ci/"
+  "official": "https://www.rti.ci/",
+  "tvg": "RTI2.ci",
+  "rep": "ci"
  },
  {
   "id": "rts1",
@@ -962,10 +2312,9 @@
   "meta": "Senegal · Genel",
   "continent": "Afrika",
   "country": "Senegal",
-  "urls": [
-   "https://bozztv.com/36bay2/gin/giniko_rts1_900kb_36bay2/tracks-v1a1/mono.m3u8"
-  ],
-  "official": "https://www.rts.sn/"
+  "official": "https://www.rts.sn/",
+  "tvg": "RTS1.sn",
+  "rep": "sn"
  },
  {
   "id": "nbc1-namibia",
@@ -976,7 +2325,10 @@
   "urls": [
    "https://hls2.nbcplus.na/hls/high_nbc1.m3u8"
   ],
-  "official": "https://nbc.na/"
+  "official": "https://nbc.na/",
+  "tvg": "NBC1.na",
+  "rep": "na",
+  "note": "Kanal 24 saat yayın yapmıyor; yayın saatleri dışında kapalıdır."
  },
  {
   "id": "boktv",
@@ -988,17 +2340,6 @@
    "https://livestream2.bokradio.co.za/hls/Bok5c.m3u8"
   ],
   "official": "https://bokradio.co.za/"
- },
- {
-  "id": "etv-news-sport",
-  "name": "e.tv News & Sport",
-  "meta": "Güney Afrika · Haber / Spor",
-  "continent": "Afrika",
-  "country": "Güney Afrika",
-  "urls": [
-   "https://origin2.afxp.telemedia.co.za/abr_kapang/enterepreneur/playlist.m3u8"
-  ],
-  "official": "https://www.etv.co.za/"
  },
  {
   "id": "homebase-tv",
@@ -1155,14 +2496,144 @@
   "official": "https://trace.tv/"
  },
  {
+  "id": "2mmonde-ma",
+  "name": "2M Monde",
+  "meta": "Fas · Genel",
+  "continent": "Afrika",
+  "country": "Fas",
+  "kind": "genel",
+  "urls": [
+   {
+    "u": "https://cdn-globecast.akamaized.net/live/eds/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8",
+    "r": "http://www.radio2m.ma/",
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0"
+   },
+   "https://d2qh3gh0k5vp3v.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-n6pess5lwbghr/2M_ES.m3u8"
+  ],
+  "tvg": "2MMonde.ma",
+  "rep": "ma"
+ },
+ {
+  "id": "newscentral-ng",
+  "name": "News Central",
+  "meta": "Nijerya · Haber",
+  "continent": "Afrika",
+  "country": "Nijerya",
+  "kind": "haber",
+  "urls": [
+   "https://wf.newscentral.ng:8443/hls/stream.m3u8"
+  ],
+  "tvg": "NewsCentral.ng",
+  "rep": "ng"
+ },
+ {
+  "id": "fortistv-ng",
+  "name": "Fortis TV",
+  "meta": "Nijerya · Genel",
+  "continent": "Afrika",
+  "country": "Nijerya",
+  "kind": "genel",
+  "urls": [
+   "https://stream.fortistv.com/hls/fortis-news/index.m3u8"
+  ],
+  "tvg": "FortisTV.ng",
+  "rep": "ng"
+ },
+ {
+  "id": "dabangatv-sd",
+  "name": "Dabanga TV",
+  "meta": "Sudan · Haber",
+  "continent": "Afrika",
+  "country": "Sudan",
+  "kind": "haber",
+  "urls": [
+   "https://hls.dabangasudan.org/hls/stream.m3u8"
+  ],
+  "tvg": "DabangaTV.sd",
+  "rep": "sd"
+ },
+ {
+  "id": "libyaalwataniya-ly",
+  "name": "Libya Al Wataniya",
+  "meta": "Libya · Genel",
+  "continent": "Afrika",
+  "country": "Libya",
+  "kind": "genel",
+  "urls": [
+   "https://cdn-globecast.akamaized.net/live/eds/libya_al_watanya/hls_roku/index.m3u8"
+  ],
+  "tvg": "LibyaAlWataniya.ly",
+  "rep": "ly"
+ },
+ {
+  "id": "sudantv-sd",
+  "name": "Sudan TV",
+  "meta": "Sudan · Genel",
+  "continent": "Afrika",
+  "country": "Sudan",
+  "kind": "genel",
+  "urls": [
+   "https://cdn-globecast.akamaized.net/live/eds/sudan_tv/hls_roku/index.m3u8"
+  ],
+  "tvg": "SudanTV.sd",
+  "rep": "sd"
+ },
+ {
+  "id": "wasattv-ly",
+  "name": "Wasat TV",
+  "meta": "Libya · Genel",
+  "continent": "Afrika",
+  "country": "Libya",
+  "kind": "genel",
+  "urls": [
+   {
+    "u": "https://alwasattv.hibridcdn.net/alwasattv/alwasat_abr/playlist.m3u8",
+    "r": "https://alwasat.ly/"
+   }
+  ],
+  "tvg": "WasatTV.ly",
+  "rep": "ly"
+ },
+ {
+  "id": "tv1-rw",
+  "name": "TV1",
+  "meta": "Ruanda · Genel",
+  "continent": "Afrika",
+  "country": "Ruanda",
+  "kind": "genel",
+  "urls": [
+   "https://live.tv1.rw/index.m3u8"
+  ],
+  "tvg": "TV1.rw",
+  "rep": "rw"
+ },
+ {
+  "id": "elheddaftv-dz",
+  "name": "El-Heddaf TV",
+  "meta": "Cezayir · Spor",
+  "continent": "Afrika",
+  "country": "Cezayir",
+  "kind": "spor",
+  "urls": [
+   "https://live.elheddaftv.com:8081/elheddaftv/index.m3u8"
+  ],
+  "tvg": "ElHeddafTV.dz",
+  "rep": "dz"
+ },
+ {
   "id": "abc-news-live",
   "name": "ABC News Live",
   "meta": "ABD · Haber",
   "continent": "Kuzey Amerika",
   "country": "ABD",
   "urls": [
-   "https://abcnews-streams.akamaized.net/hls/live/2023560/abcnewshudson1/master.m3u8"
-  ]
+   "https://abcnews-streams.akamaized.net/hls/live/2023560/abcnewshudson1/master.m3u8",
+   "https://jmp2.uk/plu-6508be683a0d700008c534e4.m3u8",
+   "https://pb-0n3n2ej0w8pl9.akamaized.net/ABCNewsLive_Disney.m3u8"
+  ],
+  "official": "https://abcnews.go.com/Live",
+  "tvg": "ABCNewsLive.us",
+  "rep": "us,us_pluto,us_samsung"
  },
  {
   "id": "cnn-us",
@@ -1181,18 +2652,13 @@
   "continent": "Kuzey Amerika",
   "country": "ABD",
   "urls": [
+   "https://amg00453-reuters-amg00453c1-xumo-us-2073.playouts.now.amagi.tv/reuters-reuters-hls/playlist.m3u8",
+   "https://amg00453-reuters-amg00453c1-samsung-gb-2113.playouts.now.amagi.tv/playlist/amg00453-reuters-reuters-samsunggb/playlist.m3u8",
    "https://reuters-reutersnow-1-eu.rakuten.wurl.tv/playlist.m3u8"
-  ]
- },
- {
-  "id": "nasa-tv-public",
-  "name": "NASA TV Public",
-  "meta": "ABD · Uzay / Bilim",
-  "continent": "Kuzey Amerika",
-  "country": "ABD",
-  "urls": [
-   "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master_2000.m3u8"
-  ]
+  ],
+  "official": "https://www.reuters.com/video/",
+  "tvg": "ReutersTV.us",
+  "rep": "us_xumo,uk_samsung"
  },
  {
   "id": "cbs-news",
@@ -1276,33 +2742,46 @@
  },
  {
   "id": "history-us",
-  "name": "History",
-  "meta": "ABD · Belgesel",
+  "name": "History Hit",
+  "meta": "Belgesel · Tarih (ücretsiz)",
   "continent": "Kuzey Amerika",
   "country": "ABD",
   "urls": [
-   "http://212.5.144.156:8080/history/index.m3u8"
-  ]
+   "https://timeline-samsung-uk.amagi.tv/playlist.m3u8",
+   "https://ldsaaaaaa-timeline-samsungau-awedz.amagi.tv/playlist/ldsAAAAAA-timeline-samsungau/playlist.m3u8",
+   "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg00426-littledotstudio-timelinenz-samsungnz/playlist.m3u8"
+  ],
+  "official": "https://www.historyhit.com/",
+  "tvg": "HistoryHit.uk",
+  "rep": "uk_samsung,au_samsung,nz_samsung",
+  "note": "History (A+E) ücretli bir kanal; yerine lisanslı ve ücretsiz History Hit yayını konuldu."
  },
  {
   "id": "natgeo-us",
-  "name": "National Geographic",
-  "meta": "ABD · Belgesel",
+  "name": "NatureTime (Love Nature)",
+  "meta": "Belgesel · Doğa (ücretsiz)",
   "continent": "Kuzey Amerika",
   "country": "ABD",
   "urls": [
-   "http://212.5.144.156:8080/natgeo/index.m3u8"
-  ]
+   "https://amg01515-amg01515c43-samsung-gb-9038.playouts.now.amagi.tv/playlist.m3u8",
+   "https://amg00090-blueantllc-lovenature-au-samsungau-wggcn.amagi.tv/playlist/amg00090-blueantllc-lovenature-au-samsungau/playlist.m3u8",
+   "https://amg00090-blueantllc-lovenatureau-samsungnz-r3iaz.amagi.tv/playlist/amg00090-blueantllc-lovenatureau-samsungnz/playlist.m3u8"
+  ],
+  "official": "https://www.lovenature.com/",
+  "note": "National Geographic ücretli bir kanal; yerine lisanslı ve ücretsiz doğa belgeseli kanalı konuldu."
  },
  {
   "id": "nba-tv-us",
-  "name": "NBA TV",
-  "meta": "ABD · Spor",
+  "name": "The NBA Channel",
+  "meta": "ABD · Spor (ücretsiz)",
   "continent": "Kuzey Amerika",
   "country": "ABD",
   "urls": [
-   "http://23.237.104.106:8080/USA_NBA/index.m3u8"
-  ]
+   "https://jmp2.uk/plu-6792c30abc03978b9b8bb832.m3u8",
+   "https://pb-5pdyic0cu7tri.akamaized.net/NBA.m3u8"
+  ],
+  "official": "https://www.nba.com/watch",
+  "note": "NBA TV ücretli; yerine NBA’in resmî ücretsiz FAST kanalı konuldu (ABD dışında kısıtlı olabilir)."
  },
  {
   "id": "kxas-nbc",
@@ -1342,7 +2821,10 @@
   "country": "ABD",
   "urls": [
    "https://streaming-live-fcdn.api.prd.univisionnow.com/kuvn/kuvn.isml/hls/kuvn.m3u8"
-  ]
+  ],
+  "geo": "ABD",
+  "tvg": "UniMas.us",
+  "rep": "us"
  },
  {
   "id": "cbc-news-network",
@@ -1364,7 +2846,244 @@
   "country": "Meksika",
   "urls": [
    "https://stream.americanet.com.mx/television/canal6/playlist.m3u8"
-  ]
+  ],
+  "official": "https://www.multimedios.com/television/canal-6"
+ },
+ {
+  "id": "cnninternational-us",
+  "name": "CNN International",
+  "meta": "ABD · Haber",
+  "continent": "Kuzey Amerika",
+  "country": "ABD",
+  "kind": "haber",
+  "urls": [
+   "https://d3bp6dwmpbdajl.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-ury0meh5m4nzm/index.m3u8",
+   "https://d2sybdl23b9psq.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-bocx3i7bjz0dg/CNNFAST_GB.m3u8"
+  ],
+  "tvg": "CNNInternational.us",
+  "rep": "us"
+ },
+ {
+  "id": "cnnenespanol-us",
+  "name": "CNN en Espanol",
+  "meta": "ABD · Haber",
+  "continent": "Kuzey Amerika",
+  "country": "ABD",
+  "kind": "haber",
+  "urls": [
+   "https://amg00803-cnnfast-amg00803c3-lg-es-5477.playouts.now.amagi.tv/playlist.m3u8"
+  ],
+  "tvg": "CNNenEspanol.us",
+  "rep": "us"
+ },
+ {
+  "id": "cbsnewslosangeles-us",
+  "name": "CBS News Los Angeles",
+  "meta": "ABD · Haber",
+  "continent": "Kuzey Amerika",
+  "country": "ABD",
+  "kind": "haber",
+  "urls": [
+   "https://dai.google.com/linear/hls/pa/event/K_2aA7OVRTacJJli1oSi8w/stream/42e4ec14-fe53-469b-bc85-677ed0b245f4:ATL/variant/344ab3b460bc514714f94805d600b130/bandwidth/2121247.m3u8"
+  ],
+  "tvg": "CBSNewsLosAngeles.us",
+  "rep": "us"
+ },
+ {
+  "id": "cheddarnews-us",
+  "name": "Cheddar News",
+  "meta": "ABD · Haber",
+  "continent": "Kuzey Amerika",
+  "country": "ABD",
+  "kind": "haber",
+  "urls": [
+   "https://wurlcheddar.global.transmit.live/hls/689ceac9301c34d3919676f3/v1/Cheddar/samsung_us/latest/main/hls/playlist.m3u8"
+  ],
+  "tvg": "CheddarNews.us",
+  "rep": "us_samsung"
+ },
+ {
+  "id": "foxweather-us",
+  "name": "Fox Weather",
+  "meta": "ABD · Haber",
+  "continent": "Kuzey Amerika",
+  "country": "ABD",
+  "kind": "haber",
+  "urls": [
+   "https://247wlive.foxweather.com/stream/index.m3u8"
+  ],
+  "tvg": "FoxWeather.us",
+  "rep": "us"
+ },
+ {
+  "id": "citynewstoronto-ca",
+  "name": "CityNews Toronto",
+  "meta": "Kanada · Haber",
+  "continent": "Kuzey Amerika",
+  "country": "Kanada",
+  "kind": "haber",
+  "urls": [
+   "https://citynewsregional.akamaized.net/hls/live/1024052/Regional_Live_7/master.m3u8"
+  ],
+  "tvg": "CityNewsToronto.ca",
+  "rep": "ca"
+ },
+ {
+  "id": "citynewsvancouver-ca",
+  "name": "CityNews Vancouver",
+  "meta": "Kanada · Haber",
+  "continent": "Kuzey Amerika",
+  "country": "Kanada",
+  "kind": "haber",
+  "urls": [
+   "https://citynewsregional.akamaized.net/hls/live/1024054/Regional_Live_9/master.m3u8"
+  ],
+  "tvg": "CityNewsVancouver.ca",
+  "rep": "ca"
+ },
+ {
+  "id": "cpacenglish-ca",
+  "name": "CPAC English",
+  "meta": "Kanada · Haber",
+  "continent": "Kuzey Amerika",
+  "country": "Kanada",
+  "kind": "haber",
+  "urls": [
+   "https://d7z3qjdsxbwoq.cloudfront.net/groupa/live/f9809cea-1e07-47cd-a94d-2ddd3e1351db/live.isml/.m3u8"
+  ],
+  "tvg": "CPACEnglish.ca",
+  "rep": "ca"
+ },
+ {
+  "id": "fightnetwork-ca",
+  "name": "Fight Network",
+  "meta": "Kanada · Spor",
+  "continent": "Kuzey Amerika",
+  "country": "Kanada",
+  "kind": "spor",
+  "urls": [
+   "https://d12a2vxqkkh1bo.cloudfront.net/hls/main.m3u8",
+   "https://amg00966-amg00966c10-amgplt0081.playout.now3.amagi.tv/playlist/amg00966-amg00966c10-amgplt0081/playlist.m3u8"
+  ],
+  "tvg": "FightNetwork.ca",
+  "rep": "ca,us_distro"
+ },
+ {
+  "id": "tsntheocho-ca",
+  "name": "TSN The Ocho",
+  "meta": "Kanada · Spor",
+  "continent": "Kuzey Amerika",
+  "country": "Kanada",
+  "kind": "spor",
+  "urls": [
+   "https://d3pnbvng3bx2nj.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-rds8g35qfqrnv/TSN_The_Ocho.m3u8"
+  ],
+  "tvg": "TSNTheOcho.ca",
+  "rep": "ca"
+ },
+ {
+  "id": "canalonce-mx",
+  "name": "Canal Once",
+  "meta": "Meksika · Genel",
+  "continent": "Kuzey Amerika",
+  "country": "Meksika",
+  "kind": "genel",
+  "urls": [
+   "https://vivo.canaloncelive.tv/securepkgr3/oncemexico/playlist.m3u8"
+  ],
+  "tvg": "CanalOnce.mx",
+  "rep": "mx"
+ },
+ {
+  "id": "teleformula-mx",
+  "name": "TeleFormula",
+  "meta": "Meksika · Genel",
+  "continent": "Kuzey Amerika",
+  "country": "Meksika",
+  "kind": "genel",
+  "urls": [
+   "https://mdstrm.com/live-stream-playlist/62f2c855f7981b5a5a2d8763.m3u8"
+  ],
+  "tvg": "TeleFormula.mx",
+  "rep": "mx"
+ },
+ {
+  "id": "aztecahonduras-hn",
+  "name": "Azteca Honduras",
+  "meta": "Honduras · Genel",
+  "continent": "Kuzey Amerika",
+  "country": "Honduras",
+  "kind": "genel",
+  "urls": [
+   "https://mdstrm.com/live-stream-playlist/65a1d2fd7e7f14355550d570.m3u8"
+  ],
+  "tvg": "AztecaHonduras.hn",
+  "rep": "hn"
+ },
+ {
+  "id": "canal11-cr",
+  "name": "Canal 11",
+  "meta": "Kosta Rika · Genel",
+  "continent": "Kuzey Amerika",
+  "country": "Kosta Rika",
+  "kind": "genel",
+  "urls": [
+   "https://d3mstgwjcwqz1y.cloudfront.net/ts:abr.m3u8"
+  ],
+  "tvg": "Canal11.cr",
+  "rep": "cr"
+ },
+ {
+  "id": "canal3-gt",
+  "name": "Canal 3",
+  "meta": "Guatemala · Genel",
+  "continent": "Kuzey Amerika",
+  "country": "Guatemala",
+  "kind": "genel",
+  "urls": [
+   "https://d3jocgwjuhw91y.cloudfront.net/ts:abr.m3u8"
+  ],
+  "tvg": "Canal3.gt",
+  "rep": "gt"
+ },
+ {
+  "id": "canal12-sv",
+  "name": "Canal 12",
+  "meta": "El Salvador · Genel",
+  "continent": "Kuzey Amerika",
+  "country": "El Salvador",
+  "kind": "genel",
+  "urls": [
+   "https://d2b5h5wyivfnfl.cloudfront.net/live/53108ffe-0b7e-46ab-bc14-3a9c30010939/ts:abr.m3u8"
+  ],
+  "tvg": "Canal12.sv",
+  "rep": "sv"
+ },
+ {
+  "id": "antena7-do",
+  "name": "Antena 7",
+  "meta": "Dominik C. · Genel",
+  "continent": "Kuzey Amerika",
+  "country": "Dominik C.",
+  "kind": "genel",
+  "urls": [
+   "https://alba-do-antena7-antena7.stream.mediatiquestream.com/index.m3u8"
+  ],
+  "tvg": "Antena7.do",
+  "rep": "do"
+ },
+ {
+  "id": "savoirmedia-ca",
+  "name": "Savoir media",
+  "meta": "Kanada · Genel",
+  "continent": "Kuzey Amerika",
+  "country": "Kanada",
+  "kind": "genel",
+  "urls": [
+   "https://hls.savoir.media/live/stream.m3u8"
+  ],
+  "tvg": "Savoirmedia.ca",
+  "rep": "ca"
  },
  {
   "id": "telesur",
@@ -1394,7 +3113,10 @@
   "country": "Venezuela",
   "urls": [
    "https://d39cdj6x0ssnqk.cloudfront.net/out/v1/ae3f5ad3ac9d4bcfbedc1894a62782b4/index.m3u8"
-  ]
+  ],
+  "official": "https://www.televen.com/",
+  "tvg": "Televen.ve",
+  "rep": "ve"
  },
  {
   "id": "tn-argentina",
@@ -1404,7 +3126,10 @@
   "country": "Arjantin",
   "urls": [
    "https://live-01-02-eltrece.vodgc.net/eltrecetv_noti/index.m3u8"
-  ]
+  ],
+  "official": "https://tn.com.ar/envivo/24hs/",
+  "tvg": "TN.ar",
+  "rep": "ar"
  },
  {
   "id": "5tv-ar",
@@ -1453,8 +3178,13 @@
   "continent": "Güney Amerika",
   "country": "Kolombiya",
   "urls": [
-   "https://liveingesta118.cdnmedia.tv/telecaribetvlive/smil:rtmp01.smil/playlist.m3u8?DVR"
-  ]
+   {
+    "u": "https://liveingesta118.cdnmedia.tv/telecaribetvlive/smil:rtmp01.smil/playlist.m3u8",
+    "r": "https://www.telecaribe.co/"
+   }
+  ],
+  "tvg": "Telecaribe.co",
+  "rep": "co"
  },
  {
   "id": "canal-tro",
@@ -1463,8 +3193,13 @@
   "continent": "Güney Amerika",
   "country": "Kolombiya",
   "urls": [
-   "https://liveingesta118.cdnmedia.tv/canaltro2live/smil:live.smil/playlist.m3u8"
-  ]
+   {
+    "u": "https://liveingesta118.cdnmedia.tv/canaltro2live/smil:live.smil/playlist.m3u8",
+    "r": "https://www.canaltro.com/"
+   }
+  ],
+  "tvg": "CanalTRO.co",
+  "rep": "co"
  },
  {
   "id": "1001-noites-br",
@@ -1474,7 +3209,8 @@
   "country": "Brezilya",
   "urls": [
    "https://cdn.jmvstream.com/w/LVW-8155/ngrp:LVW8155_41E1ciuCvO_all/playlist.m3u8"
-  ]
+  ],
+  "note": "Kanal 24 saat yayın yapmıyor."
  },
  {
   "id": "adesso-tv-br",
@@ -1493,8 +3229,13 @@
   "continent": "Güney Amerika",
   "country": "Peru",
   "urls": [
-   "https://cdnhd.iblups.com/hls/777b4d4cc0984575a7d14f6ee57dbcaf7.m3u8"
-  ]
+   {
+    "u": "https://cdnhd.iblups.com/hls/777b4d4cc0984575a7d14f6ee57dbcaf7.m3u8",
+    "r": "http://tvperu.gob.pe/"
+   }
+  ],
+  "tvg": "TVPeru.pe",
+  "rep": "pe"
  },
  {
   "id": "tvperu-noticias",
@@ -1503,8 +3244,13 @@
   "continent": "Güney Amerika",
   "country": "Peru",
   "urls": [
-   "https://cdnhd.iblups.com/hls/902c1a0395264f269f1160efa00660e47.m3u8"
-  ]
+   {
+    "u": "https://cdnhd.iblups.com/hls/902c1a0395264f269f1160efa00660e47.m3u8",
+    "r": "http://tvperu.gob.pe/"
+   }
+  ],
+  "tvg": "TVPeruNoticias.pe",
+  "rep": "pe"
  },
  {
   "id": "panamericana-pe",
@@ -1513,8 +3259,13 @@
   "continent": "Güney Amerika",
   "country": "Peru",
   "urls": [
-   "https://cdnhd.iblups.com/hls/ptv5.m3u8"
-  ]
+   {
+    "u": "https://cdnhd.iblups.com/hls/ptv5.m3u8",
+    "r": "https://panamericana.pe/"
+   }
+  ],
+  "tvg": "PanamericanaTV.pe",
+  "rep": "pe"
  },
  {
   "id": "latina-pe",
@@ -1552,9 +3303,8 @@
   "meta": "Bolivya · Haber",
   "continent": "Güney Amerika",
   "country": "Bolivya",
-  "urls": [
-   "https://glb.bozztv.com/glb/ssh101/pattv/index.m3u8"
-  ]
+  "tvg": "PAT.bo",
+  "rep": "bo"
  },
  {
   "id": "bolivision-bo",
@@ -1563,7 +3313,320 @@
   "continent": "Güney Amerika",
   "country": "Bolivya",
   "urls": [
+   "https://d135ohnuotzzyo.cloudfront.net/index.m3u8",
    "https://d135ohnuotzzyo.cloudfront.net/index_1.m3u8"
+  ],
+  "tvg": "Bolivision.bo",
+  "rep": "bo"
+ },
+ {
+  "id": "cnnbrasil-br",
+  "name": "CNN Brasil",
+  "meta": "Brezilya · Haber",
+  "continent": "Güney Amerika",
+  "country": "Brezilya",
+  "kind": "haber",
+  "urls": [
+   "https://d25usgadhphvwi.cloudfront.net/hls/main.m3u8"
+  ],
+  "tvg": "CNNBrasil.br",
+  "rep": "br"
+ },
+ {
+  "id": "bandnews-br",
+  "name": "BandNews",
+  "meta": "Brezilya · Haber",
+  "continent": "Güney Amerika",
+  "country": "Brezilya",
+  "kind": "haber",
+  "urls": [
+   "https://cdn-5.nxplay.com.br/BAND_NEWS/index.m3u8"
+  ],
+  "tvg": "BandNews.br",
+  "rep": "br"
+ },
+ {
+  "id": "atv-pe",
+  "name": "ATV",
+  "meta": "Peru · Genel",
+  "continent": "Güney Amerika",
+  "country": "Peru",
+  "kind": "genel",
+  "urls": [
+   "https://d2b5h5wyivfnfl.cloudfront.net/live/25046411-8673-4dec-8ae8-5b41984f34e1/ts:abr.m3u8",
+   "https://d19e55ehz2il4i.cloudfront.net/ts:abr.m3u8"
+  ],
+  "tvg": "ATV.pe",
+  "rep": "pe"
+ },
+ {
+  "id": "atvplus-pe",
+  "name": "ATV+",
+  "meta": "Peru · Haber",
+  "continent": "Güney Amerika",
+  "country": "Peru",
+  "kind": "haber",
+  "urls": [
+   "https://d26l0c7cli5gzs.cloudfront.net/ts:abr.m3u8"
+  ],
+  "tvg": "ATVPlus.pe",
+  "rep": "pe"
+ },
+ {
+  "id": "latinanoticias247-pe",
+  "name": "Latina Noticias 24/7",
+  "meta": "Peru · Haber",
+  "continent": "Güney Amerika",
+  "country": "Peru",
+  "kind": "haber",
+  "urls": [
+   "https://dai.google.com/linear/hls/event/oYQGDqEGTmGdHE_fz9oLlg/master.m3u8"
+  ],
+  "tvg": "LatinaNoticias247.pe",
+  "rep": "pe"
+ },
+ {
+  "id": "c9n-py",
+  "name": "C9N",
+  "meta": "Paraguay · Haber",
+  "continent": "Güney Amerika",
+  "country": "Paraguay",
+  "kind": "haber",
+  "urls": [
+   "https://d2b5h5wyivfnfl.cloudfront.net/live/48f53430-9014-4459-a048-6169dac14140/ts:abr.m3u8",
+   "https://d174axghh54kh0.cloudfront.net/ts:abr.m3u8"
+  ],
+  "tvg": "C9N.py",
+  "rep": "py"
+ },
+ {
+  "id": "canali-ve",
+  "name": "Canal I",
+  "meta": "Venezuela · Haber",
+  "continent": "Güney Amerika",
+  "country": "Venezuela",
+  "kind": "haber",
+  "urls": [
+   "https://streaming.canal-i.com/canal-i/live/master.m3u8"
+  ],
+  "tvg": "CanalI.ve",
+  "rep": "ve"
+ },
+ {
+  "id": "teleamazonas-ec",
+  "name": "Teleamazonas",
+  "meta": "Ekvador · Genel",
+  "continent": "Güney Amerika",
+  "country": "Ekvador",
+  "kind": "genel",
+  "urls": [
+   "https://teleamazonas-live.cdn.vustreams.com/live/fd4ab346-b4e3-4628-abf0-b5a1bc192428/live.isml/playlist.m3u8"
+  ],
+  "tvg": "Teleamazonas.ec",
+  "rep": "ec"
+ },
+ {
+  "id": "tycsports-ar",
+  "name": "TyC Sports",
+  "meta": "Arjantin · Spor",
+  "continent": "Güney Amerika",
+  "country": "Arjantin",
+  "kind": "spor",
+  "urls": [
+   "https://amg26268-amg26268c14-freelivesports-emea-10267.playouts.now.amagi.tv/ts-us-e2-n2/playlist/amg26268-sportsstudio-tycsports-freelivesportsemea/playlist.m3u8"
+  ],
+  "tvg": "TyCSports.ar",
+  "rep": "ar"
+ },
+ {
+  "id": "ctv-bo",
+  "name": "CTV",
+  "meta": "Bolivya · Genel",
+  "continent": "Güney Amerika",
+  "country": "Bolivya",
+  "kind": "genel",
+  "urls": [
+   "https://streaming.ctvbolivia.com/hlsweb/ctv.m3u8",
+   "https://live.ctvbolivia.com/hls/ctv.m3u8"
+  ],
+  "tvg": "CTV.bo",
+  "rep": "bo"
+ },
+ {
+  "id": "rts-ec",
+  "name": "RTS",
+  "meta": "Ekvador · Genel",
+  "continent": "Güney Amerika",
+  "country": "Ekvador",
+  "kind": "genel",
+  "urls": [
+   "https://d2w3o8zn50cs1k.cloudfront.net/ts:abr.m3u8"
+  ],
+  "tvg": "RTS.ec",
+  "rep": "ec"
+ },
+ {
+  "id": "redbull-tv",
+  "name": "Red Bull TV",
+  "meta": "Spor · Ekstrem",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://d1hlbgn3fph0cz.cloudfront.net/playlist.m3u8"
+  ],
+  "official": "https://www.redbull.com/tv"
+ },
+ {
+  "id": "tennis-channel-int",
+  "name": "Tennis Channel",
+  "meta": "Spor · Tenis",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://tennischannel-int-samsunguk.amagi.tv/playlist.m3u8"
+  ],
+  "official": "https://www.tennischannel.com/"
+ },
+ {
+  "id": "fuel-tv",
+  "name": "Fuel TV",
+  "meta": "Spor · Aksiyon",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://amg01074-fueltv-fueltvau-samsungau-g09kq.amagi.tv/playlist/amg01074-fueltv-fueltvau-samsungau/playlist.m3u8",
+   "https://amg01074-fueltv-fueltvnz-samsungnz-i8ani.amagi.tv/playlist/amg01074-fueltv-fueltvnz-samsungnz/playlist.m3u8",
+   "https://amg01074-fueltv-amg01074c1-stirr-us-4214.playouts.now.amagi.tv/playlist.m3u8"
+  ],
+  "official": "https://www.fuel.tv/"
+ },
+ {
+  "id": "swerve-combat",
+  "name": "Swerve Combat",
+  "meta": "Spor · Dövüş",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://linear-253.frequency.stream/dist/xumo/253/hls/master/playlist.m3u8",
+   "https://linear-253.frequency.stream/mt/roku/253/hls/master/playlist.m3u8"
+  ],
+  "official": "https://swerve.tv/"
+ },
+ {
+  "id": "sportsgrid",
+  "name": "SportsGrid",
+  "meta": "Spor · Haber",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://sportsgrid-plex.amagi.tv/playlist.m3u8"
+  ],
+  "official": "https://www.sportsgrid.com/"
+ },
+ {
+  "id": "trace-sport-stars",
+  "name": "TRACE Sport Stars",
+  "meta": "Spor · Yaşam",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://trace-sportstars-samsungnz.amagi.tv/playlist.m3u8"
+  ],
+  "official": "https://trace.tv/"
+ },
+ {
+  "id": "leaderboard-sports",
+  "name": "Leaderboard Sports News",
+  "meta": "Spor · Haber",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://amg02703-amg02703c20-samsung-au-9093.playouts.now.amagi.tv/playlist.m3u8"
+  ]
+ },
+ {
+  "id": "real-wild",
+  "name": "Real Wild",
+  "meta": "Belgesel · Doğa",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://lds-realwild-samsungau.amagi.tv/playlist.m3u8",
+   "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg00426-littledotstudio-realwildnz-samsungnz/playlist.m3u8"
+  ]
+ },
+ {
+  "id": "wild-planet",
+  "name": "Wild Planet",
+  "meta": "Belgesel · Doğa",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://d1h8whhtg5u7om.cloudfront.net/WildPlanet_GB.m3u8"
+  ]
+ },
+ {
+  "id": "inwild",
+  "name": "InWild",
+  "meta": "Belgesel · Doğa",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://amg00861-terninternation-inwild-samsunguk-w5wic.amagi.tv/playlist/amg00861-terninternation-inwild-samsunguk/playlist.m3u8",
+   "https://amg00861-terninternation-inwild-samsungau-3qrga.amagi.tv/playlist/amg00861-terninternation-inwild-samsungau/playlist.m3u8"
+  ]
+ },
+ {
+  "id": "pbs-nature",
+  "name": "PBS Nature",
+  "meta": "Belgesel · Doğa",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://d3mr43kyql7wgk.cloudfront.net/PBS_Nature.m3u8"
+  ],
+  "official": "https://www.pbs.org/wnet/nature/"
+ },
+ {
+  "id": "pbs-history",
+  "name": "PBS History",
+  "meta": "Belgesel · Tarih",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://amg02333-pbs-amg02333c1-samsung-au-1253.playouts.now.amagi.tv/playlist/amg02333-pbsdistributionfast-pbshistory-samsungau/playlist.m3u8",
+   "https://amg02333-pbs-amg02333c1-samsung-nz-1254.playouts.now.amagi.tv/playlist/amg02333-pbsdistributionfast-pbshistory-samsungnz/playlist.m3u8"
+  ]
+ },
+ {
+  "id": "history-warfare",
+  "name": "History & Warfare Now",
+  "meta": "Belgesel · Tarih",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://d28gzbv9fhdm3h.cloudfront.net/playlist/amg00376-magellantv-historyandwarfarenowaunzin-samsungau/playlist.m3u8"
+  ]
+ },
+ {
+  "id": "documentary-plus",
+  "name": "Documentary+",
+  "meta": "Belgesel · Genel",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://d1kx9y4yhe8h6h.cloudfront.net/playlist.m3u8"
+  ],
+  "official": "https://www.docplus.com/"
+ },
+ {
+  "id": "bloomberg-originals",
+  "name": "Bloomberg Originals",
+  "meta": "Belgesel · Ekonomi",
+  "continent": "Belgesel & Spor",
+  "country": "Dünya",
+  "urls": [
+   "https://d3qwwydnxv5vo9.cloudfront.net/v1/bloomberg_quicktake_3/samsungheadend_us/latest/main/hls/playlist.m3u8"
   ]
  },
  {
@@ -1706,8 +3769,11 @@
   "continent": "Okyanusya",
   "country": "Avustralya",
   "urls": [
+   "https://racingvic-i.akamaized.net/hls/live/598695/racingvic/index1500.m3u8",
    "https://racingvic-i.akamaized.net/hls/live/598695/racingvic/1500.m3u8"
-  ]
+  ],
+  "tvg": "Racingcom.au",
+  "rep": "au"
  },
  {
   "id": "gusto-au",
@@ -1716,8 +3782,13 @@
   "continent": "Okyanusya",
   "country": "Avustralya",
   "urls": [
+   "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg01077-gustoworldwidem-gustotvnz-samsungnz/playlist.m3u8",
+   "https://gusto-xumo.amagi.tv/playlist.m3u8",
+   "https://d31d5kw64c7b6i.cloudfront.net/v1/gustotv_samsung/samsungheadend_us/latest/main/hls/playlist.m3u8",
    "https://gustotv-samsung-au.samsung.wurl.com/manifest/playlist.m3u8"
-  ]
+  ],
+  "tvg": "GustoTV.ca",
+  "rep": "nz_samsung,us_xumo,us_samsung"
  },
  {
   "id": "horse-country-au",
@@ -1736,8 +3807,10 @@
   "continent": "Okyanusya",
   "country": "Avustralya",
   "urls": [
-   "https://smithsonianaus-samsungau.amagi.tv/playlist.m3u8"
-  ]
+   "https://smithsonianaus-samsungau.amagi.tv/playlist.m3u8",
+   "https://jmp2.uk/plu-5f21ea08007a49000762d349.m3u8"
+  ],
+  "rep": "au_samsung,us_pluto"
  },
  {
   "id": "real-stories-au",
@@ -1747,7 +3820,9 @@
   "country": "Avustralya",
   "urls": [
    "https://lds-realstories-samsungau.amagi.tv/playlist.m3u8"
-  ]
+  ],
+  "tvg": "RealStories.uk",
+  "rep": "au_samsung,nz_samsung,uk_samsung"
  },
  {
   "id": "rialto-au",
@@ -1757,7 +3832,9 @@
   "country": "Avustralya",
   "urls": [
    "https://rialto-rialto-samsungaustralia.amagi.tv/playlist.m3u8"
-  ]
+  ],
+  "tvg": "Rialto.nz",
+  "rep": "au_samsung,nz_samsung"
  },
  {
   "id": "sky-extra-1-au",
@@ -1796,9 +3873,12 @@
   "continent": "Okyanusya",
   "country": "Yeni Zelanda",
   "urls": [
+   "https://i.mjh.nz/.r/maori-tv.m3u8",
    "https://d47743dknc7xq.cloudfront.net/out/v1/889d35656a514495a9642ba6dae30962/index_4.m3u8",
    "https://bcsecurelivehls-i.akamaihd.net/hls/live/720612/1614493167001_1/master_iPad1080p.m3u8"
-  ]
+  ],
+  "tvg": "WhakaataMaori.nz",
+  "rep": "nz"
  },
  {
   "id": "te-reo-nz",
@@ -1807,8 +3887,11 @@
   "continent": "Okyanusya",
   "country": "Yeni Zelanda",
   "urls": [
+   "https://i.mjh.nz/.r/te-reo.m3u8",
    "https://dfecjp0pnemzw.cloudfront.net/out/v1/17ebe8fca7604907ae99719663dd2519/index_2.m3u8"
-  ]
+  ],
+  "tvg": "TeReo.nz",
+  "rep": "nz"
  },
  {
   "id": "nz-parliament",
@@ -1829,5 +3912,109 @@
   "urls": [
    "http://stream.wairarapatv.co.nz/Cellular_High/playlist.m3u8"
   ]
+ },
+ {
+  "id": "skynewsweatherchannel-au",
+  "name": "Sky News Weather Channel",
+  "meta": "Avustralya · Haber",
+  "continent": "Okyanusya",
+  "country": "Avustralya",
+  "kind": "haber",
+  "urls": [
+   "https://skynewsau-live-premium.akamaized.net/hls/live/2105305/skynewsweather/live_540p.m3u8"
+  ],
+  "tvg": "SkyNewsWeatherChannel.au",
+  "rep": "au"
+ },
+ {
+  "id": "3aw-au",
+  "name": "3AW",
+  "meta": "Avustralya · Haber",
+  "continent": "Okyanusya",
+  "country": "Avustralya",
+  "kind": "haber",
+  "urls": [
+   "https://3awlive.akamaized.net/hls/live/2032295/3AW/index.m3u8"
+  ],
+  "tvg": "3AW.au",
+  "rep": "au"
+ },
+ {
+  "id": "2gb-au",
+  "name": "2GB",
+  "meta": "Avustralya · Haber",
+  "continent": "Okyanusya",
+  "country": "Avustralya",
+  "kind": "haber",
+  "urls": [
+   "https://2gblive.akamaized.net/hls/live/2033805/2GB/index.m3u8"
+  ],
+  "tvg": "2GB.au",
+  "rep": "au"
+ },
+ {
+  "id": "foxsportsnews-au",
+  "name": "Fox Sports News",
+  "meta": "Avustralya · Spor",
+  "continent": "Okyanusya",
+  "country": "Avustralya",
+  "kind": "spor",
+  "urls": [
+   "https://skynewsau-live-premium.akamaized.net/hls/live/2105307/foxsportsnews/live_1080p.m3u8"
+  ],
+  "tvg": "FoxSportsNews.au",
+  "rep": "au"
+ },
+ {
+  "id": "cricketgold-au",
+  "name": "Cricket Gold",
+  "meta": "Avustralya · Spor",
+  "continent": "Okyanusya",
+  "country": "Avustralya",
+  "kind": "spor",
+  "urls": [
+   "https://d382r3rgbxdixq.cloudfront.net/scheduler/scheduleMaster/418.m3u8"
+  ],
+  "tvg": "CricketGold.au",
+  "rep": "us_stirr"
+ },
+ {
+  "id": "c31melbourne-au",
+  "name": "C31 Melbourne",
+  "meta": "Avustralya · Genel",
+  "continent": "Okyanusya",
+  "country": "Avustralya",
+  "kind": "genel",
+  "urls": [
+   "https://d1k6kax80wecy5.cloudfront.net/RLnAKY/index.m3u8"
+  ],
+  "tvg": "C31Melbourne.au",
+  "rep": "au"
+ },
+ {
+  "id": "channel44-au",
+  "name": "Channel 44",
+  "meta": "Avustralya · Genel",
+  "continent": "Okyanusya",
+  "country": "Avustralya",
+  "kind": "genel",
+  "urls": [
+   "https://d1k6kax80wecy5.cloudfront.net/WFqZJc/index.m3u8"
+  ],
+  "tvg": "Channel44.au",
+  "rep": "au"
+ },
+ {
+  "id": "channel200-nz",
+  "name": "Channel 200",
+  "meta": "Yeni Zelanda · Genel",
+  "continent": "Okyanusya",
+  "country": "Yeni Zelanda",
+  "kind": "genel",
+  "urls": [
+   "https://d1jlnqid3sfc6m.cloudfront.net/out/v1/3fc2254c865a457c8d7fbbce227a2aae/index.m3u8"
+  ],
+  "tvg": "Channel200.nz",
+  "rep": "nz"
  }
 ]

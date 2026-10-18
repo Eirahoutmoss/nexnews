@@ -2,13 +2,16 @@ package core
 
 import (
 	"bufio"
+	"context"
 	"crypto/subtle"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -27,13 +30,59 @@ var liveRelayToken = randomToken(16)
 // checked by publicHost before connecting, so the relay never reaches the LAN;
 // the normal transport is kept so a corporate HTTP proxy still works.
 var liveUpstream = &http.Client{
-	Timeout: 20 * time.Second,
+	Transport: &countingTransport{base: liveTransport},
+	Timeout:   90 * time.Second, // sınırlı veri modunda parçalar yavaş iner; asılı istekleri tarayıcı zaten iptal eder
+	Jar:       liveJar,
 	CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		if len(via) >= 5 {
 			return http.ErrUseLastResponse
 		}
 		return publicHost(req.Context(), req.URL.Hostname())
 	},
+}
+
+// liveTransport dials only public addresses (see publicDialContext).
+var liveTransport = &http.Transport{
+	Proxy:                 http.ProxyFromEnvironment,
+	DialContext:           publicDialContext,
+	ForceAttemptHTTP2:     true,
+	MaxIdleConns:          64,
+	MaxIdleConnsPerHost:   8,
+	IdleConnTimeout:       90 * time.Second,
+	TLSHandshakeTimeout:   10 * time.Second,
+	ResponseHeaderTimeout: 20 * time.Second,
+}
+
+// proxyHosts: the environment proxy may be on the LAN; allow dialing it.
+var proxyHosts = func() map[string]bool {
+	m := map[string]bool{}
+	for _, k := range []string{"HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy"} {
+		if v := os.Getenv(k); v != "" {
+			if u, err := url.Parse(v); err == nil && u.Hostname() != "" {
+				m[strings.ToLower(u.Hostname())] = true
+			}
+		}
+	}
+	return m
+}()
+
+// Some CDNs (Akamai token auth, Wowza sessions) set a cookie on the master
+// playlist and require it on every chunk; keep them per run.
+var liveJar, _ = cookiejar.New(nil)
+
+// liveHeaders is the optional per-channel Referer / User-Agent carried in the
+// relay URL (r= / ua=) and inherited by every child playlist and segment.
+type liveHeaders struct{ ref, ua string }
+
+func (h liveHeaders) query() string {
+	q := ""
+	if h.ref != "" {
+		q += "&r=" + url.QueryEscape(h.ref)
+	}
+	if h.ua != "" {
+		q += "&ua=" + url.QueryEscape(h.ua)
+	}
+	return q
 }
 
 func startLiveRelay() {
@@ -63,7 +112,7 @@ func liveUpstreamClient() *http.Client { return liveUpstream }
 func liveReferer(raw string) string {
 	u, err := url.Parse(raw)
 	if err != nil {
-		return "https://www.google.com/"
+		return ""
 	}
 	switch {
 	case strings.Contains(u.Host, "daioncdn.net") && strings.Contains(u.Path, "/kanald/"):
@@ -136,28 +185,49 @@ func liveReferer(raw string) string {
 		return "https://hindi.news18.com/livetv/"
 	case strings.Contains(u.Host, "media.nic.in"):
 		return "https://sansadtv.nic.in/live"
+	case strings.Contains(u.Host, "impresa.pt") && strings.Contains(u.Path, "sicnot"):
+		return "https://sicnoticias.pt/"
+	case strings.Contains(u.Host, "iblups.com"):
+		return "http://tvperu.gob.pe/"
+	case strings.Contains(u.Host, "cdnmedia.tv"):
+		return "https://www.telecaribe.co/"
+	case strings.Contains(u.Host, "bcovlive") && strings.Contains(u.Path, "6282251407001"):
+		return "https://www.taiwanplus.com/"
+	case strings.Contains(u.Host, "mangomolo.com"):
+		return "https://www.sabcplus.com/"
 	}
-	return "https://www.google.com/"
+	// Bilinmeyen CDN: sahte bir Referer göndermek (eskiden google.com) birçok
+	// sunucuda 403'e yol açıyordu; hiç göndermemek daha güvenli.
+	return ""
 }
 
-func relayURL(raw string) string {
-	return "http://" + liveRelayAddr + "/live?t=" + liveRelayToken + "&u=" + url.QueryEscape(raw)
+func relayURL(raw string, h liveHeaders) string {
+	return "http://" + liveRelayAddr + "/live?t=" + liveRelayToken + "&u=" + url.QueryEscape(raw) + h.query()
 }
 
-func rewriteM3U8(body, baseURL string) string {
+// rewriteM3U8 points every URI of the playlist at the relay. When maxHeight is
+// > 0 (sınırlı veri modu) a master playlist keeps only the variants up to that
+// height (or the smallest one when none qualifies).
+func rewriteM3U8(body, baseURL string, h liveHeaders, maxHeight int) string {
 	base, err := url.Parse(baseURL)
 	if err != nil {
 		return body
 	}
+	lines := strings.Split(strings.ReplaceAll(body, "\r\n", "\n"), "\n")
+	drop := map[int]bool{}
+	if maxHeight > 0 {
+		drop = lowVariantsOnly(lines, maxHeight)
+	}
 	var out strings.Builder
-	sc := bufio.NewScanner(strings.NewReader(body))
-	for sc.Scan() {
-		line := sc.Text()
+	for i, line := range lines {
+		if drop[i] {
+			continue
+		}
 		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "#EXT-X-KEY:") || strings.HasPrefix(trimmed, "#EXT-X-MAP:") || strings.HasPrefix(trimmed, "#EXT-X-MEDIA:") {
-			line = rewriteTagURI(line, base)
+		if strings.HasPrefix(trimmed, "#EXT-X-KEY:") || strings.HasPrefix(trimmed, "#EXT-X-MAP:") || strings.HasPrefix(trimmed, "#EXT-X-MEDIA:") || strings.HasPrefix(trimmed, "#EXT-X-I-FRAME-STREAM-INF:") {
+			line = rewriteTagURI(line, base, h)
 		} else if trimmed != "" && !strings.HasPrefix(trimmed, "#") {
-			line = rewritePlaylistURI(trimmed, base)
+			line = relayURL(resolveLiveURL(base, trimmed), h)
 		}
 		out.WriteString(line)
 		out.WriteByte('\n')
@@ -165,7 +235,59 @@ func rewriteM3U8(body, baseURL string) string {
 	return out.String()
 }
 
-func rewriteTagURI(line string, base *url.URL) string {
+// lowVariantsOnly marks the #EXT-X-STREAM-INF lines (and their URI line) taller
+// than maxHeight for removal. Nothing is removed when it would empty the list.
+func lowVariantsOnly(lines []string, maxHeight int) map[int]bool {
+	type variant struct{ tag, uri, height int }
+	var vs []variant
+	for i, l := range lines {
+		t := strings.TrimSpace(l)
+		if !strings.HasPrefix(t, "#EXT-X-STREAM-INF:") {
+			continue
+		}
+		h := 0
+		if k := strings.Index(t, "RESOLUTION="); k >= 0 {
+			r := t[k+len("RESOLUTION="):]
+			if c := strings.IndexAny(r, ","); c >= 0 {
+				r = r[:c]
+			}
+			if x := strings.IndexByte(r, 'x'); x >= 0 {
+				fmt.Sscanf(r[x+1:], "%d", &h)
+			}
+		}
+		for j := i + 1; j < len(lines); j++ {
+			u := strings.TrimSpace(lines[j])
+			if u != "" && !strings.HasPrefix(u, "#") {
+				vs = append(vs, variant{tag: i, uri: j, height: h})
+				break
+			}
+		}
+	}
+	drop := map[int]bool{}
+	if len(vs) < 2 {
+		return drop
+	}
+	keep, minH, minIdx := 0, 1<<30, -1
+	for i, v := range vs {
+		if v.height > 0 && v.height <= maxHeight {
+			keep++
+		}
+		if v.height > 0 && v.height < minH {
+			minH, minIdx = v.height, i
+		}
+	}
+	for i, v := range vs {
+		if v.height == 0 {
+			continue // çözünürlüğü yazmayan (ör. yalnız ses) varyantlar kalır
+		}
+		if (keep > 0 && v.height > maxHeight) || (keep == 0 && i != minIdx) {
+			drop[v.tag], drop[v.uri] = true, true
+		}
+	}
+	return drop
+}
+
+func rewriteTagURI(line string, base *url.URL, h liveHeaders) string {
 	marker := "URI=\""
 	i := strings.Index(line, marker)
 	if i < 0 {
@@ -179,11 +301,7 @@ func rewriteTagURI(line string, base *url.URL) string {
 	end += start
 	ref := line[start:end]
 	abs := resolveLiveURL(base, ref)
-	return line[:start] + relayURL(abs) + line[end:]
-}
-
-func rewritePlaylistURI(ref string, base *url.URL) string {
-	return relayURL(resolveLiveURL(base, ref))
+	return line[:start] + relayURL(abs, h) + line[end:]
 }
 
 func resolveLiveURL(base *url.URL, ref string) string {
@@ -202,8 +320,10 @@ func copyLiveHeaders(w http.ResponseWriter, r *http.Response) {
 	if ct := r.Header.Get("Content-Type"); ct != "" {
 		w.Header().Set("Content-Type", ct)
 	}
-	if cl := r.Header.Get("Content-Length"); cl != "" {
-		w.Header().Set("Content-Length", cl)
+	for _, k := range []string{"Content-Length", "Content-Range", "Accept-Ranges"} {
+		if v := r.Header.Get(k); v != "" {
+			w.Header().Set(k, v)
+		}
 	}
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -242,23 +362,8 @@ func liveRelayHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "forbidden upstream", http.StatusForbidden)
 		return
 	}
-	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, target.String(), nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/154 Safari/537.36")
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Referer", liveReferer(target.String()))
-	req.Header.Set("Origin", func() string {
-		u, _ := url.Parse(liveReferer(target.String()))
-		if u != nil {
-			return u.Scheme + "://" + u.Host
-		}
-		return ""
-	}())
-
-	resp, err := liveUpstreamClient().Do(req)
+	hdr := liveHeaders{ref: r.URL.Query().Get("r"), ua: r.URL.Query().Get("ua")}
+	resp, err := liveFetch(r.Context(), target.String(), hdr, r.Header.Get("Range"))
 	if err != nil {
 		http.Error(w, "upstream unavailable", http.StatusBadGateway)
 		return
@@ -270,21 +375,82 @@ func liveRelayHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Oynatma listesi mi? Content-Type ve uzantı yetmez (bazı sunucular
+	// text/plain ya da octet-stream gönderir, bazı adreslerde .m3u8 yok):
+	// gövdenin başına bakılır.
+	br := bufio.NewReaderSize(resp.Body, 64*1024)
+	head, _ := br.Peek(16)
 	ct := strings.ToLower(resp.Header.Get("Content-Type"))
-	isPlaylist := strings.Contains(ct, "mpegurl") || strings.HasSuffix(strings.ToLower(target.Path), ".m3u8")
+	isPlaylist := strings.Contains(ct, "mpegurl") || strings.HasPrefix(strings.TrimLeft(string(head), "\ufeff \r\n\t"), "#EXTM3U")
 	if !isPlaylist {
 		w.WriteHeader(resp.StatusCode)
-		_, _ = io.Copy(w, resp.Body)
+		_, _ = io.Copy(w, br)
 		return
 	}
 
-	data, err := io.ReadAll(io.LimitReader(resp.Body, 4*1024*1024))
+	data, err := io.ReadAll(io.LimitReader(br, 4*1024*1024))
 	if err != nil {
 		http.Error(w, "playlist read failed", http.StatusBadGateway)
 		return
 	}
+	// Göreli adresler YÖNLENDİRME SONRASI adrese göre çözülmeli (wurl, amagi,
+	// i.mjh.nz, jmp2.uk gibi FAST yayınları başka bir sunucuya yönlendirir).
+	base := target.String()
+	if resp.Request != nil && resp.Request.URL != nil {
+		base = resp.Request.URL.String()
+	}
+	maxH := 0
+	if dataLimited() {
+		maxH = 480
+	}
 	w.Header().Set("Content-Type", "application/vnd.apple.mpegurl")
 	w.Header().Del("Content-Length")
 	w.WriteHeader(resp.StatusCode)
-	_, _ = fmt.Fprint(w, rewriteM3U8(string(data), target.String()))
+	_, _ = fmt.Fprint(w, rewriteM3U8(string(data), base, hdr, maxH))
+}
+
+// liveFetch GETs a stream URL with the channel's headers; a playlist request
+// that fails transiently is retried once.
+func liveFetch(ctx context.Context, raw string, hdr liveHeaders, rng string) (*http.Response, error) {
+	ref := hdr.ref
+	if ref == "" {
+		ref = liveReferer(raw)
+	}
+	ua := hdr.ua
+	if ua == "" {
+		ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0"
+	}
+	var lastErr error
+	for attempt := 0; attempt < 2; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, raw, nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("User-Agent", ua)
+		req.Header.Set("Accept", "*/*")
+		if rng != "" {
+			req.Header.Set("Range", rng)
+		}
+		if ref != "" {
+			req.Header.Set("Referer", ref)
+			if u, _ := url.Parse(ref); u != nil && u.Host != "" {
+				req.Header.Set("Origin", u.Scheme+"://"+u.Host)
+			}
+		}
+		resp, err := liveUpstreamClient().Do(req)
+		if err == nil && (resp.StatusCode < 500 || attempt == 1) {
+			return resp, nil
+		}
+		if err == nil {
+			resp.Body.Close()
+			lastErr = fmt.Errorf("upstream %d", resp.StatusCode)
+		} else {
+			lastErr = err
+		}
+		if ctx.Err() != nil {
+			break
+		}
+		time.Sleep(400 * time.Millisecond)
+	}
+	return nil, lastErr
 }

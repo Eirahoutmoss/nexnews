@@ -63,6 +63,9 @@ func (m *trafficMeter) add(down, up int64, web bool) {
 	m.mu.Unlock()
 	m.totalDown.Add(down)
 	m.totalUp.Add(up)
+	if m == traffic {
+		usage.add(down, up)
+	}
 }
 
 // sum totals the buckets of the last n seconds (excluding the running second
@@ -160,9 +163,16 @@ func (t *countingTransport) RoundTrip(req *http.Request) (*http.Response, error)
 type countingBody struct{ rc io.ReadCloser }
 
 func (b *countingBody) Read(p []byte) (int, error) {
+	limited := dataLimited()
+	if limited && len(p) > 16*1024 {
+		p = p[:16*1024] // küçük parçalar: sınırlama düzgün ve sarsıntısız olsun
+	}
 	n, err := b.rc.Read(p)
 	if n > 0 {
 		traffic.add(int64(n), 0, false)
+		if limited {
+			downLimiter.wait(n)
+		}
 	}
 	return n, err
 }

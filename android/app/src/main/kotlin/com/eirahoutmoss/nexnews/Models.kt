@@ -3,6 +3,10 @@ package com.eirahoutmoss.nexnews
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
 /** Go çekirdeğinin JSON çıktılarının Kotlin karşılıkları (bilinmeyen alanlar yok sayılır). */
 val NexJson = Json {
@@ -163,6 +167,7 @@ data class Alert(
     val breaking: Boolean = false,
     val score: Int = 0,
     val sources: Int = 0,
+    val followed: Boolean = false,
 )
 
 @Serializable
@@ -206,12 +211,86 @@ data class TvChannel(
     val continent: String = "",
     val country: String = "",
     val url: String = "",
-    val urls: List<String> = emptyList(),
+    /** Düz adres ya da {u, r, ua} nesnesi (Referer/User-Agent isteyen yayınlar). */
+    val urls: List<JsonElement> = emptyList(),
     val official: String = "",
     val officialOnly: Boolean = false,
+    val kind: String = "",
+    val geo: String = "",
+    val note: String = "",
+    val tvg: String = "",
+    val rep: String = "",
+    val custom: Boolean = false,
 ) {
-    val streams: List<String> get() = (if (urls.isNotEmpty()) urls else listOf(url)).filter { it.isNotBlank() }
+    val candidates: List<LiveCandidate>
+        get() = (if (urls.isNotEmpty()) urls.mapNotNull { e ->
+            when (e) {
+                is JsonPrimitive -> e.contentOrNull?.let { LiveCandidate(u = it) }
+                is JsonObject -> runCatching { NexJson.decodeFromJsonElement(LiveCandidate.serializer(), e) }.getOrNull()
+                else -> null
+            }
+        } else listOf(LiveCandidate(u = url))).filter { it.u.isNotBlank() }
+    val streams: List<String> get() = candidates.map { it.u }
+
+    /** Kategori: listedeki alan, yoksa açıklamadan tahmin. */
+    val kindOrGuess: String
+        get() {
+            if (kind.isNotBlank()) return if (kind == "egitim") "cocuk" else kind
+            val m = meta.lowercase()
+            return when {
+                Regex("spor|sport|yarış").containsMatchIn(m) -> "spor"
+                Regex("ekonomi|finans|business").containsMatchIn(m) -> "ekonomi"
+                Regex("belgesel|doğa|tarih|bilim|uzay|tarım").containsMatchIn(m) -> "belgesel"
+                Regex("kültür|sanat").containsMatchIn(m) -> "kultur"
+                Regex("haber|news|parlamento|meclis|uluslararası").containsMatchIn(m) -> "haber"
+                Regex("müzik|music").containsMatchIn(m) -> "muzik"
+                Regex("çocuk|eğitim").containsMatchIn(m) -> "cocuk"
+                else -> "genel"
+            }
+        }
 }
+
+@Serializable
+data class LiveCandidate(val u: String = "", val r: String = "", val ua: String = "")
+
+@Serializable
+data class LiveHealth(val ok: Boolean = false, val url: String = "", val reason: String = "", val code: Int = 0, val ms: Long = 0, val ts: Long = 0, val repair: LiveCandidate? = null)
+
+@Serializable
+data class LiveState(
+    val favs: List<String> = emptyList(),
+    val last: String = "",
+    val hidden: List<String> = emptyList(),
+    val custom: List<TvChannel> = emptyList(),
+    val check: String = "ask",
+)
+
+@Serializable
+data class FollowedEvent(val item: NewsItem = NewsItem(), val live: Boolean = false, val new: Int = 0, val added: Long = 0, val lastSeen: Long = 0)
+
+@Serializable
+data class SmartAlert(
+    val id: String = "", val eventId: String = "", val eventTitle: String = "", val kind: String = "", val severity: String = "",
+    val title: String = "", val message: String = "", val score: Int = 0, val confidence: Int = 0, val sources: Int = 0, val risk: Int = 0,
+    val link: String = "", val ts: Long = 0,
+)
+
+@Serializable
+data class SmartAlertBoard(val updated: Long = 0, val total: Int = 0, val critical: Int = 0, val warning: Int = 0, val info: Int = 0, val alerts: List<SmartAlert> = emptyList())
+
+@Serializable
+data class UsagePeriod(val down: Long = 0, val up: Long = 0, val secs: Long = 0)
+
+@Serializable
+data class UsageDay(val day: String = "", val down: Long = 0, val secs: Long = 0)
+
+@Serializable
+data class UsageStats(
+    val mode: String = "tam", val limitKBps: Int = 256, val quotaMB: Int = 0,
+    val session: UsagePeriod = UsagePeriod(), val today: UsagePeriod = UsagePeriod(), val week: UsagePeriod = UsagePeriod(),
+    val month: UsagePeriod = UsagePeriod(), val last30: UsagePeriod = UsagePeriod(), val all: UsagePeriod = UsagePeriod(),
+    val since: Long = 0, val dailyAvg: Long = 0, val days: List<UsageDay> = emptyList(), val quotaUsed: Double = 0.0, val autoLimited: Boolean = false,
+)
 
 @Serializable
 data class LiveHeaders(val referer: String = "", val origin: String = "", val userAgent: String = "")

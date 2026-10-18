@@ -39,11 +39,11 @@ var sportsCache sportsBoard
 var sportsAt time.Time
 
 var sportsEndpoints = map[string]string{
-	"futbol":     "https://site.api.espn.com/apis/site/v2/sports/soccer/tur.1/scoreboard",
-	"premier":    "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",
-	"ucl":        "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard",
-	"nba":        "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",
-	"nfl":        "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
+	"futbol":  "https://site.api.espn.com/apis/site/v2/sports/soccer/tur.1/scoreboard",
+	"premier": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",
+	"ucl":     "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard",
+	"nba":     "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",
+	"nfl":     "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
 }
 
 // sportsWindow: dünden önceki günden 8 gün sonrasına kadar (Türkiye saati).

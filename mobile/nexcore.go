@@ -40,3 +40,20 @@ func Standings() string                     { return core.MobileStandings() }
 func NetStats() string                      { return core.MobileNetStats() }
 func AddTraffic(bytes int64)                { core.MobileAddTraffic(bytes) }
 func Version() string                       { return core.MobileVersion() }
+
+// RC85
+func Followed() string                           { return core.MobileFollowed() }
+func FollowedSeen()                              { core.MobileFollowedSeen() }
+func Unfollow(link string)                       { core.MobileUnfollow(link) }
+func ToggleFollowStory(link, id string) bool     { return core.MobileToggleFollowStory(link, id) }
+func FollowCount() int                           { return core.MobileFollowCount() }
+func SmartAlerts() string                        { return core.MobileSmartAlerts() }
+func Usage() string                              { return core.MobileUsage() }
+func SetDataMode(mode string, kbps, quotaMB int) { core.MobileSetDataMode(mode, kbps, quotaMB) }
+func ResetUsage()                                { core.MobileResetUsage() }
+func LiveState() string                          { return core.MobileLiveState() }
+func SetLiveState(json string) error             { return core.MobileSetLiveState(json) }
+func LiveHealth() string                         { return core.MobileLiveHealth() }
+func ProbeLive(id, cands, tvg, files string) string {
+	return core.MobileProbeLive(id, cands, tvg, files)
+}

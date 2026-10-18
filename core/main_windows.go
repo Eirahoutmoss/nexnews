@@ -6,6 +6,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -58,6 +59,10 @@ const (
 func RunDesktop() {
 	startLiveRelay()
 	cfg = loadConfig()
+	applyDataMode(cfg.DataMode, cfg.DataLimitKBps)
+	startUsageLedger(onDataQuota)
+	liveHealthDB.load()
+	defer usage.flush()
 	store = newStore(cfg)
 	favs = newFavStore()
 	follows = newFollowStore()
@@ -111,7 +116,28 @@ func pushData() {
 		return
 	}
 	ui.Dispatch(func() { ui.Eval("window.nnOnData && window.nnOnData()") })
-	notifyAlerts() // desktop toast for newly-appeared important events
+	notifyAlerts()   // desktop toast for newly-appeared important events
+	notifyFollowed() // takip edilen olaylardaki gelişmeler
+}
+
+// notifyFollowed toasts growth in followed events (quiet hours respected).
+func notifyFollowed() {
+	ups := store.syncFollows()
+	if len(ups) == 0 || cfg.inQuietHours(time.Now()) {
+		return
+	}
+	hwnd := uintptr(ui.Window())
+	for i, u := range ups {
+		if i >= 3 {
+			break
+		}
+		title := "NexNews — Takip ettiğin olayda gelişme"
+		msg := u.Title
+		if u.Added > 0 {
+			msg = fmt.Sprintf("+%d yeni haber · %s", u.Added, u.Title)
+		}
+		ui.Dispatch(func() { showToast(hwnd, title, msg) })
+	}
 }
 
 // notifyAlerts shows desktop toasts for newly-appeared important events.
@@ -161,7 +187,16 @@ func startAutoRefresh() {
 	go func() {
 		t := time.NewTicker(time.Duration(mins) * time.Minute)
 		defer t.Stop()
+		last := time.Now()
 		for range t.C {
+			// Sınırlı veri modunda yenileme aralığı iki katına (en az 30 dk) çıkar.
+			if dataLimited() {
+				gap := time.Duration(maxInt(2*mins, 30)) * time.Minute
+				if time.Since(last) < gap-time.Minute {
+					continue
+				}
+			}
+			last = time.Now()
 			store.Refresh(context.Background())
 			pushData()
 			translatePass()
@@ -208,11 +243,23 @@ func bindAll() {
 	must(ui.Bind("nnSourceHealth", func() (string, error) { b, err := store.sourceHealthJSON(); return string(b), err }))
 	must(ui.Bind("nnSourceHealthSummary", func() (string, error) { b, err := store.sourceHealthSummaryJSON(); return string(b), err }))
 	must(ui.Bind("nnContentIntelligence", func() (string, error) { b, err := store.contentIntelligenceJSON(); return string(b), err }))
-	must(ui.Bind("nnToggleFollowEvent", func(id string) (string, error) {
-		if id == "" {
+	// Olay takibi: arayüz olayın bağlantısını (ve kimliğini) gönderir; olay
+	// önbellekte bulunursa başlık/kelime imzasıyla birlikte saklanır.
+	must(ui.Bind("nnToggleFollowEvent", func(payload string) (string, error) {
+		var p struct{ ID, Link string }
+		if err := json.Unmarshal([]byte(payload), &p); err != nil {
+			p.ID = payload
+		}
+		if st := store.storyForFollow(p.Link, p.ID); st != nil {
+			if follows.toggleStory(st) {
+				return "on", nil
+			}
 			return "off", nil
 		}
-		if follows.toggleEvent(id) {
+		if p.ID == "" {
+			return "off", nil
+		}
+		if follows.toggleEvent(p.ID) {
 			return "on", nil
 		}
 		return "off", nil
@@ -223,6 +270,10 @@ func bindAll() {
 		}
 		return "off", nil
 	}))
+	must(ui.Bind("nnFollowed", func() (string, error) { b, err := store.followedJSON(); return string(b), err }))
+	must(ui.Bind("nnFollowedSeen", func() (string, error) { store.markFollowedSeen(); return "ok", nil }))
+	must(ui.Bind("nnUnfollow", func(link string) (string, error) { follows.unfollowLink(link); return "ok", nil }))
+	must(ui.Bind("nnFollowCount", func() (int, error) { return follows.count(), nil }))
 	must(ui.Bind("nnToggleFollowTopic", func(topic string) (string, error) {
 		if follows.toggleTopic(topic) {
 			return "on", nil
@@ -412,6 +463,41 @@ func bindAll() {
 		cfg.mu.Unlock()
 		return "ok", cfg.save()
 	}))
+
+	// Veri modu ve kullanım defteri.
+	must(ui.Bind("nnUsage", func() (string, error) { b, err := usageStatsJSON(); return string(b), err }))
+	must(ui.Bind("nnSetDataMode", func(mode string, kbps, quotaMB int) (string, error) {
+		if mode != dataModeLimited {
+			mode = dataModeFull
+		}
+		if kbps < 32 || kbps > 100000 {
+			kbps = defaultLimitKBs
+		}
+		if quotaMB < 0 {
+			quotaMB = 0
+		}
+		cfg.mu.Lock()
+		cfg.DataMode, cfg.DataLimitKBps, cfg.DataQuotaMB = mode, kbps, quotaMB
+		cfg.mu.Unlock()
+		applyDataMode(mode, kbps)
+		return mode, cfg.save()
+	}))
+	// Canlı TV: aday adresleri dene, sonucu kaydet; hepsi çalışmazsa iptv-org
+	// dizininden lisanslı güncel adres ara (otomatik onarım).
+	must(ui.Bind("nnLiveHealth", func() (string, error) { return string(liveHealthDB.json()), nil }))
+	// Kanal denetimi ağda 45 sn'ye kadar sürebilir. WebView2 bağlamaları arayüz
+	// iş parçacığında çalıştığından (RC84'te pencereyi donduruyordu) iş arka
+	// planda yapılır, sonuç window.nnOnAsync ile sayfaya iletilir.
+	must(ui.Bind("nnProbeLive", func(ticket, id, candsJSON, tvg, files string) (string, error) {
+		go func() {
+			b, err := probeLiveJSON(id, candsJSON, tvg, files)
+			asyncReply(ticket, string(b), err)
+		}()
+		return "started", nil
+	}))
+	must(ui.Bind("nnGetLiveState", func() (string, error) { return liveStateJSON(), nil }))
+	must(ui.Bind("nnSetLiveState", func(stateJSON string) (string, error) { return "ok", setLiveState(stateJSON) }))
+	must(ui.Bind("nnResetUsage", func() (string, error) { usage.reset(); return "ok", nil }))
 
 	// Network meter: live rate + last-5-minutes data (cheap, no network).
 	must(ui.Bind("nnNetStats", func() (string, error) {
@@ -715,5 +801,43 @@ func pushJS(fn string, payload []byte) {
 func must(err error) {
 	if err != nil {
 		log.Fatalln("bind:", err)
+	}
+}
+
+// onDataQuota: aylık kotanın %80'inde uyarır, dolunca sınırlı moda geçer.
+func onDataQuota(kind string) {
+	if ui == nil {
+		return
+	}
+	title, msg := "NexNews — Veri kotası", "Bu ayki veri kotanın %80'i kullanıldı."
+	if kind == "cap" {
+		cfg.mu.Lock()
+		if cfg.DataMode != dataModeLimited {
+			cfg.DataMode = dataModeLimited
+		}
+		mode, kbps := cfg.DataMode, cfg.DataLimitKBps
+		cfg.mu.Unlock()
+		applyDataMode(mode, kbps)
+		_ = cfg.save()
+		msg = "Aylık veri kotası doldu — NexNews sınırlı veri akışına geçti."
+	}
+	hwnd := uintptr(ui.Window())
+	ui.Dispatch(func() {
+		showToast(hwnd, title, msg)
+		ui.Eval("window.nnOnDataMode && window.nnOnDataMode()")
+	})
+}
+
+// asyncReply resolves a promise created by the page's nnAsync() helper.
+func asyncReply(ticket, val string, err error) {
+	ok := "true"
+	if err != nil {
+		ok, val = "false", err.Error()
+	}
+	t, _ := json.Marshal(ticket)
+	v, _ := json.Marshal(val)
+	js := "window.nnOnAsync && window.nnOnAsync(" + string(t) + "," + ok + "," + string(v) + ")"
+	if ui != nil {
+		ui.Dispatch(func() { ui.Eval(js) })
 	}
 }

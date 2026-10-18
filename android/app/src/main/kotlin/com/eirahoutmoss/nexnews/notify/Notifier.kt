@@ -63,7 +63,7 @@ object Notifier {
             }
             val n = NotificationCompat.Builder(ctx, ch)
                 .setSmallIcon(R.drawable.ic_stat_news)
-                .setContentTitle(if (a.breaking) "Son dakika" else "Önemli gelişme")
+                .setContentTitle(if (a.followed) "Takip ettiğin olay" else if (a.breaking) "Son dakika" else "Önemli gelişme")
                 .setContentText(a.title)
                 .setSubText(sub)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(a.title + "\n" + sub))

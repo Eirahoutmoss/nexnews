@@ -87,6 +87,10 @@ object PlayerHub {
         }
         tvChannel = ch
         tvFallbacks = streams.drop(1)
+        // Sınırlı veri modunda en çok 480p.
+        val lim = com.eirahoutmoss.nexnews.Core.dataLimited()
+        c.trackSelectionParameters = c.trackSelectionParameters.buildUpon()
+            .setMaxVideoSize(if (lim) 854 else Int.MAX_VALUE, if (lim) 480 else Int.MAX_VALUE).build()
         _now.value = NowPlaying("tv", ch.name, ch.meta, buffering = true)
         setItem(c, streams.first(), "tv:" + ch.id, ch.name, ch.meta, "", hls = true)
         c.prepare(); c.play()

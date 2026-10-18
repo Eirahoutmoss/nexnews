@@ -75,7 +75,7 @@ import java.util.Locale
 @Composable
 fun DiscoverScreen(nav: NexNav, bottomPad: PaddingValues) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    val tabs = listOf("Radyo", "Canlı TV", "Hava", "Borsa", "Spor")
+    val tabs = listOf("Canlı TV", "Uyarılar", "Radyo", "Hava", "Borsa", "Spor")
     Scaffold(
         topBar = { TopAppBar(title = { Text("Keşfet", fontWeight = FontWeight.Bold) }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)) },
         containerColor = MaterialTheme.colorScheme.background
@@ -86,10 +86,11 @@ fun DiscoverScreen(nav: NexNav, bottomPad: PaddingValues) {
             }
             val bp = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 16.dp)
             when (tab) {
-                0 -> RadioTab(bp)
-                1 -> TvTab(nav, bp)
-                2 -> WeatherTab(bp)
-                3 -> FinanceTab(nav, bp)
+                0 -> LiveTvTab(nav, bp)
+                1 -> SmartAlertsTab(nav, bp)
+                2 -> RadioTab(bp)
+                3 -> WeatherTab(bp)
+                4 -> FinanceTab(nav, bp)
                 else -> SportsTab(bp)
             }
         }
@@ -135,44 +136,6 @@ private fun RadioTab(bp: PaddingValues) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f), modifier = Modifier.padding(start = 70.dp))
         }
         item { Text("İstasyon dizini: Radio Browser. Yayınlar istasyonların herkese açık akışlarından çalınır.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp)) }
-    }
-}
-
-@Composable
-private fun TvTab(nav: NexNav, bp: PaddingValues) {
-    val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var list by remember { mutableStateOf<List<TvChannel>?>(null) }
-    var group by rememberSaveable { mutableStateOf("Türkiye") }
-    LaunchedEffect(Unit) { list = runCatching { Core.liveTV() }.getOrDefault(emptyList()) }
-    val l = list ?: run { Loading(); return }
-    val groups = l.map { it.continent }.distinct()
-    LazyColumn(contentPadding = bp) {
-        item {
-            Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                groups.forEach { g -> FilterChip(selected = group == g, onClick = { group = g }, label = { Text(g) }) }
-            }
-        }
-        items(l.filter { it.continent == group }, key = { it.id }) { ch ->
-            val playable = ch.streams.isNotEmpty() && !ch.officialOnly
-            Row(
-                Modifier.fillMaxWidth().clickable {
-                    if (playable) { scope.launch { PlayerHub.playTv(ctx, ch) }; nav.player() }
-                    else if (ch.official.isNotBlank()) openInBrowser(ctx, ch.official)
-                }.padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Filled.Tv, null, tint = if (playable) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.width(14.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(ch.name, fontWeight = FontWeight.SemiBold)
-                    Text(ch.meta, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Pill(if (playable) "Canlı" else "Resmî site")
-            }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f), modifier = Modifier.padding(start = 54.dp))
-        }
-        item { Text("Yayın erişimi kanalların herkese açık akışlarına bağlıdır; zaman zaman değişebilir. Ekrandan çıkınca ses arka planda sürer.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp)) }
     }
 }
 

@@ -82,7 +82,10 @@ fun StoryScreen(link: String, nav: NexNav, bottomPad: PaddingValues) {
                     val st = s
                     if (st != null && st.found) {
                         IconButton(onClick = {
-                            scope.launch { followed = Core.toggleFollow(st.eventId) }
+                            scope.launch {
+                                followed = Core.toggleFollowStory(link, st.eventId)
+                                android.widget.Toast.makeText(ctx, if (followed) "Olay takibe alındı — yeni gelişmede bildirim gelecek" else "Olay takipten çıkarıldı", android.widget.Toast.LENGTH_SHORT).show()
+                            }
                         }) { Icon(if (followed) Icons.Filled.NotificationsActive else Icons.Filled.Notifications, if (followed) "Takibi bırak" else "Olayı takip et") }
                         IconButton(onClick = {
                             if (st.headlines.size >= 2) ShareCard.share(ctx, st) else shareText(ctx, st.title, link)

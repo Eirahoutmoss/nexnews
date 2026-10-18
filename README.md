@@ -4,6 +4,27 @@ Dünyanın nabzı, tek akışta. Dil ve kaynak bağımsız RSS/Atom haber toplay
 aynı olayı farklı kaynaklardan tek habere toplar, ajans metinlerini ayırt eder,
 önem sırasına dizer ve "kim nasıl başlık attı?" karşılaştırması sunar.
 
+## RC85 (masaüstü 1.0.0-rc85 · Android 0.2.0)
+
+- Masaüstündeki RC83–RC84 çalışmaları (canlı TV kararlılığı, veri modu, olay
+  takibi, sol menü) ortak `core/` çekirdeğine taşındı; Android da aynı özellikleri alır.
+- Kanal listesi `core/assets/livetv.json` (325 kanal, 10 bölge). Kanal denetimi
+  artık kullanıcıya sorularak yapılır ve **arka planda** çalışır (WebView2
+  bağlamaları arayüz iş parçacığında çalıştığından eskiden pencere donuyordu).
+- Canlı TV: kendi kanalını / M3U listeni ekleme, kanalı listeden kaldırma
+  (Gizlenenler'den geri alma), Kendi kanallarım sekmesi.
+- Sağ panel: kartlar yalnızca açıkken veri toplar; Akıllı Uyarılar varsayılan
+  kapalı; Özet'te "Takip ettiklerim" kartı.
+- Hakkında güncellendi (YouTube @bakis_acisi · Instagram @elem_ya).
+
+### Android'i GitHub Actions olmadan derleme
+
+```powershell
+.\android-build.ps1            # dist\NexNews-<sürüm>.apk
+.\android-build.ps1 -Install   # USB hata ayıklama açık telefona doğrudan kurar
+```
+İlk çalıştırmada Java 17, Android SDK/NDK ve gomobile kendiliğinden kurulur.
+
 ## Depo yapısı
 
 | Klasör | İçerik |

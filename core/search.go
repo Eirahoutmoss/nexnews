@@ -194,7 +194,7 @@ func (s *Store) storyJSON(link string) ([]byte, error) {
 	e.Lifecycle = st.Lifecycle
 	e.Reason = eventReason(st)
 	e.Evidence = evidenceForStory(st)
-	e.Followed = follows != nil && follows.isEvent(st.EventID)
+	e.Followed = follows.isStory(st)
 	e.Headlines = s.framingHeadlines(st)
 
 	// Timeline ascending (oldest → newest), like an event log.
@@ -398,4 +398,25 @@ func matchesTerms(it Item, terms []string) bool {
 		}
 	}
 	return true
+}
+
+// storyForFollow finds the story to follow by its link, falling back to the id.
+func (s *Store) storyForFollow(link, id string) *Story {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if link != "" {
+		if st := s.findStory(link); st != nil {
+			return st
+		}
+	}
+	if id != "" {
+		for _, cl := range s.storiesByCat {
+			for _, st := range cl {
+				if st.EventID == id {
+					return st
+				}
+			}
+		}
+	}
+	return nil
 }

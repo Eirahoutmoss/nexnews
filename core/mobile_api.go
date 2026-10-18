@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -55,6 +56,9 @@ func MobileInit(dataDir, lang string) error {
 	speech = newSpeechProvider()
 	applyTranslateCfg()
 	applyPersonalCfg()
+	applyDataMode(cfg.DataMode, cfg.DataLimitKBps)
+	startUsageLedger(nil)
+	liveHealthDB.load()
 	return nil
 }
 
@@ -306,6 +310,7 @@ type mobileAlert struct {
 	Breaking bool   `json:"breaking"`
 	Score    int    `json:"score"`
 	Sources  int    `json:"sources"`
+	Followed bool   `json:"followed,omitempty"`
 }
 
 // alertCandidates lists stories that deserve a notification (breaking, or at
@@ -373,6 +378,16 @@ func MobileNewAlerts() string {
 	if nb, err := json.Marshal(seen); err == nil {
 		_ = atomicWriteFile(path, nb)
 	}
+	// Takip edilen olaylardaki gelişmeler (sessiz saatlere uyar).
+	if !firstEver && !quiet {
+		for _, u := range store.syncFollows() {
+			if len(out) >= 5 {
+				break
+			}
+			out = append(out, mobileAlert{Title: fmt.Sprintf("Takip ettiğin olayda +%d yeni haber · %s", u.Added, u.Title), Link: u.Link, Source: "Takip", Score: 100, Followed: true})
+		}
+	}
+	usage.flush()
 	ob, _ := json.Marshal(out)
 	return string(ob)
 }
@@ -401,6 +416,9 @@ func MobileLiveTV() string { return string(liveTVJSON()) }
 // (Referer/Origin of the broadcaster's site, browser user agent).
 func MobileLiveHeaders(streamURL string) string {
 	ref := liveReferer(streamURL)
+	if c, ok := liveHostHeader(streamURL); ok && c.R != "" {
+		ref = c.R
+	}
 	origin := ""
 	if u, err := url.Parse(ref); err == nil && u.Host != "" {
 		origin = u.Scheme + "://" + u.Host

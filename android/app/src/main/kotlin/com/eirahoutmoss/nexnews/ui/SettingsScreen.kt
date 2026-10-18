@@ -153,6 +153,9 @@ fun SettingsScreen(nav: NexNav, bottomPad: PaddingValues) {
     @Suppress("UNUSED_VARIABLE") val unused = pv
 
     var net by remember { mutableStateOf("") }
+    var usage by remember { mutableStateOf<com.eirahoutmoss.nexnews.UsageStats?>(null) }
+    var usageV by remember { mutableIntStateOf(0) }
+    LaunchedEffect(usageV) { usage = runCatching { Core.usage() }.getOrNull() }
     LaunchedEffect(Unit) {
         val r = NetMeter.sample()
         net = "Bu oturumda NexNews ${fmtBytes(r.appSession)} indirdi · son 5 dk ${fmtBytes(r.app5m)}"
@@ -176,6 +179,32 @@ fun SettingsScreen(nav: NexNav, bottomPad: PaddingValues) {
                 }
                 SwitchRow("Yalnızca Wi-Fi'de yenile", "Arka plan yenilemesi mobil veride çalışmaz", prefs.wifiOnly) { prefs.wifiOnly = it; Scheduler.apply(ctx) }
                 Text(net, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
+            }
+            item {
+                Group("Veri akışı")
+                val u = usage
+                val mode = u?.mode ?: "tam"
+                ChoiceRow("Mod", listOf("tam" to "⚡ Tam veri", "sinirli" to "🐢 Sınırlı veri"), mode) { m ->
+                    scope.launch { Core.setDataMode(m, u?.limitKBps ?: 256, u?.quotaMB ?: 0); usageV++ }
+                }
+                Text("Sınırlı modda NexNews'in indirme hızı sınırlanır, canlı TV en çok 480p oynar, otomatik yenileme seyrekleşir.",
+                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp))
+                ChoiceRow("Sınırlı modda en yüksek hız", listOf("128" to "128 KB/s", "256" to "256 KB/s", "512" to "512 KB/s", "1024" to "1 MB/s"), (u?.limitKBps ?: 256).toString()) { v ->
+                    scope.launch { Core.setDataMode(mode, v.toInt(), u?.quotaMB ?: 0); usageV++ }
+                }
+                TextSetting("Aylık kota (MB)", if ((u?.quotaMB ?: 0) > 0) "${u?.quotaMB} MB" else "", "0 = yok · dolunca sınırlı moda geçer") { v ->
+                    scope.launch { Core.setDataMode(mode, u?.limitKBps ?: 256, v.filter { it.isDigit() }.toIntOrNull() ?: 0); usageV++ }
+                }
+                if (u != null) {
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+                        fun line(label: String, p: com.eirahoutmoss.nexnews.UsagePeriod) = "$label: ⇣ ${fmtBytes(p.down)}  ⇡ ${fmtBytes(p.up)}" + if (p.secs > 0) "  · ${p.secs / 3600} sa ${(p.secs % 3600) / 60} dk açık" else ""
+                        listOf("Bu oturum" to u.session, "Bugün" to u.today, "Bu hafta" to u.week, "Bu ay" to u.month, "Son 30 gün" to u.last30, "Toplam" to u.all)
+                            .forEach { (k, v) -> Text(line(k, v), style = MaterialTheme.typography.bodySmall) }
+                        if (u.quotaMB > 0) Text("Bu ay kotanın %${(u.quotaUsed * 100).toInt()} kısmı kullanıldı" + if (u.autoLimited) " · kota dolduğu için sınırlı moda geçildi" else "",
+                            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                        TextButton(onClick = { scope.launch { Core.resetUsage(); usageV++ } }) { Text("Sayaçları sıfırla") }
+                    }
+                }
             }
             item {
                 Group("Haberler")
@@ -216,7 +245,14 @@ fun SettingsScreen(nav: NexNav, bottomPad: PaddingValues) {
             item {
                 Group("Hakkında")
                 Text("NexNews ${BuildConfig.VERSION_NAME} · çekirdek ${Core.coreVersion()}", modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
-                Text("Hasan Güler · github.com/Eirahoutmoss/nexnews", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp))
+                Text("Dünyanın nabzı, tek akışta. Haberleri, olay takibini ve dünyanın canlı yayınlarını tek pencerede, kullanıcıyı yormadan bir araya getiren, dil ve kaynak bağımsız haber radarı.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+                Text("Geliştirici: Hasan Güler", style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+                NavRow("YouTube", "@bakis_acisi") { openInBrowser(ctx, "https://www.youtube.com/@bakis_acisi") }
+                NavRow("Instagram", "@elem_ya") { openInBrowser(ctx, "https://www.instagram.com/elem_ya") }
+                NavRow("GitHub", "github.com/Eirahoutmoss") { openInBrowser(ctx, "https://github.com/Eirahoutmoss") }
+                Text("Haber başlıkları, içerikler ve yayınlar ilgili kaynaklara aittir; NexNews yalnızca derler, bağlantı verir ve yayıncıların herkese açık akışlarını oynatır.",
+                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
             }
         }
     }

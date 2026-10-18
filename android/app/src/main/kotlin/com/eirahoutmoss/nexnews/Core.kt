@@ -47,9 +47,35 @@ object Core {
                 Nexcore.init(dir, Locale.getDefault().language)
                 ready = true
                 reloadLocal()
+                startTrafficSync()
             }
         }
     }
+
+    /**
+     * Go çekirdeği yalnızca kendi indirdiğini sayar; görseller ve canlı yayın
+     * (ExoPlayer) Android tarafında iner. Uygulamanın toplam trafiğinden (UID
+     * sayacı) çekirdeğin saydığını çıkarıp farkı kullanım defterine ekler.
+     */
+    private fun startTrafficSync() {
+        scope.launch {
+            val uid = android.os.Process.myUid()
+            var lastUid = android.net.TrafficStats.getUidRxBytes(uid)
+            var lastGo = goSessionDown()
+            while (true) {
+                kotlinx.coroutines.delay(30_000)
+                val nowUid = android.net.TrafficStats.getUidRxBytes(uid)
+                val nowGo = goSessionDown()
+                if (lastUid >= 0 && nowUid >= lastUid) {
+                    val extra = (nowUid - lastUid) - (nowGo - lastGo).coerceAtLeast(0)
+                    if (extra > 0) Nexcore.addTraffic(extra)
+                }
+                lastUid = nowUid; lastGo = goSessionDown()
+            }
+        }
+    }
+
+    private fun goSessionDown(): Long = runCatching { NexJson.decodeFromString<NetStats>(Nexcore.netStats()).sessionDown }.getOrDefault(0L)
 
     /** Ağa gitmeden önbellekteki veriyi yeniden okur. */
     fun reloadLocal() {
@@ -139,6 +165,29 @@ object Core {
     }
 
     suspend fun toggleFollow(eventId: String): Boolean = io { Nexcore.toggleFollowEvent(eventId) }
+    suspend fun toggleFollowStory(link: String, eventId: String): Boolean = io { Nexcore.toggleFollowStory(link, eventId) }
+    suspend fun followed(): List<FollowedEvent> = io { NexJson.decodeFromString<List<FollowedEvent>>(Nexcore.followed()) }
+    suspend fun followedSeen() = io { Nexcore.followedSeen() }
+    suspend fun unfollow(link: String) = io { Nexcore.unfollow(link) }
+    suspend fun smartAlerts(): SmartAlertBoard = io { NexJson.decodeFromString<SmartAlertBoard>(Nexcore.smartAlerts()) }
+
+    // ---- veri modu ve kullanım defteri ----------------------------------------
+    suspend fun usage(): UsageStats = io { NexJson.decodeFromString<UsageStats>(Nexcore.usage()) }
+    suspend fun setDataMode(mode: String, kbps: Int, quotaMB: Int) = io { Nexcore.setDataMode(mode, kbps.toLong(), quotaMB.toLong()) }
+    suspend fun resetUsage() = io { Nexcore.resetUsage() }
+    /** Sınırlı veri modu açık mı (canlı TV en çok 480p). */
+    fun dataLimited(): Boolean = runCatching { (config()["dataMode"] as? kotlinx.serialization.json.JsonPrimitive)?.content == "sinirli" }.getOrDefault(false)
+
+    // ---- canlı TV: kullanıcı durumu ve kanal denetimi --------------------------
+    suspend fun liveState(): LiveState = io { runCatching { NexJson.decodeFromString<LiveState>(Nexcore.liveState()) }.getOrDefault(LiveState()) }
+    suspend fun saveLiveState(st: LiveState) = io { Nexcore.setLiveState(NexJson.encodeToString(st)) }
+    suspend fun liveHealth(): Map<String, LiveHealth> = io { runCatching { NexJson.decodeFromString<Map<String, LiveHealth>>(Nexcore.liveHealth()) }.getOrDefault(emptyMap()) }
+    /** Kanalı dener (≤45 sn, ağ); sonucu çekirdek de kaydeder. */
+    suspend fun probeLive(ch: TvChannel): LiveHealth = io {
+        runCatching {
+            NexJson.decodeFromString<LiveHealth>(Nexcore.probeLive(ch.id, NexJson.encodeToString(ch.candidates), ch.tvg, ch.rep))
+        }.getOrDefault(LiveHealth(reason = "denetlenemedi"))
+    }
 
     // ---- yapılandırma (Go config.json, alan kaybetmeden düzenlenir) ----------
 

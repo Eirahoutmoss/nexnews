@@ -954,6 +954,111 @@
   .keys-modal{width:min(520px,94vw)}
   .keys-grid{display:grid;grid-template-columns:auto 1fr;gap:9px 14px;align-items:center}
   kbd{font:700 12px/1 "Segoe UI",system-ui,sans-serif;padding:5px 8px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:6px;background:var(--inset);color:var(--txt);text-align:center;min-width:30px}
+  .nn-toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:9999;max-width:min(560px,90vw);padding:10px 16px;border-radius:12px;background:var(--panel-solid,#172032);color:var(--txt,#fff);border:1px solid var(--line,#334);box-shadow:0 10px 30px rgba(0,0,0,.35);font-size:13px;transition:opacity .2s,transform .2s}
+  .nn-toast.show{opacity:1;transform:translate(-50%,0)}
+  #followEventBtn.on{background:var(--inset);color:var(--accent);border-color:var(--accent-soft)}
+  .follow-row{position:relative}
+  .follow-row .follow-x{position:absolute;right:6px;top:6px;z-index:2}
+  .follow-new,.follow-old{position:absolute;right:40px;top:8px;z-index:2;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px}
+  .follow-new{background:var(--accent);color:#fff}
+  .follow-old{background:var(--inset);color:var(--txt-faint)}
+  .live-tv-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+  .live-kind{font:inherit;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--inset);color:var(--txt);cursor:pointer}
+  .live-kind.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .live-okonly{font-size:12px;color:var(--txt-faint);display:flex;gap:5px;align-items:center;margin-left:auto}
+  .live-tv-channel .live-tv-dot:not(.ok):not(.bad):not(.web){background:#7b8aa3;box-shadow:none}
+  .live-tv-dot.ok{background:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+  .live-tv-dot.bad{background:#ef4444!important;box-shadow:none}
+  .live-tv-channel.is-bad{opacity:.62}
+  .live-tv-channel.hide{display:none}
+  div.live-tv-channel{display:block}
+  .live-tv-geo{font-size:10px;font-weight:600;color:var(--txt-faint);margin-left:4px;white-space:nowrap}
+  .data-mode-btn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12px;color:var(--txt-dim);white-space:nowrap;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--inset);cursor:pointer;font-variant-numeric:tabular-nums}
+  .data-mode-btn.lim{color:#f59e0b;border-color:rgba(245,158,11,.5)}
+  .data-panel{position:fixed;top:58px;right:16px;z-index:9000;width:min(470px,calc(100vw - 32px));max-height:calc(100vh - 80px);overflow:auto;background:var(--panel-solid,#172032);color:var(--txt);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.45);padding:14px;font-size:13px}
+  .data-panel.hide{display:none}
+  .dp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:15px}
+  .dp-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .dp-mode{font:inherit;text-align:left;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--inset);color:var(--txt);cursor:pointer;display:flex;flex-direction:column;gap:4px}
+  .dp-mode small{color:var(--txt-faint);font-size:11px;line-height:1.35}
+  .dp-mode.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .dp-opts{display:flex;flex-direction:column;gap:6px;margin:10px 0;font-size:12px}
+  .dp-opts input{width:90px}
+  .dp-opts small{color:var(--txt-faint)}
+  .dp-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:12px}
+  .dp-table th{font-weight:600;color:var(--txt-faint);text-align:left;padding:3px 4px}
+  .dp-table td{padding:4px;border-top:1px solid var(--line)}
+  .dp-table td:first-child{font-weight:600}
+  .dp-chart{display:flex;align-items:flex-end;gap:2px;height:50px;margin:10px 0 6px;padding:2px;border-bottom:1px solid var(--line)}
+  .dp-chart i{flex:1;background:var(--accent);opacity:.75;border-radius:2px 2px 0 0}
+  .dp-quota{margin:8px 0;font-size:12px;color:var(--txt-faint)}
+  .dp-qbar{height:6px;border-radius:4px;background:var(--inset);overflow:hidden;margin-bottom:4px}
+  .dp-qbar b{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#f59e0b,#ef4444)}
+  .dp-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:var(--txt-faint)}
+  /* RC83: sıkı sol menü + hava çubuğu */
+  .leftcol{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;scrollbar-gutter:auto;padding-right:0}
+  .leftcol::-webkit-scrollbar{display:none}
+  .leftcol .nav-grp{padding:4px;margin-bottom:8px}
+  .leftcol .navi{padding:6px 10px;font-size:13px}
+  .leftcol.nv-tight .navi{padding:4px 9px;font-size:12.5px}
+  .leftcol.nv-tight .nav-grp{margin-bottom:6px}
+  .leftcol.nv-tighter .navi{padding:3px 8px;font-size:12px;gap:7px}
+  .leftcol.nv-tighter .navi .n-ic{width:14px;height:14px;flex-basis:14px}
+  .leftcol.nv-two .nav-grp:first-child{display:grid;grid-template-columns:1fr 1fr;gap:1px}
+  .leftcol.nv-two .nav-grp:first-child .navi[data-nav="home"]{grid-column:1/-1}
+  .leftcol.nv-two .nav-grp:first-child .navi .n-ic{display:none}
+  .leftcol .wx-card.wx-bar{display:flex;align-items:center;gap:8px;padding:7px 10px;margin:0 0 4px;border-radius:12px;cursor:pointer;flex:0 0 auto}
+  .leftcol .wx-card.wx-bar.hide{display:none}
+  .leftcol .wx-card.wx-bar:hover{border-color:var(--accent-soft)}
+  .wxb-ic{font-size:20px;line-height:1}
+  .wxb-t{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+  .wxb-tx{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.2}
+  .wxb-tx b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wxb-tx small{font-size:11px;color:var(--txt-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wxb-go{color:var(--txt-faint);font-size:18px}
+  .live-tv-tools .live-kind i{font-style:normal;opacity:.6;margin-left:5px;font-size:11px}
+  .live-search{margin-left:auto;min-width:170px;flex:0 1 220px;height:28px;border-radius:999px;border:1px solid var(--line);background:var(--inset);color:var(--txt);padding:0 12px;font:inherit;font-size:12px}
+  .live-tv-tools2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px;font-size:12px}
+  .live-tv-tools2 .live-okonly{margin-left:0}
+  .live-hidden-note{color:var(--txt-faint);font-size:11px;flex:1}
+  .live-fav{float:right;border:0;background:none;color:var(--txt-faint);cursor:pointer;font-size:14px;line-height:1;padding:0 2px;margin-left:4px}
+  .live-fav.on{color:#f5b301}
+  .live-kind.zero{opacity:.4}
+  .live-tv-empty{font-size:12px;color:var(--txt-faint);padding:14px 4px}
+  .live-tv-nav{display:flex;flex-wrap:wrap;gap:6px}
+  .live-x{float:right;border:0;background:none;color:var(--txt-faint);cursor:pointer;font-size:12px;line-height:1;padding:0 3px;opacity:0;transition:opacity .15s}
+  .live-tv-channel:hover .live-x,.live-tv-channel:focus-within .live-x{opacity:.8}
+  .live-x:hover{color:#ef4444;opacity:1}
+  .modal.live-ask,.modal.live-add{max-width:540px;width:calc(100vw - 40px)}
+  .live-ask-body{padding:14px 22px;font-size:13px;line-height:1.55}
+  .live-ask-body ul{margin:8px 0 8px 18px;padding:0}
+  .live-ask-remember{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--txt-faint);margin-top:6px}
+  .live-add label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--txt-dim);margin:8px 0}
+  .live-add input,.live-add select,.live-add textarea{font:inherit;font-size:13px;padding:7px 10px;border-radius:8px;border:1px solid var(--line2);background:var(--inset);color:var(--txt)}
+  .live-add textarea{width:100%;box-sizing:border-box;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .la-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .la-tabs{display:flex;gap:6px;margin-bottom:6px}
+  .la-tab{font:inherit;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--inset);color:var(--txt);cursor:pointer}
+  .la-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .la-pane.hide{display:none}
+  .la-note{font-size:11px;color:var(--txt-faint)}
+  .la-status{font-size:12px;color:var(--accent);min-height:16px}
+  .follow-card-head{display:flex;align-items:center;gap:8px}
+  .follow-card-head h3{margin:0;font-size:14px}
+  .follow-card{padding:12px 14px}
+  .follow-mini{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);cursor:pointer;font-size:12.5px}
+  .follow-mini:first-child{border-top:0}
+  .follow-mini .fm-t{flex:1;min-width:0}
+  .follow-mini:hover .fm-t{color:var(--accent)}
+  .follow-mini i{font-size:11px;color:var(--txt-faint);white-space:nowrap}
+  .follow-new-s{background:var(--accent);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;white-space:nowrap}
+  .follow-more{font-size:12px;color:var(--accent);cursor:pointer;padding-top:6px}
+  .about-links{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 18px}
+  .about-link{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);cursor:pointer;text-decoration:none;color:var(--txt);min-width:170px}
+  .about-link:hover{border-color:var(--accent)}
+  .about-link span{font-size:20px;width:28px;text-align:center}
+  .about-link.yt span{color:#ff3b30}.about-link.ig span{color:#e1306c}.about-link.gh span{color:var(--txt-dim)}
+  .about-link small{display:block;color:var(--txt-faint);font-size:11px}
 </style>
 </head>
 <body>
@@ -963,6 +1068,7 @@
     <button class="btn deep-search-btn" onclick="doDeepSearch(document.getElementById('searchBox').value)" title="Olay, kaynak ve kişi/kurum analiziyle ara"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/><path d="M8 11h6M11 8v6"/></svg><span>Derin Ara</span></button>
     <div class="spacer"></div>
     <button class="net-meter hide" id="netMeter" type="button" onclick="toggleNetSource()" aria-live="off"></button>
+    <button class="data-mode-btn" id="dataModeBtn" type="button" onclick="toggleDataPanel(event)" title="Veri akışı ve kullanım">⚡ Tam veri</button>
     <span class="pulse-chip hide" id="pulseChip"></span>
     <span class="updated" id="updated"></span>
     <button class="btn" id="refreshBtn" onclick="doRefresh()" title="Yenile (F5)">
@@ -982,8 +1088,8 @@
 
   <div class="wrap layout">
     <aside class="leftcol" id="leftcol">
-      <div class="wx-card hide" id="wxCard"></div>
       <div id="leftnav"></div>
+      <div class="wx-card wx-bar hide" id="wxCard" role="button" tabindex="0" title="Hava panosunu aç" onclick="openWeatherBoard()" onkeydown="if(event.key==='Enter')openWeatherBoard()"></div>
     </aside>
     <div class="main">
       <div id="overview"><div class="loading-note">Yükleniyor…</div></div>
@@ -1053,6 +1159,7 @@
   html[data-theme="acik"] .rightpanel [class*="-stat"],html[data-theme="acik"] .rightpanel [class*="-pill"],html[data-theme="acik"] .rightpanel .deep-chip{background:var(--surface-2)!important;color:var(--txt)!important;border-color:var(--line2)!important}
   html[data-theme="acik"] .rightpanel [class*="-foot"],html[data-theme="acik"] .rightpanel [class*="-upd"],html[data-theme="acik"] .rightpanel [class*="-note"],html[data-theme="acik"] .rightpanel [class*="-reason"]{color:var(--txt-faint)!important;opacity:1!important}
 </style>
+<div id="followPanel" class="follow-card"><div class="follow-card-head"><h3>Takip ettiklerim</h3><span class="smart-alert-upd" id="followCardUpd"></span></div><div id="followCardList" class="follow-card-list"><div class="rp-empty">Bir olayı ☆ Olayı takip et ile izlemeye al; gelişmeler burada görünür.</div></div></div>
 <div id="smartAlertPanel" class="smart-alert-card"><div class="smart-alert-head"><h3>Akıllı Uyarılar</h3><span class="smart-alert-upd" id="smartAlertUpdated">izleniyor…</span></div><div class="smart-alert-collapsible"><div id="smartAlertStats" class="smart-alert-stats"></div><div id="smartAlertList"></div><div class="smart-alert-foot">Olayın hızı, doğrulanma düzeyi ve önemine göre üretilir.</div></div></div>
 <div id="personalPanel" class="personal-card"><div class="personal-head"><h3>Kişisel Öncelikler</h3><span id="personalUpdated">hazırlanıyor…</span></div><div class="personal-score"><strong id="personalScore">--</strong><span>Kişisel öncelik</span></div><div class="personal-explicit" id="personalExplicit"></div><div class="personal-grid"><div><b>Konular</b><div id="personalTopics"></div></div><div><b>Kategoriler</b><div id="personalCategories"></div></div><div><b>İlgili varlıklar</b><div id="personalEntities"></div></div></div><div class="personal-reasons" id="personalReasons"></div><div id="personalStories" class="personal-stories"></div><div class="personal-foot">Genel önem skoru korunur; kişisel ilgi yalnızca önceliklendirmeye ek ağırlık verir.</div></div><div id="briefingPanel" class="briefing-card"><div class="briefing-head"><h3>Bugünün Dünyası</h3><span class="briefing-upd" id="briefingUpdated">hazırlanıyor…</span></div><div class="briefing-kicker" id="briefingWindow"></div><div class="briefing-headline" id="briefingHeadline">Yükleniyor…</div><div class="briefing-summary" id="briefingSummary"></div><div id="briefingItems" class="briefing-items"></div><div class="briefing-foot">Olay analizi ve gelişme eğilimine göre sıralanır.</div></div>
 
@@ -1511,7 +1618,7 @@
     const kind = it.kind||"genel";
     const titleAct = (it.count>1) ? 'event' : 'open';
     const read = it.read || READ.has(it.link);
-    const thumb = (opts.thumbs && it.image) ? '<img class="thumb" src="'+esc(it.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove(\'has-thumb\');this.remove()">' : '';
+    const thumb = (opts.thumbs && it.image && !document.body.classList.contains('data-lite')) ? '<img class="thumb" src="'+esc(it.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove(\'has-thumb\');this.remove()">' : '';
     return '<div class="item'+(it.breaking?' brk':'')+(read?' read':'')+(thumb?' has-thumb':'')+'" data-url="'+u+'"'+(it.category?' data-cat-name="'+esc(it.category)+'"':'')+'>'
          + thumb
          + '<span class="title" data-act="'+titleAct+'"><span class="kdot k-'+kind+'"></span><span class="t-tx">'+esc(it.title)
@@ -1670,7 +1777,7 @@
        + '<span class="pill" title="Kaynak mutabakatı">güven '+e.confidence+'</span>'
        + '</div>';
     h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">'
-       + '<button id="followEventBtn" class="btn primary" data-follow-event="'+esc(e.eventId||'')+'">'+(e.followed?'✓ Olayı takip ediyorsun':'☆ Olayı takip et')+'</button>'
+       + '<button id="followEventBtn" type="button" class="btn primary'+(e.followed?' on':'')+'" data-follow-event="'+esc(e.eventId||'')+'" data-follow-link="'+encodeURIComponent(e._link||'')+'">'+(e.followed?'✓ Olayı takip ediyorsun':'☆ Olayı takip et')+'</button>'
        + '<button class="btn" data-follow-topic="'+esc(e.category||'')+'">☆ Konuyu takip et</button></div>';
     if(e.relText){
       const dot = e.relLevel==='yüksek' ? '🟢' : (e.relLevel==='orta' ? '🟡' : '🔴');
@@ -1705,21 +1812,70 @@
     const t=document.getElementById('rpTabOlay'); if(t) t.classList.add('hide');
     if(RIGHT_TAB==='olay') setRightTab(RIGHT_PREV||'ozet');
   }
-  async function toggleFollowEvent(id){
-    if(!id) return;
-    let state="off"; try{ state=await window.nnToggleFollowEvent(id); }catch(e){}
-    const b=document.getElementById("followEventBtn"); if(b) b.textContent=(state==="on"?"✓ Olayı takip ediyorsun":"☆ Olayı takip et");
-    const active=document.activeElement;
-    if(active) active.blur();
+  // Kısa bilgi balonu (ekranın altında, 2,6 sn).
+  function nnToast(msg){
+    let t=document.getElementById('nnToast');
+    if(!t){ t=document.createElement('div'); t.id='nnToast'; t.className='nn-toast'; t.setAttribute('role','status'); document.body.appendChild(t); }
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(nnToast._h); nnToast._h=setTimeout(()=>t.classList.remove('show'),2600);
+  }
+  async function toggleFollowEvent(id, link){
+    if(!id && !link) return;
+    if(!window.nnToggleFollowEvent){ nnToast('Takip özelliği hazır değil — uygulamayı yeniden başlatın.'); return; }
+    let state="off";
+    try{ state=await window.nnToggleFollowEvent(JSON.stringify({id:id||'',link:link||''})); }
+    catch(e){ nnToast('Takip kaydedilemedi: '+(e&&e.message||e)); return; }
+    document.querySelectorAll('[data-follow-event]').forEach(b=>{
+      if(b.getAttribute('data-follow-event')!==id && decodeURIComponent(b.getAttribute('data-follow-link')||'')!==link) return;
+      b.textContent=(state==="on"?"✓ Olayı takip ediyorsun":"☆ Olayı takip et"); b.classList.toggle('on',state==="on");
+    });
+    nnToast(state==="on" ? 'Olay takibe alındı — yeni gelişmelerde bildirim alacaksın. Sol menü › Takip ettiklerim' : 'Olay takipten çıkarıldı');
+    refreshFollowCount();
+    const active=document.activeElement; if(active) active.blur();
   }
   async function toggleFollowTopic(topic){
     if(!topic) return;
-    try{ await window.nnToggleFollowTopic(topic); }catch(e){}
+    let st='off'; try{ st=await window.nnToggleFollowTopic(topic); }catch(e){}
+    document.querySelectorAll('[data-follow-topic]').forEach(b=>{ if(b.getAttribute('data-follow-topic')===topic) b.textContent=(st==='on'?'✓ Konuyu takip ediyorsun':'☆ Konuyu takip et'); });
+    nnToast(st==='on' ? '“'+topic+'” konusu takibe alındı' : '“'+topic+'” konu takibinden çıkarıldı');
+  }
+  async function refreshFollowCount(){
+    let n=0; try{ n=Number(await window.nnFollowCount())||0; }catch(e){}
+    const c=document.getElementById('navFollowCnt'); if(c){ c.textContent=n?String(n):''; c.classList.toggle('has',n>0); }
+  }
+  async function openFollowed(){
+    let rows=[]; try{ rows=JSON.parse(await window.nnFollowed())||[]; }catch(e){}
+    document.getElementById("overview").classList.add("hide");
+    const p=document.getElementById("catpage"); p.classList.remove("hide");
+    let h='<div class="page-head"><button class="btn" onclick="backToOverview()">← Geri</button><h1>🔔 Takip ettiklerim</h1><span class="pill">'+rows.length+' olay</span></div>';
+    if(!rows.length) h+='<div class="empty">Henüz takip ettiğin bir olay yok. Birden çok kaynaklı bir habere tıkla ve <b>☆ Olayı takip et</b> düğmesine bas; olay büyüdükçe burada güncellenir ve bildirim alırsın.</div>';
+    else{
+      h+='<div class="list">';
+      rows.forEach(r=>{
+        const badge = r.new>0 ? '<span class="follow-new">+'+r.new+' yeni</span>' : (r.live?'':'<span class="follow-old">akıştan düştü</span>');
+        h+='<div class="follow-row">'+badge+itemHTML(r.item)+'<button class="mini follow-x" type="button" title="Takibi bırak" onclick="unfollowRow(\''+encodeURIComponent(r.item.link||'')+'\')">✕</button></div>';
+      });
+      h+='</div>';
+    }
+    p.innerHTML=h; translateDOM(); window.scrollTo(0,0);
+    try{ await window.nnFollowedSeen(); }catch(e){}
+  }
+  async function unfollowRow(enc){ try{ await window.nnUnfollow(decodeURIComponent(enc)); }catch(e){} refreshFollowCount(); openFollowed(); }
+  function navFollowed(el){ setNavActive(el); openFollowed(); }
+  async function loadFollowCard(){
+    const box=document.getElementById('followCardList'), up=document.getElementById('followCardUpd'); if(!box) return;
+    let rows=[]; try{ rows=JSON.parse(await window.nnFollowed())||[]; }catch(e){ return; }
+    const fresh=rows.filter(r=>r.new>0).length;
+    if(up) up.textContent=rows.length?(rows.length+' olay'+(fresh?(' · '+fresh+' gelişme'):'')):'';
+    if(!rows.length){ box.innerHTML='<div class="rp-empty">Bir olayı ☆ Olayı takip et ile izlemeye al; gelişmeler burada görünür.</div>'; return; }
+    box.innerHTML=rows.slice(0,6).map(r=>'<div class="follow-mini" data-url="'+encodeURIComponent(r.item.link||'')+'" data-act="event"><span class="fm-t">'+esc(r.item.title||'')+'</span>'+(r.new>0?'<b class="follow-new-s">+'+r.new+'</b>':(r.live?'':'<i>akıştan düştü</i>'))+'</div>').join('')
+      +(rows.length>6?'<div class="follow-more" onclick="openFollowed()">Tümünü gör ('+rows.length+') ›</div>':'');
   }
 
   async function openEvent(link){
     let e; try{ e = JSON.parse(await window.nnStory(link)); }catch(err){ return; }
-    if(!e || !e.found){ return; }
+    if(!e || !e.found){ nnToast('Bu olay artık güncel akışta değil.'); return; }
+    e._link = link;
     if(rightVisible()){
       // Geniş ekran: olayı SAĞ panelde göster, merkezdeki akışı bozma
       const ep = document.getElementById("eventPanel");
@@ -2430,7 +2586,8 @@
     info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
     sliders:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
     hash:'<path d="M5 9h14M5 15h14M10 4 8 20M16 4l-2 16"/>',
-    alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.5"/>'
+    alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.5"/>',
+    bell:'<path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/>'
   };
   function navIc(k){ return '<svg class="n-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+(NAV_IC[k]||NAV_IC.hash)+'</svg>'; }
   function renderNav(){
@@ -2445,6 +2602,7 @@
       h += '<div class="navi" data-nav="cat" data-cat-nav="'+esc(nm)+'" onclick="navCat(this,\''+encodeURIComponent(nm)+'\')">'+navIc(ic)+'<span class="n-tx">'+esc(clean||nm)+'</span><span class="n-cnt"></span></div>';
     });
     h += '</div><div class="nav-grp">';
+    h += '<div class="navi" onclick="navFollowed(this)">'+navIc('bell')+'<span class="n-tx">Takip ettiklerim</span><span class="n-cnt" id="navFollowCnt"></span></div>';
     h += '<div class="navi" onclick="navList(this,\'favs\')">'+navIc('star')+'<span class="n-tx">Favoriler</span></div>';
     h += '<div class="navi" onclick="navList(this,\'history\')">'+navIc('clock')+'<span class="n-tx">Okuma geçmişi</span></div>';
     h += '<div class="navi" onclick="navSearch()">'+navIc('search')+'<span class="n-tx">Ara</span></div>';
@@ -2456,7 +2614,21 @@
     h += '</div>';
     el.innerHTML = h;
     if(LAST_OV) updateNavCounts(LAST_OV);
+    refreshFollowCount();
+    fitLeftNav();
   }
+  // RC83: sol menü kaydırma çubuğu olmadan sığsın. Taşarsa adım adım sıkılaştır:
+  // sıkı → daha sıkı → kategoriler iki sütun.
+  function fitLeftNav(){
+    const col=document.getElementById('leftcol'); if(!col || getComputedStyle(col).display==='none' || document.body.classList.contains('widget')) return; // fixed öğede offsetParent hep null
+    const steps=['nv-tight','nv-tighter','nv-two'];
+    steps.forEach(c=>col.classList.remove(c));
+    for(const c of steps){
+      if(col.scrollHeight<=col.clientHeight+1) break;
+      col.classList.add(c);
+    }
+  }
+  window.addEventListener('resize',()=>{ clearTimeout(fitLeftNav._t); fitLeftNav._t=setTimeout(fitLeftNav,120); });
   const NAV_COUNTS = {};
   function paintNavCount(name){
     document.querySelectorAll('.navi[data-cat-nav]').forEach(n=>{
@@ -2522,7 +2694,7 @@
     const overlay=document.createElement('div');
     overlay.id='liveTVOverlay';
     overlay.className='live-tv-error live-tv-overlay';
-    overlay.innerHTML='<div><b>'+esc(title)+'</b><span>'+esc(message)+'</span><br><button class="mini" onclick="openCurrentLiveTV()">'+esc(buttonText)+'</button></div>';
+    overlay.innerHTML='<div><b>'+esc(title)+'</b><span>'+esc(message)+'</span><br><button class="mini" onclick="nextLiveTV()">Sonraki kanala geç ›</button></div>';
     frame.appendChild(overlay);
   }
   let LIVE_RELAY_READY=null;
@@ -2544,109 +2716,449 @@
     });
     return LIVE_RELAY_READY;
   }
+  // RC85: uzun süren Go çağrıları arka planda çalışır; sonuç nnOnAsync ile gelir
+  // (WebView2 bağlamaları arayüz iş parçacığında çalıştığından pencere donmaz).
+  const NN_PEND={}; let NN_SEQ=0;
+  window.nnOnAsync=function(t,ok,v){ const p=NN_PEND[t]; if(!p) return; delete NN_PEND[t]; ok?p.res(v):p.rej(new Error(v)); };
+  function nnAsync(fn,...args){
+    return new Promise((res,rej)=>{
+      const t='a'+(++NN_SEQ); NN_PEND[t]={res,rej};
+      const to=setTimeout(()=>{ if(NN_PEND[t]){ delete NN_PEND[t]; rej(new Error('zaman aşımı')); } }, 90000);
+      NN_PEND[t]={res:v=>{clearTimeout(to);res(v);},rej:e=>{clearTimeout(to);rej(e);}};
+      try{ Promise.resolve(window[fn](t,...args)).catch(e=>{ if(NN_PEND[t]){ delete NN_PEND[t]; clearTimeout(to); rej(e);} }); }catch(e){ delete NN_PEND[t]; clearTimeout(to); rej(e); }
+    });
+  }
+  // ---- RC83: kaynak sağlığı, otomatik onarım ----
+  let LIVE_HEALTH={};
+  async function loadLiveHealth(){ try{ LIVE_HEALTH=JSON.parse(await window.nnLiveHealth())||{}; }catch(e){ LIVE_HEALTH={}; } }
+  function liveCands(c){
+    const arr=(c.urls&&c.urls.length?c.urls:(c.url?[c.url]:[])).map(x=>typeof x==='string'?{u:x}:x).filter(x=>x&&x.u);
+    const h=LIVE_HEALTH[c.id];
+    if(h && h.ok && h.url){
+      const i=arr.findIndex(x=>x.u===h.url);
+      if(i>0){ arr.unshift(arr.splice(i,1)[0]); }
+      else if(i<0 && c._repair && c._repair.u===h.url){ arr.unshift(c._repair); }
+    }
+    if(c._repair && !arr.some(x=>x.u===c._repair.u)) arr.push(c._repair);
+    return arr;
+  }
+  function relaySrc(x){
+    return 'http://127.0.0.1:39765/live?t='+LIVE_RELAY_TOKEN+'&u='+encodeURIComponent(x.u)+(x.r?'&r='+encodeURIComponent(x.r):'')+(x.ua?'&ua='+encodeURIComponent(x.ua):'');
+  }
+  async function probeChannel(c){
+    if(!window.nnProbeLive) return null;
+    let r=null;
+    try{ r=JSON.parse(await nnAsync('nnProbeLive', c.id, JSON.stringify(liveCands(c)), c.tvg||'', c.rep||'')); }catch(e){ return null; }
+    if(r){ if(r.repair){ c._repair=r.repair; } LIVE_HEALTH[c.id]=r; paintLiveHealth(c.id); }
+    return r;
+  }
+  function paintLiveHealth(id){
+    document.querySelectorAll('.live-tv-channel[data-tv-id="'+id+'"]').forEach(b=>{
+      const h=LIVE_HEALTH[id]; const d=b.querySelector('.live-tv-dot'); if(!d) return;
+      d.classList.toggle('ok',!!(h&&h.ok)); d.classList.toggle('bad',!!(h&&!h.ok));
+      b.classList.toggle('is-bad',!!(h&&!h.ok));
+      const c=LIVE_TV_CHANNELS.find(x=>x.id===id)||{};
+      b.title=(h? (h.ok?'Çalışıyor'+(h.ms?' · '+h.ms+' ms':''):'Çalışmıyor: '+(h.reason||'')) +' · denetim: '+new Date(h.ts*1000).toLocaleString('tr-TR') : 'Henüz denetlenmedi')+(c.geo?'\nBölge kısıtı olabilir: '+c.geo:'')+(c.note?'\n'+c.note:'');
+    });
+  }
+  let LIVE_SCAN=null;
+  async function scanLiveChannels(scope){
+    if(LIVE_SCAN){ LIVE_SCAN.stop=true; return; }
+    const btn=document.getElementById('liveScanBtn');
+    let list=LIVE_TV_CHANNELS.filter(c=>!c.officialOnly || c.tvg);
+    if(scope!=='all'){ const act=(document.querySelector('.live-tv-continent-tab.active')||{}).dataset; const g=act&&liveGroups().find(x=>x.name===act.continent); if(g) list=g.items.slice(); }
+    LIVE_SCAN={stop:false}; let done=0, ok=0;
+    const upd=()=>{ if(btn) btn.textContent='⏹ Denetleniyor… '+done+'/'+list.length+' ('+ok+' çalışıyor)'; };
+    upd();
+    const q=list.slice(); const workers=Array.from({length:4},async()=>{
+      while(q.length && !LIVE_SCAN.stop){ const c=q.shift(); const r=await probeChannel(c); done++; if(r&&r.ok) ok++; upd(); }
+    });
+    await Promise.all(workers);
+    const stopped=LIVE_SCAN.stop; LIVE_SCAN=null;
+    if(btn) btn.textContent='🩺 Bu bölgeyi denetle'; applyLiveFilter();
+    nnToast((stopped?'Denetim durduruldu: ':'Denetim bitti: ')+ok+'/'+done+' kanal çalışıyor');
+  }
+  async function copyLiveReport(){
+    await loadLiveHealth();
+    const bad=LIVE_TV_CHANNELS.filter(c=>LIVE_HEALTH[c.id] && !LIVE_HEALTH[c.id].ok);
+    if(!bad.length){ nnToast('Denetlenmiş ve çalışmayan kanal yok — önce 🩺 Kanalları denetle.'); return; }
+    const lines=['NexNews '+(await (window.nnVersion?window.nnVersion():''))+' · canlı TV sorun raporu · '+new Date().toLocaleString('tr-TR'),''];
+    bad.forEach(c=>{ const h=LIVE_HEALTH[c.id]; lines.push('■ '+c.name+' ['+c.id+'] — '+(h.reason||'?')+(h.code?' (HTTP '+h.code+')':'')); liveCands(c).forEach(x=>lines.push('   · '+x.u+(x.r?'  [ref '+x.r+']':''))); });
+    const txt=lines.join('\n');
+    let ok=false; try{ await navigator.clipboard.writeText(txt); ok=true; }catch(e){}
+    if(!ok){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{ ok=document.execCommand('copy'); }catch(e){} ta.remove(); }
+    nnToast(ok?(bad.length+' kanalın raporu panoya kopyalandı'):'Kopyalanamadı');
+  }
+  // ---- RC83: kategori, arama, favori, otomatik gizleme ----
+  const LIVE_KINDS=[['all','Tümü'],['haber','Haber'],['ekonomi','Ekonomi'],['spor','Spor'],['belgesel','Belgesel'],['kultur','Kültür'],['genel','Genel'],['muzik','Müzik'],['cocuk','Çocuk / Eğitim']];
+  let LIVE_KIND='all', LIVE_ONLY_OK=true, LIVE_Q='', LIVE_FAVS=[], LIVE_HIDDEN=[], LIVE_CUSTOM=[], LIVE_CHECK='ask', LIVE_STATE_READY=false;
+  async function loadLiveState(){
+    if(LIVE_STATE_READY) return;
+    try{
+      const st=JSON.parse(await window.nnGetLiveState());
+      LIVE_FAVS=Array.isArray(st.favs)?st.favs:[]; window._liveLastId=st.last||'';
+      LIVE_HIDDEN=Array.isArray(st.hidden)?st.hidden:[]; LIVE_CHECK=st.check||'ask';
+      LIVE_CUSTOM=(Array.isArray(st.custom)?st.custom:[]).filter(c=>c&&c.id&&c.name);
+    }catch(e){}
+    // Kendi kanallarım ortak listeye katılır (tek oynatıcı / denetim yolu).
+    LIVE_CUSTOM.forEach(c=>{ c.custom=true; c.continent='Kendi kanallarım'; if(!LIVE_TV_CHANNELS.some(x=>x.id===c.id)) LIVE_TV_CHANNELS.push(c); });
+    LIVE_STATE_READY=true;
+  }
+  function saveLiveState(){
+    const st={favs:LIVE_FAVS,last:(window._liveTVCurrent||{}).id||window._liveLastId||'',hidden:LIVE_HIDDEN,check:LIVE_CHECK,
+      custom:LIVE_CUSTOM.map(c=>({id:c.id,name:c.name,meta:c.meta,country:c.country,kind:c.kind,urls:c.urls}))};
+    try{ window.nnSetLiveState(JSON.stringify(st)); }catch(e){}
+  }
+  try{ const v=localStorage.getItem('nnLiveOnlyOk'); if(v!==null) LIVE_ONLY_OK=v==='1'; }catch(e){}
+  function liveKindOf(c){
+    if(c.kind) return c.kind==='egitim'?'cocuk':c.kind;
+    const m=(c.meta||'').toLowerCase();
+    if(/spor|sport|yarış/.test(m)) return 'spor';
+    if(/ekonomi|finans|business/.test(m)) return 'ekonomi';
+    if(/belgesel|doğa|tarih|bilim|uzay|tarım/.test(m)) return 'belgesel';
+    if(/kültür|sanat/.test(m)) return 'kultur';
+    if(/haber|news|parlamento|meclis|uluslararası|english|العربية/.test(m)) return 'haber';
+    if(/müzik|music/.test(m)) return 'muzik';
+    if(/çocuk|eğitim/.test(m)) return 'cocuk';
+    return 'genel';
+  }
+  function liveHidden(c){
+    const h=LIVE_HEALTH[c.id];
+    if(LIVE_KIND!=='all' && liveKindOf(c)!==LIVE_KIND) return true;
+    if(LIVE_ONLY_OK && h && !h.ok) return true;
+    if(LIVE_Q){ const t=(c.name+' '+(c.country||'')+' '+(c.meta||'')).toLocaleLowerCase('tr'); if(!t.includes(LIVE_Q)) return true; }
+    return false;
+  }
+  function liveFilter(kind){
+    LIVE_KIND=kind;
+    document.querySelectorAll('.live-kind').forEach(b=>b.classList.toggle('active',b.dataset.kind===kind));
+    applyLiveFilter();
+  }
+  function liveSearch(q){ LIVE_Q=String(q||'').trim().toLocaleLowerCase('tr'); applyLiveFilter(); }
+  function applyLiveFilter(){
+    document.querySelectorAll('.live-tv-channel').forEach(b=>{
+      const c=LIVE_TV_CHANNELS.find(x=>x.id===b.dataset.tvId)||{};
+      b.classList.toggle('hide',liveHidden(c));
+    });
+    // Sekme ve kategori sayıları görünen kanallara göre.
+    const groups=liveGroups();
+    document.querySelectorAll('.live-tv-continent-tab').forEach(t=>{
+      const g=groups.find(x=>x.name===t.dataset.continent); const sp=t.querySelector('span');
+      if(g && sp) sp.textContent=g.items.filter(c=>!liveHidden(c)).length;
+    });
+    const act=(document.querySelector('.live-tv-continent-tab.active')||{}).dataset||{};
+    const g=groups.find(x=>x.name===act.continent);
+    if(g){
+      const saveK=LIVE_KIND;
+      document.querySelectorAll('.live-kind').forEach(b=>{
+        LIVE_KIND=b.dataset.kind; const n=g.items.filter(c=>!liveHidden(c)).length; LIVE_KIND=saveK;
+        let sp=b.querySelector('i'); if(!sp){ sp=document.createElement('i'); b.appendChild(sp); } sp.textContent=n; b.classList.toggle('zero',n===0 && b.dataset.kind!=='all');
+      });
+      const hid=g.items.filter(c=>LIVE_HEALTH[c.id] && !LIVE_HEALTH[c.id].ok).length;
+      const hn=document.getElementById('liveHiddenNote');
+      if(hn) hn.textContent = (LIVE_ONLY_OK && hid) ? (hid+' kanal bu bağlantıdan izlenemediği için gizlendi') : (liveStaleCount(act.continent)?(liveStaleCount(act.continent)+' kanal henüz denetlenmedi'):'');
+      document.querySelectorAll('.live-tv-continent-panel.active .live-tv-empty').forEach(e=>e.remove());
+      const panel=document.querySelector('.live-tv-continent-panel.active .live-tv-grid');
+      if(panel && !panel.querySelector('.live-tv-channel:not(.hide)')){ const e=document.createElement('div'); e.className='live-tv-empty'; e.textContent=act.continent==='Favoriler'?'Henüz favori kanal yok — bir kanalın ☆ işaretine bas.':'Bu filtreye uyan kanal yok.'; panel.appendChild(e); }
+    }
+  }
+  function toggleLiveOnlyOk(on){ LIVE_ONLY_OK=!!on; try{ localStorage.setItem('nnLiveOnlyOk',on?'1':'0'); }catch(e){} applyLiveFilter(); }
+  async function toggleLiveFav(id,ev){
+    if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+    const i=LIVE_FAVS.indexOf(id); if(i>=0) LIVE_FAVS.splice(i,1); else LIVE_FAVS.push(id);
+    saveLiveState();
+    document.querySelectorAll('.live-fav[data-fav="'+id+'"]').forEach(b=>{ b.classList.toggle('on',LIVE_FAVS.includes(id)); b.textContent=LIVE_FAVS.includes(id)?'★':'☆'; });
+    const fp=document.querySelector('.live-tv-continent-panel[data-live-continent="Favoriler"]');
+    if(fp){ const g=liveGroups().find(x=>x.name==='Favoriler'); const tmp=document.createElement('div'); tmp.innerHTML=renderLiveTVGroup(g,fp.classList.contains('active')?0:1); fp.replaceWith(tmp.firstChild); }
+    applyLiveFilter();
+    nnToast(LIVE_FAVS.includes(id)?'Favori kanallara eklendi':'Favorilerden çıkarıldı');
+  }
+  // Kanalları arka planda sessizce denetle: denetlenmemiş ya da eski sonuçlar
+  // (çalışan: 3 gün, çalışmayan: 1 gün). Önce açık sekme, sonra diğerleri.
+  let LIVE_AUTO=false;
+  async function autoCheckLive(){
+    if(LIVE_AUTO || LIVE_SCAN || !window.nnProbeLive) return;
+    LIVE_AUTO=true;
+    const now=Date.now()/1000;
+    const stale=c=>{ const h=LIVE_HEALTH[c.id]; if(!h) return true; return (now-(h.ts||0)) > (h.ok?3*86400:86400); };
+    const act=(document.querySelector('.live-tv-continent-tab.active')||{}).dataset||{};
+    let list=LIVE_TV_CHANNELS.filter(stale);
+    list.sort((a,b)=>(a.continent===act.continent?0:1)-(b.continent===act.continent?0:1));
+    if(document.body.classList.contains('data-lite')) list=list.filter(c=>c.continent===act.continent); // sınırlı veri: yalnız açık bölge
+    const q=list.slice();
+    await Promise.all(Array.from({length:3},async()=>{
+      while(q.length && !document.hidden && !LIVE_SCAN){ const c=q.shift(); await probeChannel(c); applyLiveFilter(); }
+    }));
+    LIVE_AUTO=false;
+  }
+
   async function playLiveTV(c){
     const frame=document.getElementById('liveTVFrame'); if(!frame)return;
     mediaBegin('tv', c.name, c.meta||'Canlı TV');
     const video=document.getElementById('liveTVVideo');
     const status=document.getElementById('liveTVStatus');
     if(!video)return;
-    const sources=(c.urls&&c.urls.length?c.urls:[c.url]).filter(Boolean);
+    const token=(window._liveTVToken=(window._liveTVToken||0)+1); // eski denemeler yenisini bozmasın
     hideLiveOverlay();
-    if(c.officialOnly || !(c.url || (c.urls&&c.urls.length))){
+    let sources=liveCands(c);
+    if(c.officialOnly && !c.tvg){
+      destroyLivePlayer();
       if(status) status.textContent='Resmî web yayını';
-      showLiveOverlay(c.name,'Bu kanal için NexNews içinde doğrulanmış HLS kaynağı bulunmuyor. Diğer kanallar etkilenmeden resmî yayın ayrı pencerede açılabilir.');
+      showLiveOverlay(c.name, c.note || 'Bu kanal için NexNews içinde oynatılabilen herkese açık bir yayın adresi yok. Resmî yayın ayrı pencerede açılabilir.');
       return;
     }
-    let attempt=0;
-    const fallback=()=>{
-      showLiveOverlay('Yayın oynatılamadı','Bu HLS kaynağı şu anda NexNews relay üzerinden çözümlenemedi. Başka bir kanala geçebilirsiniz; canlı TV oynatıcısı çalışmaya devam eder.');
+    let attempt=0, repaired=false;
+    const fallback=async()=>{
+      if(token!==window._liveTVToken) return;
+      // Bütün adresler düştü: kısa bir denetimle gerçek nedeni bul, gerekirse
+      // iptv-org dizininden lisanslı güncel bir adres dene (otomatik onarım).
+      if(!repaired){
+        repaired=true;
+        if(status) status.textContent='Kaynak denetleniyor / onarılıyor…';
+        const r=await probeChannel(c);
+        if(token!==window._liveTVToken) return;
+        if(r && r.ok){
+          const x=r.repair || sources.find(s=>s.u===r.url) || {u:r.url};
+          sources=[x]; attempt=0;
+          if(status) status.textContent=r.repair?'Yeni kaynak bulundu, bağlanıyor…':'Kaynak çalışıyor, yeniden bağlanıyor…';
+          return tryNext();
+        }
+        const why=(r&&r.reason)?r.reason:'Yayın kaynağına ulaşılamadı.';
+        const geo=c.geo?(' Bu kanal yalnızca '+c.geo+' içinden izlenebiliyor olabilir.'):'';
+        showLiveOverlay('Yayın oynatılamadı', why+'.'+geo+(c.note?' '+c.note:'')+' Diğer kanallar etkilenmez.');
+        if(status) status.textContent='Yayın kaynağı kullanılamıyor';
+        return;
+      }
+      showLiveOverlay('Yayın oynatılamadı','Kaynak yanıt veriyor ama oynatıcı akışı çözemedi (kodek ya da DRM). Sonraki kanala geçebilirsin.');
       if(status) status.textContent='Yayın kaynağı kullanılamıyor';
     };
     const tryNext=async()=>{
+      if(token!==window._liveTVToken) return;
       destroyLivePlayer();
-      if(attempt>=sources.length){fallback();return;}
-      const upstream=sources[attempt++];
+      if(attempt>=sources.length){ return fallback(); }
+      const x=sources[attempt++];
       hideLiveOverlay();
       const relayReady=await ensureLiveRelay();
-      const src=relayReady ? ('http://127.0.0.1:39765/live?t='+LIVE_RELAY_TOKEN+'&u='+encodeURIComponent(upstream)) : upstream;
-      if(status) status.textContent=attempt>1?'Alternatif yayın kaynağı deneniyor…':(relayReady?'Canlı yayın bağlanıyor…':'Doğrudan yayın deneniyor…');
-      video.onerror=()=>{tryNext();};
+      if(token!==window._liveTVToken) return;
+      const src=relayReady ? relaySrc(x) : x.u;
+      if(status) status.textContent=attempt>1?'Alternatif yayın kaynağı deneniyor ('+attempt+'/'+sources.length+')…':(relayReady?'Canlı yayın bağlanıyor…':'Doğrudan yayın deneniyor…');
+      let settled=false;
+      const fail=()=>{ if(settled||token!==window._liveTVToken) return; settled=true; clearTimeout(guard); setTimeout(()=>tryNext(),150); };
+      // 20 sn içinde görüntü gelmezse sonraki adrese geç (asılı kalan CDN'ler).
+      const guard=setTimeout(()=>{ if(video.readyState<2) fail(); }, 20000);
+      video.onerror=fail;
       try{
         const Hls=await ensureHls();
+        if(token!==window._liveTVToken) return;
         if(Hls && Hls.isSupported()){
+          const lim=document.body.classList.contains('data-lite');
           const hls=new Hls({
-            enableWorker:true,lowLatencyMode:true,backBufferLength:30,maxBufferLength:25,
-            manifestLoadingMaxRetry:2,levelLoadingMaxRetry:2,fragLoadingMaxRetry:2,
+            enableWorker:true,lowLatencyMode:false,backBufferLength:lim?10:30,maxBufferLength:lim?12:30,
+            liveSyncDurationCount:3,capLevelToPlayerSize:true,startLevel:lim?0:-1,
+            manifestLoadingMaxRetry:2,levelLoadingMaxRetry:3,fragLoadingMaxRetry:3,
             manifestLoadingRetryDelay:700,levelLoadingRetryDelay:700,fragLoadingRetryDelay:700
           });
           LIVE_HLS=hls;
-          let failed=false;
+          let mediaRecover=0;
           hls.on(Hls.Events.ERROR,(ev,data)=>{
-            if(data && data.fatal && !failed){
-              failed=true;
-              setTimeout(()=>tryNext(),150);
-            }
+            if(!data || !data.fatal) return;
+            // Kısa kesintide akışı bırakma: önce kurtarmayı dene.
+            if(data.type===Hls.ErrorTypes.MEDIA_ERROR && mediaRecover<2){ mediaRecover++; try{ hls.recoverMediaError(); }catch(e){ fail(); } return; }
+            fail();
           });
           hls.on(Hls.Events.MANIFEST_PARSED,()=>{
             video.play().catch(()=>{});
-            if(status) status.textContent='● CANLI';
+            if(status) status.textContent='● CANLI'+(lim?' · sınırlı veri':'');
           });
+          hls.on(Hls.Events.FRAG_BUFFERED,()=>{ if(!settled){ settled=true; clearTimeout(guard); LIVE_HEALTH[c.id]={ok:true,url:x.u,ts:Math.floor(Date.now()/1000)}; paintLiveHealth(c.id); } });
           hls.loadSource(src); hls.attachMedia(video);
         }else if(video.canPlayType('application/vnd.apple.mpegurl')){
           video.src=src; video.play().catch(()=>{});
-        }else fallback();
-      }catch(e){tryNext();}
+        }else{ clearTimeout(guard); fallback(); }
+      }catch(e){ fail(); }
     };
+    if(!sources.length){ return fallback(); }
     await tryNext();
   }
-  const LIVE_TV_CONTINENTS = [
-    {name:'Türkiye',icon:'🇹🇷',items:LIVE_TV_CHANNELS.filter(c=>c.continent==='Türkiye')},
-    {name:'Avrupa',icon:'🇪🇺',items:LIVE_TV_CHANNELS.filter(c=>c.continent==='Avrupa')},
-    {name:'Asya',icon:'🌏',items:LIVE_TV_CHANNELS.filter(c=>c.continent==='Asya')},
-    {name:'Afrika',icon:'🌍',items:LIVE_TV_CHANNELS.filter(c=>c.continent==='Afrika')},
-    {name:'Kuzey Amerika',icon:'🇺🇸',items:LIVE_TV_CHANNELS.filter(c=>c.continent==='Kuzey Amerika')},
-    {name:'Güney Amerika',icon:'🌎',items:LIVE_TV_CHANNELS.filter(c=>c.continent==='Güney Amerika')},
-    {name:'Okyanusya',icon:'🇦🇺',items:LIVE_TV_CHANNELS.filter(c=>c.continent==='Okyanusya')},
-    {name:'Rusya',icon:'🇷🇺',items:LIVE_TV_CHANNELS.filter(c=>c.continent==='Rusya')}
-  ].filter(g=>g.items.length);
-
+  const LIVE_TV_REGIONS=[['Türkiye','🇹🇷'],['Avrupa','🇪🇺'],['Orta Doğu','🕌'],['Asya','🌏'],['Afrika','🌍'],['Kuzey Amerika','🇺🇸'],['Güney Amerika','🌎'],['Okyanusya','🇦🇺'],['Rusya','🇷🇺'],['Belgesel & Spor','🎬']];
+  function liveGroups(){
+    const vis=LIVE_TV_CHANNELS.filter(c=>!LIVE_HIDDEN.includes(c.id));
+    const g=LIVE_TV_REGIONS.map(([n,i])=>({name:n,icon:i,items:vis.filter(c=>c.continent===n)})).filter(x=>x.items.length);
+    g.unshift({name:'Favoriler',icon:'⭐',items:LIVE_FAVS.map(id=>vis.find(c=>c.id===id)).filter(Boolean)});
+    g.splice(1,0,{name:'Kendi kanallarım',icon:'📌',items:vis.filter(c=>c.custom)});
+    g.push({name:'Tüm dünya',icon:'🌐',items:vis});
+    if(LIVE_HIDDEN.length) g.push({name:'Gizlenenler',icon:'🚫',items:LIVE_HIDDEN.map(id=>LIVE_TV_CHANNELS.find(c=>c.id===id)).filter(Boolean)});
+    return g;
+  }
   function renderLiveTVGroup(grp,i){
-    const hlsCount=grp.items.filter(c=>c.url||(c.urls&&c.urls.length)).length;
-    const webCount=grp.items.length-hlsCount;
-    const countLabel=grp.items.length+' kanal · '+hlsCount+' HLS'+(webCount?' · '+webCount+' resmî web':'');
-    return '<div class="live-tv-continent-panel '+(i===0?'active':'')+'" data-live-continent="'+esc(grp.name)+'"><div class="live-tv-group-title"><span>'+esc(grp.icon)+'</span><b>'+esc(grp.name)+'</b><small>'+countLabel+'</small></div><div class="live-tv-grid">'+grp.items.map((c)=>{const h=!!(c.url||(c.urls&&c.urls.length)); return '<button class="live-tv-channel" data-tv-id="'+c.id+'" onclick="selectLiveTV(\''+c.id+'\')"><span class="live-tv-name"><span class="live-tv-dot '+(h?'':'web')+'"></span>'+esc(c.name)+'<span class="live-tv-source-badge '+(h?'hls':'web')+'">'+(h?'HLS':'RESMÎ WEB')+'</span></span><span class="live-tv-meta">'+esc(c.meta)+'</span></button>';}).join('')+'</div></div>';
+    return '<div class="live-tv-continent-panel '+(i===0?'active':'')+'" data-live-continent="'+esc(grp.name)+'"><div class="live-tv-group-title"><span>'+esc(grp.icon)+'</span><b>'+esc(grp.name)+'</b><small>'+grp.items.length+' kanal</small></div><div class="live-tv-grid">'+grp.items.map((c)=>{
+      const hh=LIVE_HEALTH[c.id]; const fav=LIVE_FAVS.includes(c.id);
+      const dot='live-tv-dot '+(hh?(hh.ok?'ok':'bad'):'');
+      const where=grp.name==='Tüm dünya'||grp.name==='Favoriler'||grp.name==='Belgesel & Spor' ? (c.country||c.continent) : '';
+      return '<div class="live-tv-channel'+(hh&&!hh.ok?' is-bad':'')+'" role="button" tabindex="0" data-tv-id="'+esc(c.id)+'" onclick="selectLiveTV(\''+esc(c.id)+'\')" onkeydown="if(event.key===\'Enter\')selectLiveTV(\''+esc(c.id)+'\')"><span class="live-tv-name"><span class="'+dot+'"></span>'+esc(c.name)+'<button type="button" class="live-fav'+(fav?' on':'')+'" data-fav="'+esc(c.id)+'" title="Favori kanal" onclick="toggleLiveFav(\''+esc(c.id)+'\',event)">'+(fav?'★':'☆')+'</button>'+(grp.name==='Gizlenenler'?'<button type="button" class="live-x" title="Listeye geri al" onclick="unhideLiveChannel(\''+esc(c.id)+'\',event)">↺</button>':(c.custom?'<button type="button" class="live-x" title="Bu kanalı sil" onclick="deleteCustomChannel(\''+esc(c.id)+'\',event)">🗑</button>':'<button type="button" class="live-x" title="Bu kanalı listeden kaldır" onclick="hideLiveChannel(\''+esc(c.id)+'\',event)">✕</button>'))+(c.geo?'<span class="live-tv-geo" title="Yalnızca kendi ülkesinden izlenebilir">🌐 '+esc(c.geo)+'</span>':'')+'</span><span class="live-tv-meta">'+esc(where?(where+' · '+(c.meta||'').split(' · ').slice(1).join(' · ')):c.meta)+'</span></div>';
+    }).join('')+'</div></div>';
   }
   function selectLiveContinent(name){
     document.querySelectorAll('.live-tv-continent-tab').forEach(b=>b.classList.toggle('active',b.dataset.continent===name));
     document.querySelectorAll('.live-tv-continent-panel').forEach(p=>p.classList.toggle('active',p.dataset.liveContinent===name));
+    applyLiveFilter();
+    autoCheckLive();
   }
-  function openLiveTV(el){
+  async function openLiveTV(el){
     stopRadar();
+    await loadLiveHealth();
+    await loadLiveState();
+    const groups=liveGroups();
+    const startName=LIVE_FAVS.filter(id=>!LIVE_HIDDEN.includes(id)).length?'Favoriler':'Türkiye';
+    const startIdx=groups.findIndex(g=>g.name===startName);
     document.getElementById('overview').classList.add('hide');
     const p=document.getElementById('catpage'); p.classList.remove('hide');
-    p.innerHTML='<div class="page-head"><button class="btn" onclick="backToOverview()">← Geri</button><h1>📺 Canlı TV</h1><span class="pill">Seçili resmî yayınlar</span></div>'+
-      '<div class="live-tv-card"><div class="live-tv-head"><h2>🌍 Dünya Yayınları</h2><small>HLS kaynakları + doğrulanmış resmî web yayınları</small></div>'+
-      '<div class="live-tv-nav">'+LIVE_TV_CONTINENTS.map((g,i)=>'<button class="live-tv-continent-tab '+(i===0?'active':'')+'" data-continent="'+esc(g.name)+'" onclick="selectLiveContinent(\''+g.name+'\')">'+g.icon+' '+esc(g.name)+' <span>'+g.items.length+'</span></button>').join('')+'</div>'+
+    p.innerHTML='<div class="page-head"><button class="btn" onclick="backToOverview()">← Geri</button><h1>📺 Canlı TV</h1><span class="pill">'+LIVE_TV_CHANNELS.length+' kanal · '+(groups.length-2)+' bölge</span></div>'+
+      '<div class="live-tv-card">'+
+      '<div class="live-tv-nav">'+groups.map((g,i)=>'<button class="live-tv-continent-tab '+(i===startIdx?'active':'')+'" data-continent="'+esc(g.name)+'" onclick="selectLiveContinent(\''+esc(g.name)+'\')">'+g.icon+' '+esc(g.name)+' <span>'+g.items.length+'</span></button>').join('')+'</div>'+
+      '<div class="live-tv-tools">'+LIVE_KINDS.map(k=>'<button class="live-kind'+(LIVE_KIND===k[0]?' active':'')+'" data-kind="'+k[0]+'" onclick="liveFilter(\''+k[0]+'\')">'+k[1]+'</button>').join('')+
+      '<input class="live-search" type="search" placeholder="Kanal veya ülke ara…" value="'+esc(LIVE_Q)+'" oninput="liveSearch(this.value)" onkeydown="event.stopPropagation()">'+
+      '</div><div class="live-tv-tools2"><label class="live-okonly"><input type="checkbox" '+(LIVE_ONLY_OK?'checked':'')+' onchange="toggleLiveOnlyOk(this.checked)"> Yalnızca bu bağlantıdan izlenebilenler</label><span id="liveHiddenNote" class="live-hidden-note"></span>'+
+      '<button class="mini" onclick="copyLiveReport()" title="Çalışmayan kanalları, nedenlerini ve denenen adresleri panoya kopyalar">📋 Sorun raporu</button><button class="mini" id="liveScanBtn" onclick="scanLiveChannels()" title="Bu bölgedeki kanalları şimdi dene (arka planda)">🩺 Bu bölgeyi denetle</button><button class="mini" onclick="openAddChannel()" title="Kendi yayın adresini ya da M3U listeni ekle">＋ Kanal ekle</button></div>'+
       '<div class="live-tv-layout"><aside class="live-tv-side"><div class="live-tv-slot" id="liveTVSlot"></div>'+
-      '<div class="live-tv-actions"><button class="btn" onclick="openCurrentLiveTV()">↗ Resmî yayını aç</button><button class="mini" onclick="window.nnOpen && window.nnOpen(\'https://www.trt.net.tr/yayin-akisi\')">📅 Akış</button></div>'+
-      '<div class="live-tv-note">Doğrudan HLS erişimi mümkün olan yayınlar oynatılır. CDN koşulu veya erişim politikası değişen kanallarda resmî yayın sayfası fallback olarak korunur.</div></aside>'+
-      '<div>'+LIVE_TV_CONTINENTS.map(renderLiveTVGroup).join('')+'</div></div></div>';
+      '<div class="live-tv-note">Yalnızca yayıncıların kendi ya da lisanslı ücretsiz platformların (Samsung TV Plus, Pluto, Xumo, Rakuten…) yayınları oynatılır. İstersen NexNews kanalları senin bağlantından kısaca dener ve izlenemeyenleri (ör. yalnızca kendi ülkesinde açık olanlar) gizler. ☆ favori · ✕ listeden kaldır · ＋ kendi kanalını ekle.</div></aside>'+
+      '<div id="liveGroupsHost">'+groups.map((g,i)=>renderLiveTVGroup(g,i===startIdx?0:1)).join('')+'</div></div></div>';
     window.scrollTo(0,0);
+    applyLiveFilter();
     if(MEDIA.kind==='tv' && window._liveTVCurrent){
-      // Yayın zaten sürüyor: yeniden başlatma, oynatıcıyı sayfaya yerleştir.
       document.querySelectorAll('.live-tv-channel').forEach(b=>b.classList.toggle('active',b.dataset.tvId===window._liveTVCurrent.id));
       syncDock();
     }else{
-      window._liveTVCurrent=LIVE_TV_CHANNELS[0];
-      playLiveTV(LIVE_TV_CHANNELS[0]);
+      let c=LIVE_TV_CHANNELS.find(x=>x.id===window._liveLastId);
+      if(!c || (LIVE_HEALTH[c.id] && !LIVE_HEALTH[c.id].ok)) c=LIVE_TV_CHANNELS[0];
+      window._liveTVCurrent=c;
+      document.querySelectorAll('.live-tv-channel').forEach(b=>b.classList.toggle('active',b.dataset.tvId===c.id));
+      playLiveTV(c);
     }
+    setTimeout(maybeAskLiveCheck, 900);
+  }
+  // RC85: kanal denetimi kullanıcıya sorularak yapılır.
+  function liveStaleCount(scope){
+    const now=Date.now()/1000;
+    return LIVE_TV_CHANNELS.filter(c=>!LIVE_HIDDEN.includes(c.id)&&(!scope||c.continent===scope)).filter(c=>{ const h=LIVE_HEALTH[c.id]; return !h || (now-(h.ts||0)) > (h.ok?7*86400:3*86400); }).length;
+  }
+  function maybeAskLiveCheck(){
+    if(LIVE_CHECK==='never') return;
+    const n=liveStaleCount();
+    if(!n) return;
+    if(LIVE_CHECK==='auto'){ autoCheckLive(); return; }
+    if(sessionStorageGet('nnLiveAsked')) return;
+    sessionStorageSet('nnLiveAsked','1');
+    const m=document.createElement('div'); m.className='modal-overlay open'; m.id='liveAsk';
+    const kb=Math.round(n*18/1024*10)/10;
+    m.innerHTML='<div class="modal live-ask"><div class="modal-head"><h2>📺 Kanal listesini doğrulayalım mı?</h2></div><div class="live-ask-body">'
+      +'<p>NexNews, listedeki <b>'+n+' kanalı</b> senin internet bağlantından kısaca deneyip izlenemeyenleri (kapanmış ya da yalnızca kendi ülkesinde açık yayınları) listeden gizleyebilir.</p>'
+      +'<ul><li>Süre: yaklaşık <b>'+Math.max(1,Math.round(n/60))+'–'+Math.max(2,Math.round(n/30))+' dakika</b></li><li>Veri: yaklaşık <b>'+(kb<1?'1':kb)+' MB</b></li><li>Bu sırada uygulamayı kullanmaya devam edebilirsin; yavaş bilgisayarlarda kanal listesi kısa süre takılabilir.</li></ul>'
+      +'<label class="live-ask-remember"><input type="checkbox" id="liveAskRemember"> Seçimimi hatırla</label></div>'
+      +'<div class="modal-foot"><button class="btn" onclick="answerLiveCheck(\'never\')">Doğrulama</button><button class="btn" onclick="answerLiveCheck(\'region\')">Yalnızca açık bölge</button><button class="btn primary" onclick="answerLiveCheck(\'all\')">Tümünü doğrula</button></div></div>';
+    document.body.appendChild(m);
+  }
+  function answerLiveCheck(a){
+    const rem=(document.getElementById('liveAskRemember')||{}).checked;
+    const m=document.getElementById('liveAsk'); if(m) m.remove();
+    if(rem){ LIVE_CHECK=(a==='never')?'never':'auto'; saveLiveState(); }
+    if(a==='all') autoCheckLive();
+    else if(a==='region') scanLiveChannels();
+  }
+  function sessionStorageGet(k){ try{ return sessionStorage.getItem(k); }catch(e){ return window['_ss_'+k]; } }
+  function sessionStorageSet(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){ window['_ss_'+k]=v; } }
+
+  // ---- RC85: kanal gizleme / elle ekleme ----
+  function hideLiveChannel(id,ev){
+    if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+    if(!LIVE_HIDDEN.includes(id)) LIVE_HIDDEN.push(id);
+    LIVE_FAVS=LIVE_FAVS.filter(x=>x!==id); saveLiveState(); rerenderLiveGroups();
+    nnToast('Kanal listeden kaldırıldı — 🚫 Gizlenenler sekmesinden geri alabilirsin');
+  }
+  function unhideLiveChannel(id,ev){
+    if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+    LIVE_HIDDEN=LIVE_HIDDEN.filter(x=>x!==id); saveLiveState(); rerenderLiveGroups(); nnToast('Kanal listeye geri alındı');
+  }
+  function deleteCustomChannel(id,ev){
+    if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+    LIVE_CUSTOM=LIVE_CUSTOM.filter(c=>c.id!==id);
+    const i=LIVE_TV_CHANNELS.findIndex(c=>c.id===id); if(i>=0) LIVE_TV_CHANNELS.splice(i,1);
+    LIVE_FAVS=LIVE_FAVS.filter(x=>x!==id); saveLiveState(); rerenderLiveGroups(); nnToast('Kanal silindi');
+  }
+  function rerenderLiveGroups(){
+    const act=((document.querySelector('.live-tv-continent-tab.active')||{}).dataset||{}).continent;
+    const groups=liveGroups(); const cur=groups.some(g=>g.name===act)?act:'Türkiye';
+    const nav=document.querySelector('.live-tv-nav'); const host=document.getElementById('liveGroupsHost');
+    if(!nav||!host) return;
+    nav.innerHTML=groups.map(g=>'<button class="live-tv-continent-tab '+(g.name===cur?'active':'')+'" data-continent="'+esc(g.name)+'" onclick="selectLiveContinent(\''+esc(g.name)+'\')">'+g.icon+' '+esc(g.name)+' <span>'+g.items.length+'</span></button>').join('');
+    host.innerHTML=groups.map(g=>renderLiveTVGroup(g,g.name===cur?0:1)).join('');
+    const c=window._liveTVCurrent; if(c) document.querySelectorAll('.live-tv-channel').forEach(b=>b.classList.toggle('active',b.dataset.tvId===c.id));
+    applyLiveFilter();
+  }
+  function openAddChannel(){
+    const m=document.createElement('div'); m.className='modal-overlay open'; m.id='liveAdd';
+    m.onclick=e=>{ if(e.target===m) m.remove(); };
+    m.innerHTML='<div class="modal live-add"><div class="modal-head"><h2>＋ Kanal ekle</h2><button class="btn" onclick="document.getElementById(\'liveAdd\').remove()">Kapat</button></div><div class="live-ask-body">'
+      +'<div class="la-tabs"><button class="la-tab active" onclick="laTab(this,\'one\')">Tek kanal</button><button class="la-tab" onclick="laTab(this,\'m3u\')">M3U listesi yapıştır</button></div>'
+      +'<div class="la-pane" data-pane="one"><label>Kanal adı<input id="laName" placeholder="Örn. Yerel Belediye TV"></label>'
+      +'<label>Yayın adresi (HLS .m3u8)<input id="laUrl" placeholder="https://…/playlist.m3u8"></label>'
+      +'<div class="la-row"><label>Kategori<select id="laKind">'+LIVE_KINDS.filter(k=>k[0]!=='all').map(k=>'<option value="'+k[0]+'">'+k[1]+'</option>').join('')+'</select></label>'
+      +'<label>Ülke / not<input id="laCountry" placeholder="Türkiye"></label></div>'
+      +'<details><summary>Gelişmiş</summary><label>Referer (gerekirse)<input id="laRef" placeholder="https://kanalin-sitesi.com/"></label></details></div>'
+      +'<div class="la-pane hide" data-pane="m3u"><textarea id="laM3u" rows="8" placeholder="#EXTM3U&#10;#EXTINF:-1,Kanal adı&#10;https://…/index.m3u8"></textarea></div>'
+      +'<p class="la-note">Yalnızca yayıncısının herkese açık olarak sunduğu yayınları ekle. Eklenen adres önce kısaca denenir; çalışmazsa kaydedilmez.</p>'
+      +'<div id="laStatus" class="la-status"></div></div>'
+      +'<div class="modal-foot"><button class="btn primary" id="laSave" onclick="saveAddChannel()">Dene ve ekle</button></div></div>';
+    document.body.appendChild(m);
+    setTimeout(()=>{ const i=document.getElementById('laName'); if(i) i.focus(); },50);
+  }
+  function laTab(b,k){ document.querySelectorAll('.la-tab').forEach(x=>x.classList.toggle('active',x===b)); document.querySelectorAll('.la-pane').forEach(x=>x.classList.toggle('hide',x.dataset.pane!==k)); }
+  function parseM3U(txt){
+    const out=[]; let cur=null;
+    String(txt||'').split(/\r?\n/).forEach(l=>{ l=l.trim();
+      if(l.startsWith('#EXTINF')){ cur={name:(l.split(',').pop()||'').trim()}; const r=l.match(/http-referrer="([^"]+)"/); if(r) cur.r=r[1]; }
+      else if(l.startsWith('#EXTVLCOPT:http-referrer=') && cur){ cur.r=l.split('=').slice(1).join('='); }
+      else if(/^https?:\/\//i.test(l)){ out.push({name:(cur&&cur.name)||('Kanal '+(out.length+1)),u:l,r:cur&&cur.r}); cur=null; }
+    });
+    return out;
+  }
+  async function saveAddChannel(){
+    const st=document.getElementById('laStatus'), btn=document.getElementById('laSave');
+    const m3uMode=!document.querySelector('.la-pane[data-pane="m3u"]').classList.contains('hide');
+    let items=[];
+    if(m3uMode){ items=parseM3U(document.getElementById('laM3u').value).slice(0,100); }
+    else{
+      const name=document.getElementById('laName').value.trim(), u=document.getElementById('laUrl').value.trim(), r=document.getElementById('laRef').value.trim();
+      if(!name||!/^https?:\/\//i.test(u)){ st.textContent='Kanal adı ve http(s) ile başlayan bir yayın adresi gerekli.'; return; }
+      items=[{name,u,r}];
+    }
+    if(!items.length){ st.textContent='Listede yayın adresi bulunamadı.'; return; }
+    const kind=(document.getElementById('laKind')||{}).value||'genel', country=((document.getElementById('laCountry')||{}).value||'').trim()||'Kendi kanalım';
+    btn.disabled=true; let ok=0, bad=0;
+    for(const it of items){
+      st.textContent='Deneniyor: '+it.name+' ('+(ok+bad+1)+'/'+items.length+')…';
+      const c={id:'my-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),name:it.name.slice(0,60),meta:country+' · '+((LIVE_KINDS.find(k=>k[0]===kind)||[])[1]||'Genel'),country,kind,custom:true,continent:'Kendi kanallarım',urls:[it.r?{u:it.u,r:it.r}:it.u]};
+      const r=await probeChannel(c);
+      if(r&&r.ok){ LIVE_CUSTOM.push(c); LIVE_TV_CHANNELS.push(c); ok++; } else bad++;
+    }
+    btn.disabled=false; saveLiveState();
+    if(ok){ document.getElementById('liveAdd').remove(); rerenderLiveGroups(); selectLiveContinent('Kendi kanallarım'); nnToast(ok+' kanal eklendi'+(bad?(' · '+bad+' adres çalışmadığı için eklenmedi'):'')); }
+    else st.textContent='Adres çalışmadı: '+((LIVE_HEALTH && Object.values(LIVE_HEALTH).slice(-1)[0]||{}).reason||'yayın açılamadı')+'. Adresi ve gerekiyorsa Referer bilgisini kontrol et.';
   }
   function selectLiveTV(id){
     const c=LIVE_TV_CHANNELS.find(x=>x.id===id)||LIVE_TV_CHANNELS[0]; window._liveTVCurrent=c;
     document.querySelectorAll('.live-tv-channel').forEach(b=>b.classList.toggle('active',b.dataset.tvId===c.id));
+    saveLiveState();
     playLiveTV(c);
   }
-  function openCurrentLiveTV(){ const c=window._liveTVCurrent||LIVE_TV_CHANNELS[0]; try{window.nnOpen(c.official||c.url);}catch(e){window.open(c.official||c.url,'_blank');} }
+  // Aynı bölgede sıradaki görünür (çalışan) kanala geç — kullanıcı pencereden çıkmaz.
+  function nextLiveTV(){
+    applyLiveFilter();
+    const btns=Array.from(document.querySelectorAll('.live-tv-continent-panel.active .live-tv-channel:not(.hide)'));
+    const cur=(window._liveTVCurrent||{}).id; const i=btns.findIndex(b=>b.dataset.tvId===cur);
+    const nx=btns[(i+1)%Math.max(1,btns.length)]; if(nx && nx.dataset.tvId!==cur) selectLiveTV(nx.dataset.tvId);
+  }
+  function openCurrentLiveTV(){ const c=window._liveTVCurrent||LIVE_TV_CHANNELS[0]; const f=(liveCands(c)[0]||{}).u; const u=c.official||f; if(!u){ nnToast('Bu kanalın resmî sayfası kayıtlı değil.'); return; } try{window.nnOpen(u);}catch(e){window.open(u,'_blank');} }
 
   function openWorldRadio(){
     stopRadar();
@@ -2746,20 +3258,27 @@
       + '<div class="about-hero"><img class="about-logo" src="__NEXLOGO__" alt="">'
       +   '<div><div class="about-name">NexNews <span class="about-ver">v'+esc(ver)+'</span></div>'
       +   '<div class="about-slogan">Dünyanın nabzı, tek akışta</div></div></div>'
-      + '<p class="about-p">Dünyanın dört bir yanından haberleri tek akışta bir araya getiren, çok kaynaklı ve dil bağımsız bir <b>haber radarı</b>. Aynı haberi farklı kaynaklardan tek karta birleştirir, önem sırasına dizer ve olayları zaman çizelgesinde ilişkilendirir. Varsayılan olarak küresel haber akışı sunar; isteyen kullanıcı haber bölgesini seçerek Türkiye, Çad veya başka bir ülkeyle ilişkili haberleri kişiselleştirebilir. Haberlerin coğrafi ilişkisini kaynak ülkesinden bağımsız değerlendiren coğrafi bağ analizi, kişisel ilgi filtresi, favoriler ve okuma geçmişi, çok-modelli hava panosu, kaynak güvenilirliği göstergesi, masaüstü bildirimleri ve özelleştirilebilir masaüstü widget\'ı ile NexNews, dünyadaki gelişmeleri kullanıcının istediği ölçekte takip etmesini sağlar.</p>'
+      + '<p class="about-p">NexNews, dünyanın dört bir yanındaki haberleri <b>tek pencerede</b>, kullanıcıyı yormadan bir araya getiren, dil ve kaynak bağımsız bir <b>haber radarı</b>dır. Aynı olayı farklı kaynaklardan tek karta toplar, ajans metinlerini ayırt eder, önem sırasına dizer, olayları zaman çizelgesinde izler ve dünyanın canlı yayınlarını aynı pencerede sunar.</p>'
+      + '<div class="about-links">'
+      +   '<a class="about-link yt" onclick="window.nnOpen(\'https://www.youtube.com/@bakis_acisi\')"><span>▶</span><div><b>YouTube</b><small>@bakis_acisi</small></div></a>'
+      +   '<a class="about-link ig" onclick="window.nnOpen(\'https://www.instagram.com/elem_ya\')"><span>◎</span><div><b>Instagram</b><small>@elem_ya</small></div></a>'
+      +   '<a class="about-link gh" onclick="window.nnOpen(\'https://github.com/eirahoutmoss\')"><span>⌥</span><div><b>GitHub</b><small>eirahoutmoss</small></div></a>'
+      + '</div>'
       + '<div class="about-grid">'
       +   aboutRow('Geliştirici', 'Hasan Güler')
-      +   aboutRow('GitHub', 'github.com/eirahoutmoss')
-      +   aboutRow('Teknoloji', 'Go + WebView2 — tek .exe')
-      +   aboutRow('Haber coğrafyası', 'Küresel akış + isteğe bağlı ülke kişiselleştirmesi (coğrafi bağ analizi)')
+      +   aboutRow('Platformlar', 'Windows masaüstü (Go + WebView2, tek .exe) · Android (Kotlin + ortak Go çekirdeği)')
+      +   aboutRow('Haber motoru', 'Çok kaynaklı olay gruplama, Türkçe ek farkındalığı, diller arası birleştirme, ajans (AA, DHA, Reuters, AFP…) ayrımı, "Kim nasıl başlık attı?"')
+      +   aboutRow('Olay takibi', 'Takip edilen olaylar başlık değişse de izlenir; yeni gelişmede bildirim')
+      +   aboutRow('Canlı TV', LIVE_TV_CHANNELS.length+' kanal · 10 bölge · kategoriler, favoriler, kendi kanalını ekleme; yalnızca yayıncı ve lisanslı ücretsiz platform yayınları')
+      +   aboutRow('Veri akışı', 'Tam / sınırlı mod, hız sınırı, aylık kota; oturum-gün-hafta-ay kullanım defteri')
+      +   aboutRow('Sağ panel', 'Özet · Borsa · Spor · Analiz · Olay sekmeleri; kartlar yalnızca açıkken veri toplar')
       +   aboutRow('Masaüstü widget', 'Opak · cam · bulanık · saydam zemin, ayarlanabilir opaklık ve ton')
-      +   aboutRow('Kaynak bağımsızlığı', 'Aynı ajans metnini (AA, Reuters, AFP…) yayımlayan siteler tek kaynak sayılır')
-      +   aboutRow('Ağ', 'Anlık bağlantı hızı ve son 5 dakikada çekilen veri üst çubukta')
-      +   aboutRow('Hava verisi', 'Open-Meteo (çok model: ICON·GFS·ECMWF·GEM)')
+      +   aboutRow('Hava verisi', 'Open-Meteo (çok model: ICON·GFS·ECMWF·GEM) · RainViewer radar')
       +   aboutRow('Afet / deprem', 'GDACS · USGS')
       +   aboutRow('Çeviri', 'Yerel LibreTranslate → Google · Lingva · SimplyTranslate (anahtarsız, yedekli; çeviriler diskte saklanır)')
+      +   aboutRow('Kanal dizini', 'Yayıncı CDN\'leri + iptv-org açık veritabanı (lisanslı kaynaklarla süzülmüş)')
       + '</div>'
-      + '<p class="about-note">Haber başlıkları ve içerikleri ilgili kaynaklara aittir; NexNews yalnızca derleyip bağlantı verir. Kişisel/eğitim amaçlı geliştirilmiştir.</p>'
+      + '<p class="about-note">Haber başlıkları, içerikler ve yayınlar ilgili kaynaklara aittir; NexNews yalnızca derler, bağlantı verir ve yayıncıların herkese açık akışlarını oynatır. Kişisel/eğitim amaçlı geliştirilmiştir.</p>'
       + '</div>';
     window.scrollTo(0,0);
   }
@@ -2780,13 +3299,14 @@
       return;
     }
     const n = w.now||{};
+    // RC83: tek satırlık hava çubuğu; ayrıntılar tıklayınca Hava Panosu'nda.
     el.innerHTML =
-      '<div class="wx-top"><span class="wx-icon">'+(n.icon||"🌡️")+'</span>'
-      + '<div><div class="wx-temp">'+Math.round(n.temp)+'°</div><div class="wx-city">'+esc(w.city||"")+'</div></div></div>'
-      + '<div class="wx-desc">'+esc(n.desc||"")+' · '+esc(n.dirName||"")+' '+Math.round(n.wind)+' km/sa</div>'
-      + '<div class="wx-row"><span>Hissedilen <b>'+Math.round(w.feels)+'°</b></span><span>Nem <b>'+(w.humidity||0)+'%</b></span></div>'
-      + '<div class="wx-mini">🌧️ '+esc(shorten(w.rainText))+'</div>'
-      + '<div class="wx-open" onclick="openWeatherBoard()">Hava panosu →</div>';
+      '<span class="wxb-ic">'+(n.icon||"🌡️")+'</span>'
+      + '<span class="wxb-t">'+Math.round(n.temp)+'°</span>'
+      + '<span class="wxb-tx"><b>'+esc(w.city||"")+'</b><small>'+esc(n.desc||"")+' · '+Math.round(n.wind)+' km/sa</small></span>'
+      + '<span class="wxb-go">›</span>';
+    el.title = (w.city||'')+' — '+(n.desc||'')+'\nHissedilen '+Math.round(w.feels)+'° · Nem %'+(w.humidity||0)+' · '+(n.dirName||'')+' '+Math.round(n.wind)+' km/sa\n🌧️ '+(w.rainText||'')+'\n\nTıkla: Hava panosu';
+    fitLeftNav();
     // pano açıksa canlı yeniden çiz
     const cat = document.getElementById("catpage");
     if(document.getElementById("wxBoard") && cat && !cat.classList.contains("hide")){ openWeatherBoard(); }
@@ -3017,10 +3537,10 @@
     if(up)up.textContent=board&&board.updated?('güncellendi '+agoText(board.updated)):'veri yok';
     if(stats)stats.innerHTML='<div class="smart-alert-stat"><b>'+Number(board&&board.critical||0)+'</b><span>kritik</span></div><div class="smart-alert-stat"><b>'+Number(board&&board.warning||0)+'</b><span>uyarı</span></div><div class="smart-alert-stat"><b>'+Number(board&&board.info||0)+'</b><span>bilgi</span></div>';
     const alerts=(board&&board.alerts)||[];
-    list.innerHTML=alerts.map(a=>'<div class="smart-alert-row '+esc(a.severity||'info')+'" data-smart-alert-id="'+esc(a.id||'')+'"><div class="smart-alert-title"><i class="smart-alert-dot"></i><span>'+esc(a.title||smartAlertLabels[a.severity]||'Uyarı')+'</span></div><div class="smart-alert-message">'+esc(a.message||'')+' <b style="opacity:.9">'+esc(a.eventTitle||'')+'</b></div><div class="smart-alert-meta"><span class="smart-alert-pill">Önem '+Number(a.score||0)+'</span><span class="smart-alert-pill">Güven '+Number(a.confidence||0)+'</span><span class="smart-alert-pill">'+Number(a.sources||0)+' bağımsız</span><span class="smart-alert-pill">Risk '+Number(a.risk||0)+'</span></div></div>').join('')||'<div class="rp-empty">Şu anda dikkat gerektiren yeni bir akıllı uyarı yok.</div>';
+    list.innerHTML=alerts.map(a=>'<div class="smart-alert-row '+esc(a.severity||'info')+'" data-smart-alert-id="'+esc(a.id||'')+'"><div class="smart-alert-title"><i class="smart-alert-dot"></i><span>'+esc(a.title||smartAlertLabels[a.severity]||'Uyarı')+'</span></div><div class="smart-alert-message">'+esc(a.message||'')+' <b style="opacity:.9">'+esc(a.eventTitle||'')+'</b></div><div class="smart-alert-meta"><span class="smart-alert-pill">Önem '+Number(a.score||0)+'</span><span class="smart-alert-pill">Güven '+Number(a.confidence||0)+'</span><span class="smart-alert-pill">'+Number(a.sources||0)+' bağımsız</span><span class="smart-alert-pill">Risk '+Number(a.risk||0)+'</span></div></div>').join('')||'<div class="rp-empty">Şu anda dikkat gerektiren bir uyarı yok. Bir olay son dakika olduğunda, hızla tırmandığında ya da en az 3 bağımsız kaynakça doğrulandığında burada görünür; tıklayınca olay dosyası açılır.</div>';
   }
   window.nnOnSmartAlerts=function(board){renderSmartAlerts(board)};
-  async function loadSmartAlerts(){try{const b=await window.nnSmartAlerts();renderSmartAlerts(JSON.parse(b));}catch(e){}}
+  async function loadSmartAlerts(){ const up=document.getElementById('smartAlertUpdated'); if(up && !window._smartAlerts) up.textContent='toplanıyor…'; try{const b=await window.nnSmartAlerts();renderSmartAlerts(JSON.parse(b));}catch(e){ if(up) up.textContent='alınamadı'; }}
 
   // ---------- daily briefing ----------
   const briefingLife={detected:'Tespit',confirmed:'Doğrulandı',developing:'Gelişiyor',stabilizing:'Dengeleniyor',archived:'Arşiv'};
@@ -3290,10 +3810,10 @@
   // ---------- right cards: compact + collapsible ----------
   function initRightCardToggles(){
     const rp=document.getElementById('rightpanel'); if(!rp) return;
-    const ids=['standingsPanel','marketPanel','smartAlertPanel','personalPanel','briefingPanel','contentIntelPanel','sourceHealthPanel','officialPanel','worldPanel','sportPanel','intel2Panel','predictPanel','entityPanel','eventGraphPanel'];
+    const ids=['followPanel','standingsPanel','marketPanel','smartAlertPanel','personalPanel','briefingPanel','contentIntelPanel','sourceHealthPanel','officialPanel','worldPanel','sportPanel','intel2Panel','predictPanel','entityPanel','eventGraphPanel'];
     ids.forEach(id=>{
       const p=document.getElementById(id); if(!p || p.dataset.rcToggleReady==='1') return;
-      const head=p.querySelector(':scope > .market-head, :scope > .smart-alert-head, :scope > .personal-head, :scope > .briefing-head, :scope > .content-intel-head, :scope > .source-health-head, :scope > .official-head, :scope > .world-head, :scope > .sport-head, :scope > .intel2-head, :scope > .predict-head, :scope > .entity-head, :scope > .eg-head');
+      const head=p.querySelector(':scope > .market-head, :scope > .smart-alert-head, :scope > .personal-head, :scope > .briefing-head, :scope > .content-intel-head, :scope > .source-health-head, :scope > .official-head, :scope > .world-head, :scope > .sport-head, :scope > .intel2-head, :scope > .predict-head, :scope > .entity-head, :scope > .eg-head, :scope > .follow-card-head');
       if(!head) return;
       p.dataset.rcToggleReady='1';
       head.classList.add('right-card-head');
@@ -3309,7 +3829,7 @@
       const key='nexnews.rightcard.'+id;
       let saved=null; try{ saved=localStorage.getItem(key); }catch(e){}
       let collapsed=(saved==='1');
-      if(saved===null){ collapsed=false; }
+      if(saved===null){ collapsed=(id in CARD_DEFAULT_CLOSED); }
       p.classList.toggle('right-card-collapsed',collapsed);
       head.setAttribute('role','button'); head.setAttribute('tabindex','0');
       head.setAttribute('aria-expanded',collapsed?'false':'true');
@@ -3318,6 +3838,7 @@
         p.classList.toggle('right-card-collapsed',c);
         head.setAttribute('aria-expanded',c?'false':'true');
         try{ localStorage.setItem(key,c?'1':'0'); }catch(e){}
+        if(!c && CARD_LOADERS[id]) CARD_LOADERS[id](); // açılınca verisini topla
       };
       head.addEventListener('click',toggle);
       head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
@@ -3328,17 +3849,23 @@
   // RC81: sekmeli sağ panel + görünür sekmeye göre yoklama
   // =====================================================================
   const RIGHT_GROUPS = {
-    ozet:   ['smartAlertPanel','briefingPanel','personalPanel','worldPanel','officialPanel'],
+    ozet:   ['followPanel','smartAlertPanel','briefingPanel','personalPanel','worldPanel','officialPanel'],
     borsa:  ['marketPanel'],
     spor:   ['standingsPanel','sportPanel'],
     analiz: ['intel2Panel','predictPanel','entityPanel','eventGraphPanel','contentIntelPanel','sourceHealthPanel'],
     olay:   ['eventPanel']
   };
+  // RC85: kapalı kartların verisi toplanmaz; kart açıldığında yüklenir.
+  const CARD_DEFAULT_CLOSED={smartAlertPanel:1};
+  const CARD_LOADERS={smartAlertPanel:()=>loadSmartAlerts(),briefingPanel:()=>loadBriefing(),personalPanel:()=>loadPersonalIntelligence(),worldPanel:()=>loadWorldPulse(),officialPanel:()=>loadOfficialPublications(),followPanel:()=>loadFollowCard(),
+    marketPanel:()=>loadFinance(),standingsPanel:()=>loadStandings(),sportPanel:()=>loadSports(),intel2Panel:()=>loadEventIntelligence(),predictPanel:()=>loadPredictive(),entityPanel:()=>loadEntityIntelligence(),eventGraphPanel:()=>loadEventGraph(),contentIntelPanel:()=>loadContentIntelligence(),sourceHealthPanel:()=>loadSourceHealth()};
+  function cardOpen(id){ const p=document.getElementById(id); return !!p && !p.classList.contains('right-card-collapsed'); }
+  function loadOpenCards(tab){ (RIGHT_GROUPS[tab]||[]).forEach(id=>{ if(CARD_LOADERS[id] && cardOpen(id)) CARD_LOADERS[id](); }); }
   const RIGHT_LOADERS = {
-    ozet:   ()=>{ loadSmartAlerts(); loadBriefing(); loadPersonalIntelligence(); loadWorldPulse(); loadOfficialPublications(); },
-    borsa:  ()=>{ loadFinance(); },
-    spor:   ()=>{ loadStandings(); loadSports(); },
-    analiz: ()=>{ loadEventIntelligence(); loadPredictive(); loadEntityIntelligence(); loadEventGraph(); loadContentIntelligence(); loadSourceHealth(); },
+    ozet:   ()=>loadOpenCards('ozet'),
+    borsa:  ()=>loadOpenCards('borsa'),
+    spor:   ()=>loadOpenCards('spor'),
+    analiz: ()=>loadOpenCards('analiz'),
     olay:   ()=>{}
   };
   let RIGHT_TAB = 'ozet', RIGHT_PREV = 'ozet';
@@ -3370,6 +3897,8 @@
     setInterval(()=>{
       if(document.hidden || document.body.classList.contains('widget')) return;
       if(tab && (RIGHT_TAB!==tab || !rightVisible())) return;
+      // Sınırlı veri: sağ panel verileri üç kat seyrek yenilenir.
+      if(document.body.classList.contains('data-lite')){ const k=(fn._lite=(fn._lite||0)+1); if(k%3) return; }
       fn();
     }, ms);
   }
@@ -3425,11 +3954,65 @@
   (function(){
     let pending=0;
     try{
-      new PerformanceObserver(list=>{ list.getEntries().forEach(e=>{ const n=e.transferSize||0; if(n>0) pending+=n; }); })
+      new PerformanceObserver(list=>{ list.getEntries().forEach(e=>{ if(/^https?:\/\/(127\.0\.0\.1|localhost)/.test(e.name||'')) return; /* canlı TV aktarıcısı Go tarafında zaten sayılıyor */ const n=e.transferSize||0; if(n>0) pending+=n; }); })
         .observe({type:'resource',buffered:true});
     }catch(e){}
     setInterval(()=>{ if(pending>0 && window.nnAddWebTraffic){ const n=pending; pending=0; try{ window.nnAddWebTraffic(Math.round(n)); }catch(e){} } }, 4000);
   })();
+
+  // =====================================================================
+  // RC83: veri modu (Tam / Sınırlı) ve kullanım defteri
+  // =====================================================================
+  let DATA_USAGE=null;
+  function fmtDur(sec){ sec=Math.max(0,Math.round(sec||0)); const d=Math.floor(sec/86400), h=Math.floor(sec%86400/3600), m=Math.floor(sec%3600/60); return d?(d+' g '+h+' sa'):(h?(h+' sa '+m+' dk'):(m+' dk')); }
+  function paintDataMode(){
+    const u=DATA_USAGE||{}; const lim=u.mode==='sinirli';
+    document.body.classList.toggle('data-lite',lim);
+    const b=document.getElementById('dataModeBtn'); if(!b) return;
+    b.classList.toggle('lim',lim);
+    b.textContent=(lim?'🐢 Sınırlı':'⚡ Tam')+' · bugün '+fmtBytes((u.today&&u.today.down)||0);
+    b.title=(lim?'Sınırlı veri akışı (en çok '+(u.limitKBps||256)+' KB/s)':'Tam veri akışı')+'\nBu oturum: ⇣ '+fmtBytes((u.session&&u.session.down)||0)+'\nBu ay: ⇣ '+fmtBytes((u.month&&u.month.down)||0)+(u.quotaMB?(' / '+u.quotaMB.toLocaleString('tr-TR')+' MB kota'):'')+'\nTıkla: ayrıntılar ve mod seçimi';
+  }
+  async function loadDataUsage(){ try{ DATA_USAGE=JSON.parse(await window.nnUsage()); }catch(e){ return; } paintDataMode(); const pn=document.getElementById('dataPanel'); if(pn && !pn.classList.contains('hide')) renderDataPanel(); }
+  window.nnOnDataMode=loadDataUsage;
+  function usageRow(label,p,extra){ p=p||{}; return '<tr><td>'+label+'</td><td>⇣ '+fmtBytes(p.down||0)+'</td><td>⇡ '+fmtBytes(p.up||0)+'</td><td>'+(p.secs!=null?fmtDur(p.secs):'')+'</td>'+(extra||'')+'</tr>'; }
+  function renderDataPanel(){
+    const pn=document.getElementById('dataPanel'); if(!pn) return;
+    const u=DATA_USAGE||{}; const lim=u.mode==='sinirli';
+    const days=(u.days||[]); const mx=Math.max(1,...days.map(d=>d.down||0));
+    const bars=days.map(d=>'<i title="'+esc(d.day)+': '+fmtBytes(d.down)+(d.secs?' · '+fmtDur(d.secs)+' açık':'')+'" style="height:'+Math.max(2,Math.round((d.down||0)/mx*46))+'px"></i>').join('');
+    const q=u.quotaMB?('<div class="dp-quota"><div class="dp-qbar"><b style="width:'+Math.min(100,Math.round((u.quotaUsed||0)*100))+'%"></b></div><span>Bu ay kotanın %'+Math.round((u.quotaUsed||0)*100)+' kullanıldı'+(u.autoLimited?' · kota dolduğu için sınırlı moda geçildi':'')+'</span></div>'):'';
+    pn.innerHTML='<div class="dp-head"><b>Veri akışı</b><button class="mini" onclick="toggleDataPanel()">✕</button></div>'
+      +'<div class="dp-modes"><button class="dp-mode'+(!lim?' active':'')+'" onclick="setDataMode(\'tam\')"><b>⚡ Tam veri akışı</b><small>Her şey normal hızda; canlı TV en iyi kalitede.</small></button>'
+      +'<button class="dp-mode'+(lim?' active':'')+'" onclick="setDataMode(\'sinirli\')"><b>🐢 Sınırlı veri akışı</b><small>İndirme hızı sınırlanır, canlı TV en çok 480p, küçük görseller yüklenmez, otomatik yenileme seyrekleşir. Canlı TV için en az 256 KB/s önerilir.</small></button></div>'
+      +'<div class="dp-opts"><label>Sınırlı modda en yüksek hız <select id="dpLimit" onchange="setDataMode(null)">'+[64,128,256,512,1024,2048].map(k=>'<option value="'+k+'"'+(k===(u.limitKBps||256)?' selected':'')+'>'+(k>=1024?(k/1024)+' MB/s':k+' KB/s')+'</option>').join('')+'</select></label>'
+      +'<label>Aylık kota <input id="dpQuota" type="number" min="0" step="100" value="'+(u.quotaMB||0)+'" onchange="setDataMode(null)"> MB <small>(0 = yok; dolunca sınırlı moda geçer)</small></label></div>'
+      +'<table class="dp-table"><tr><th></th><th>İndirme</th><th>Yükleme</th><th>Açık kalma</th></tr>'
+      +usageRow('Bu oturum',u.session)+usageRow('Bugün',u.today)+usageRow('Bu hafta',u.week)+usageRow('Bu ay',u.month)+usageRow('Son 30 gün',u.last30)+usageRow('Toplam',u.all)+'</table>'
+      +q
+      +'<div class="dp-chart" title="Son 30 günün günlük indirmesi">'+bars+'</div>'
+      +'<div class="dp-foot">Toplam, '+(u.since?new Date(u.since*1000).toLocaleDateString('tr-TR'):'—')+' tarihinden bu yana · açık kalınan gün başına ortalama ⇣ '+fmtBytes(u.dailyAvg||0)+'<button class="mini" onclick="resetDataUsage()">Sayaçları sıfırla</button></div>';
+  }
+  function toggleDataPanel(ev){
+    if(ev) ev.stopPropagation();
+    let pn=document.getElementById('dataPanel');
+    if(!pn){ pn=document.createElement('div'); pn.id='dataPanel'; pn.className='data-panel hide'; pn.addEventListener('click',e=>e.stopPropagation()); document.body.appendChild(pn); document.addEventListener('click',()=>pn.classList.add('hide')); }
+    const show=pn.classList.contains('hide');
+    pn.classList.toggle('hide',!show);
+    if(show){ renderDataPanel(); loadDataUsage(); }
+  }
+  async function setDataMode(mode){
+    const u=DATA_USAGE||{};
+    if(!mode) mode=u.mode||'tam';
+    const l=document.getElementById('dpLimit'), q=document.getElementById('dpQuota');
+    const kbps=l?parseInt(l.value,10):(u.limitKBps||256), quota=q?Math.max(0,parseInt(q.value,10)||0):(u.quotaMB||0);
+    try{ await window.nnSetDataMode(mode,kbps,quota); }catch(e){ nnToast('Veri modu kaydedilemedi'); return; }
+    if(CONFIG){ CONFIG.dataMode=mode; CONFIG.dataLimitKBps=kbps; CONFIG.dataQuotaMB=quota; }
+    await loadDataUsage();
+    nnToast(mode==='sinirli'?'Sınırlı veri akışı açık — en çok '+(kbps>=1024?(kbps/1024)+' MB/s':kbps+' KB/s'):'Tam veri akışı açık');
+    if(MEDIA && MEDIA.kind==='tv' && window._liveTVCurrent) playLiveTV(window._liveTVCurrent); // yeni kalite sınırı
+  }
+  async function resetDataUsage(){ try{ await window.nnResetUsage(); }catch(e){} loadDataUsage(); nnToast('Veri sayaçları sıfırlandı'); }
 
   // =====================================================================
   // RC81: klavye ile gezinme
@@ -3609,20 +4192,23 @@
     // Zamanlayıcılar: pencere gizliyken ya da widget modundayken sağ panel
     // yoklanmaz; her sekme yalnızca görünürken yenilenir.
     setInterval(()=>{ if(!document.hidden) pollNet(); }, 2000);
-    everyVisible(loadFinance, 120000, 'borsa');
-    everyVisible(loadSports, 90000, 'spor');
-    everyVisible(loadStandings, 30*60000, 'spor');
-    everyVisible(()=>{ loadBriefing(); loadPersonalIntelligence(); loadSmartAlerts(); loadWorldPulse(); }, 60000, 'ozet');
-    everyVisible(loadOfficialPublications, 300000, 'ozet');
-    everyVisible(()=>{ loadEventIntelligence(); loadPredictive(); loadEntityIntelligence(); loadEventGraph(); }, 60000, 'analiz');
-    everyVisible(()=>{ loadSourceHealth(); loadContentIntelligence(); }, 120000, 'analiz');
+    loadDataUsage(); setInterval(()=>{ if(!document.hidden) loadDataUsage(); }, 30000);
+    // Yalnızca açık kartlar yenilenir.
+    const ifOpen=(id,fn)=>()=>{ if(cardOpen(id)) fn(); };
+    everyVisible(ifOpen('marketPanel',loadFinance), 120000, 'borsa');
+    everyVisible(ifOpen('sportPanel',loadSports), 90000, 'spor');
+    everyVisible(ifOpen('standingsPanel',loadStandings), 30*60000, 'spor');
+    everyVisible(()=>{ ['followPanel','briefingPanel','personalPanel','smartAlertPanel','worldPanel'].forEach(id=>{ if(cardOpen(id)) CARD_LOADERS[id](); }); }, 60000, 'ozet');
+    everyVisible(ifOpen('officialPanel',loadOfficialPublications), 300000, 'ozet');
+    everyVisible(()=>{ ['intel2Panel','predictPanel','entityPanel','eventGraphPanel'].forEach(id=>{ if(cardOpen(id)) CARD_LOADERS[id](); }); }, 60000, 'analiz');
+    everyVisible(()=>{ ['sourceHealthPanel','contentIntelPanel'].forEach(id=>{ if(cardOpen(id)) CARD_LOADERS[id](); }); }, 120000, 'analiz');
     document.addEventListener("click", e=>{ if(!e.target.isConnected || e.target.closest("#wmenu,[data-wmenu-toggle]")) return; hideWMenu(); });
 
     // Single delegated click handler — URLs travel in data-* (encodeURIComponent)
     // so quotes in links can never break an inline handler.
     document.addEventListener("click", function(e){
       const followEventEl = e.target.closest("[data-follow-event]");
-      if(followEventEl){ toggleFollowEvent(followEventEl.getAttribute("data-follow-event")||""); return; }
+      if(followEventEl){ e.preventDefault(); toggleFollowEvent(followEventEl.getAttribute("data-follow-event")||"", decodeURIComponent(followEventEl.getAttribute("data-follow-link")||"")); return; }
       const followTopicEl = e.target.closest("[data-follow-topic]");
       if(followTopicEl){ toggleFollowTopic(followTopicEl.getAttribute("data-follow-topic")||""); return; }
       const catEl = e.target.closest("[data-cat]");

@@ -181,7 +181,11 @@ fun SavedScreen(nav: NexNav, bottomPad: PaddingValues) {
     var list by remember { mutableStateOf<List<SavedItem>?>(null) }
     val favs by Core.favLinks.collectAsState()
     val scope = rememberCoroutineScope()
-    LaunchedEffect(tab, favs) { list = runCatching { if (tab == 0) Core.favorites() else Core.history() }.getOrDefault(emptyList()) }
+    var follows by remember { mutableStateOf<List<com.eirahoutmoss.nexnews.FollowedEvent>?>(null) }
+    LaunchedEffect(tab, favs) {
+        if (tab == 2) { follows = runCatching { Core.followed() }.getOrDefault(emptyList()); runCatching { Core.followedSeen() } }
+        else list = runCatching { if (tab == 0) Core.favorites() else Core.history() }.getOrDefault(emptyList())
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -200,9 +204,29 @@ fun SavedScreen(nav: NexNav, bottomPad: PaddingValues) {
             TabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.background) {
                 Tab(tab == 0, onClick = { tab = 0 }, text = { Text("Favoriler") })
                 Tab(tab == 1, onClick = { tab = 1 }, text = { Text("Okuma geçmişi") })
+                Tab(tab == 2, onClick = { tab = 2 }, text = { Text("Takip") })
             }
             val l = list
+            val f = follows
             when {
+                tab == 2 && f == null -> Loading()
+                tab == 2 && f.isNullOrEmpty() -> Empty("Takip ettiğin olay yok. Bir olay sayfasında 🔔 simgesine dokun; olay büyüdükçe burada güncellenir ve bildirim alırsın.")
+                tab == 2 -> LazyColumn(contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 16.dp)) {
+                    items(f.orEmpty(), key = { it.item.link + it.added }) { r ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable { if (r.item.link.isNotBlank()) nav.story(r.item.link) }.padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(r.item.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, maxLines = 3)
+                                Text(listOf(if (r.new > 0) "+${r.new} yeni haber" else "", if (!r.live) "akıştan düştü" else "", r.item.category, relTime(r.item.ts)).filter { it.isNotBlank() }.joinToString(" · "),
+                                    style = MaterialTheme.typography.labelSmall, color = if (r.new > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            IconButton(onClick = { scope.launch { Core.unfollow(r.item.link); follows = Core.followed() } }) { Icon(Icons.Filled.Close, "Takibi bırak") }
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    }
+                }
                 l == null -> Loading()
                 l.isEmpty() -> Empty(if (tab == 0) "Favori yok. Bir haberi sağa kaydırarak ekleyebilirsin." else "Okuma geçmişi boş.")
                 else -> LazyColumn(contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 16.dp)) {

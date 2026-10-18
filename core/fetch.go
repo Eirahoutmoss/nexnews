@@ -975,7 +975,7 @@ func (s *Store) storyOut(st *Story) outItem {
 		Lifecycle:          st.Lifecycle,
 		Reason:             eventReason(st),
 		Evidence:           evidenceForStory(st),
-		Followed:           follows != nil && follows.isEvent(st.EventID),
+		Followed:           follows.isStory(st),
 		Image:              st.Image,
 		Syndicated:         func() int { n, _ := syndicatedCount(st); return n }(),
 	}

@@ -71,6 +71,18 @@ type Config struct {
 	QuietTo      string `json:"quietTo"`      // "07:00"
 	RightTab     string `json:"rightTab"`     // remembered right-panel tab
 
+	// v12 (RC83): veri modu
+	DataMode      string `json:"dataMode"`      // tam / sinirli
+	DataLimitKBps int    `json:"dataLimitKBps"` // sınırlı modda en yüksek indirme hızı (KB/s)
+	DataQuotaMB   int    `json:"dataQuotaMB"`   // aylık kota (MB); 0 = yok
+
+	// Canlı TV: favori kanallar ve son izlenen kanal.
+	LiveFavs   []string          `json:"liveFavs"`
+	LiveLast   string            `json:"liveLast"`
+	LiveHidden []string          `json:"liveHidden"` // kullanıcının listeden kaldırdığı kanallar
+	LiveCustom []json.RawMessage `json:"liveCustom"` // kullanıcının elle eklediği kanallar
+	LiveCheck  string            `json:"liveCheck"`  // kanal denetimi: ask / auto / never
+
 	mu   sync.RWMutex `json:"-"`
 	path string       `json:"-"`
 }
@@ -590,6 +602,15 @@ func (c *Config) migrate() bool {
 
 // normalizeV11 clamps the RC81 settings to valid values.
 func (c *Config) normalizeV11() {
+	if c.DataMode != dataModeLimited {
+		c.DataMode = dataModeFull
+	}
+	if c.DataLimitKBps < 32 || c.DataLimitKBps > 100000 {
+		c.DataLimitKBps = defaultLimitKBs
+	}
+	if c.DataQuotaMB < 0 {
+		c.DataQuotaMB = 0
+	}
 	switch c.WidgetMode {
 	case "opak", "cam", "bulanik", "saydam":
 	default:

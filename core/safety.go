@@ -55,35 +55,85 @@ func isPublicIP(ip net.IP) bool {
 	return true
 }
 
-var errPrivateTarget = errors.New("özel/yerel ağ adresine erişim engellendi")
+var (
+	errPrivateTarget = errors.New("özel/yerel ağ adresine erişim engellendi")
+	errDNSFail       = errors.New("alan adı çözülemedi (DNS)")
+	errDNSSinkhole   = errors.New("DNS bu adresi engelliyor (0.0.0.0 / 127.x yanıtı)")
+)
 
-// publicHost resolves host and fails if it is, or resolves to, a non-public
-// address (loopback, LAN, link-local, CGNAT…).
-func publicHost(ctx context.Context, host string) error {
+// resolvePublic resolves host and returns only its globally routable
+// addresses. RC83: eskiden adreslerden biri bile yerel görünse (ör. DNS hem
+// IPv6 ULA hem genel IPv4 döndürdüğünde) ya da ad hiç çözülemese "yerel ağ
+// engellendi" deniyordu; artık genel adres varsa onunla bağlanılır ve hata
+// nedeni ayrı ayrı bildirilir.
+func resolvePublic(ctx context.Context, host string) ([]net.IP, error) {
 	if host == "" {
-		return errPrivateTarget
+		return nil, errPrivateTarget
 	}
 	if ip := net.ParseIP(host); ip != nil {
 		if !isPublicIP(ip) {
-			return errPrivateTarget
+			return nil, errPrivateTarget
 		}
-		return nil
+		return []net.IP{ip}, nil
 	}
 	if strings.EqualFold(host, "localhost") || strings.HasSuffix(strings.ToLower(host), ".local") {
-		return errPrivateTarget
+		return nil, errPrivateTarget
 	}
-	rctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	rctx, cancel := context.WithTimeout(ctx, 6*time.Second)
 	defer cancel()
 	addrs, err := net.DefaultResolver.LookupIPAddr(rctx, host)
-	if err != nil {
-		return err
+	if err != nil || len(addrs) == 0 {
+		return nil, errDNSFail
 	}
+	var pub []net.IP
+	sink := false
 	for _, a := range addrs {
-		if !isPublicIP(a.IP) {
-			return errPrivateTarget
+		if isPublicIP(a.IP) {
+			pub = append(pub, a.IP)
+		} else if a.IP.IsUnspecified() || a.IP.IsLoopback() {
+			sink = true
 		}
 	}
-	return nil
+	if len(pub) == 0 {
+		if sink {
+			return nil, errDNSSinkhole
+		}
+		return nil, errPrivateTarget
+	}
+	return pub, nil
+}
+
+// publicHost fails unless host has at least one public address.
+func publicHost(ctx context.Context, host string) error {
+	_, err := resolvePublic(ctx, host)
+	return err
+}
+
+// publicDialContext connects only to the public addresses of the target, so a
+// DNS answer can never steer the relay into the LAN. The configured HTTP(S)
+// proxy (environment) is the one exception: it may live on the LAN.
+func publicDialContext(ctx context.Context, network, addr string) (net.Conn, error) {
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return nil, err
+	}
+	d := &net.Dialer{Timeout: 10 * time.Second, KeepAlive: 30 * time.Second}
+	if proxyHosts[strings.ToLower(host)] {
+		return d.DialContext(ctx, network, addr)
+	}
+	ips, err := resolvePublic(ctx, host)
+	if err != nil {
+		return nil, err
+	}
+	var last error
+	for _, ip := range ips {
+		c, err := d.DialContext(ctx, network, net.JoinHostPort(ip.String(), port))
+		if err == nil {
+			return c, nil
+		}
+		last = err
+	}
+	return nil, last
 }
 
 func randomToken(n int) string {

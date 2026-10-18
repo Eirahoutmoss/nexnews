@@ -90,7 +90,7 @@ try {
     go test ./core ./mobile
     if ($LASTEXITCODE -ne 0) { Write-Warning 'Go testlerinden biri başarısız oldu; derlemeye devam ediliyor.' }
     New-Item -ItemType Directory -Force -Path (Join-Path $Android 'app\libs') | Out-Null
-    gomobile bind -target=android/arm64,android/arm -androidapi 24 -javapkg=com.eirahoutmoss.nexnews.go -trimpath -ldflags="-s -w" -o (Join-Path $Android 'app\libs\nexcore.aar') ./mobile
+    gomobile bind '-target=android/arm64,android/arm' -androidapi 24 '-javapkg=com.eirahoutmoss.nexnews.go' -trimpath '-ldflags=-s -w' -o (Join-Path $Android 'app\libs\nexcore.aar') ./mobile
     if ($LASTEXITCODE -ne 0) { throw 'gomobile bind başarısız.' }
 } finally { Pop-Location }
 

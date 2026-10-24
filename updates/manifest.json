@@ -1,0 +1,25 @@
+{
+ "seq": 1,
+ "issued": "2026-10-24T06:40:21Z",
+ "files": {
+  "i18n.json": {
+   "sha256": "0cb777363bacd1c4e75a94ce1915b084ed63c6e2d804dfa033120cf2e975e49f",
+   "size": 98207
+  },
+  "livetv.json": {
+   "sha256": "daf883b022e05e80f0fb19a33f52e55e4f1a82c68b50da84015ffc052d0048bd",
+   "size": 118292
+  },
+  "localnews.json": {
+   "sha256": "1afffdf485c95bbd7fce655f917472b6994dbc02dfe4302bb143cd690d28af73",
+   "size": 8017
+  }
+ },
+ "app": {
+  "version": "1.0.0-rc93",
+  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0-rc93/NexNews.exe",
+  "sha256": "6296cffaa23b9d9d5ef3642fe328feb29af7256dd3a2bfca9e8f33f6f6801a6d",
+  "size": 10438656,
+  "notes": "Sakin görünüm, kör nokta göstergesi, arayüz dili (EN/AR), yerel ülke haberleri, kendi kanal listelerin, saydam widget ve imzalı otomatik güncelleme."
+ }
+}

@@ -59,6 +59,7 @@ func MobileInit(dataDir, lang string) error {
 	applyDataMode(cfg.DataMode, cfg.DataLimitKBps)
 	startUsageLedger(nil)
 	liveHealthDB.load()
+	startUpdateLoop(nil) // imzalı liste güncellemeleri (uygulama güncellemesi Play/APK ile)
 	return nil
 }
 

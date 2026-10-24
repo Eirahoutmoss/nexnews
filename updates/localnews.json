@@ -1,0 +1,535 @@
+{
+ "sites": {
+  "AE": [
+   "thenationalnews.com",
+   "gulfnews.com",
+   "khaleejtimes.com",
+   "wam.ae",
+   "alkhaleej.ae",
+   "albayan.ae"
+  ],
+  "AF": [
+   "tolonews.com",
+   "pajhwok.com"
+  ],
+  "AL": [
+   "top-channel.tv",
+   "euronews.al"
+  ],
+  "AM": [
+   "armenpress.am",
+   "news.am"
+  ],
+  "AR": [
+   "clarin.com",
+   "lanacion.com.ar",
+   "infobae.com"
+  ],
+  "AT": [
+   "orf.at",
+   "derstandard.at",
+   "diepresse.com"
+  ],
+  "AU": [
+   "abc.net.au",
+   "smh.com.au",
+   "theguardian.com/au"
+  ],
+  "AZ": [
+   "apa.az",
+   "report.az",
+   "azertag.az",
+   "trend.az"
+  ],
+  "BA": [
+   "klix.ba",
+   "aa.com.tr/ba"
+  ],
+  "BD": [
+   "thedailystar.net",
+   "bdnews24.com",
+   "prothomalo.com"
+  ],
+  "BE": [
+   "vrt.be",
+   "lesoir.be",
+   "rtbf.be",
+   "brusselstimes.com"
+  ],
+  "BG": [
+   "novinite.com",
+   "bta.bg"
+  ],
+  "BH": [
+   "gdnonline.com",
+   "bna.bh",
+   "alayam.com"
+  ],
+  "BR": [
+   "g1.globo.com",
+   "folha.uol.com.br",
+   "agenciabrasil.ebc.com.br"
+  ],
+  "CA": [
+   "cbc.ca",
+   "globalnews.ca",
+   "theglobeandmail.com"
+  ],
+  "CH": [
+   "srf.ch",
+   "nzz.ch",
+   "swissinfo.ch",
+   "rts.ch"
+  ],
+  "CL": [
+   "latercera.com",
+   "biobiochile.cl",
+   "emol.com"
+  ],
+  "CN": [
+   "xinhuanet.com",
+   "chinadaily.com.cn",
+   "scmp.com"
+  ],
+  "CO": [
+   "eltiempo.com",
+   "elespectador.com",
+   "semana.com"
+  ],
+  "CY": [
+   "cyprus-mail.com",
+   "philenews.com"
+  ],
+  "CZ": [
+   "ct24.ceskatelevize.cz",
+   "idnes.cz",
+   "novinky.cz"
+  ],
+  "DE": [
+   "tagesschau.de",
+   "spiegel.de",
+   "zeit.de",
+   "faz.net",
+   "sueddeutsche.de"
+  ],
+  "DK": [
+   "dr.dk",
+   "politiken.dk"
+  ],
+  "DZ": [
+   "aps.dz",
+   "tsa-algerie.com",
+   "echoroukonline.com"
+  ],
+  "EG": [
+   "ahram.org.eg",
+   "egyptindependent.com",
+   "youm7.com",
+   "masrawy.com",
+   "dailynewsegypt.com"
+  ],
+  "ES": [
+   "elpais.com",
+   "rtve.es",
+   "elmundo.es",
+   "lavanguardia.com"
+  ],
+  "ET": [
+   "addisstandard.com",
+   "fanabc.com"
+  ],
+  "FI": [
+   "yle.fi",
+   "hs.fi"
+  ],
+  "FR": [
+   "lemonde.fr",
+   "francetvinfo.fr",
+   "lefigaro.fr",
+   "liberation.fr"
+  ],
+  "GB": [
+   "bbc.co.uk",
+   "theguardian.com",
+   "independent.co.uk",
+   "news.sky.com"
+  ],
+  "GE": [
+   "civil.ge",
+   "agenda.ge",
+   "interpressnews.ge"
+  ],
+  "GH": [
+   "myjoyonline.com",
+   "graphic.com.gh",
+   "citinewsroom.com"
+  ],
+  "GR": [
+   "ekathimerini.com",
+   "ertnews.gr",
+   "naftemporiki.gr"
+  ],
+  "HK": [
+   "scmp.com",
+   "hongkongfp.com"
+  ],
+  "HU": [
+   "telex.hu",
+   "hvg.hu",
+   "index.hu"
+  ],
+  "ID": [
+   "antaranews.com",
+   "kompas.com",
+   "thejakartapost.com"
+  ],
+  "IE": [
+   "rte.ie",
+   "irishtimes.com",
+   "independent.ie"
+  ],
+  "IL": [
+   "timesofisrael.com",
+   "haaretz.com",
+   "jpost.com",
+   "ynetnews.com"
+  ],
+  "IN": [
+   "thehindu.com",
+   "indianexpress.com",
+   "ndtv.com"
+  ],
+  "IQ": [
+   "ina.iq",
+   "rudaw.net",
+   "shafaq.com",
+   "kurdistan24.net"
+  ],
+  "IR": [
+   "tehrantimes.com",
+   "irna.ir",
+   "isna.ir"
+  ],
+  "IT": [
+   "ansa.it",
+   "repubblica.it",
+   "corriere.it",
+   "rainews.it"
+  ],
+  "JO": [
+   "jordantimes.com",
+   "petra.gov.jo",
+   "alghad.com",
+   "ammonnews.net"
+  ],
+  "JP": [
+   "nhk.or.jp",
+   "japantimes.co.jp",
+   "asahi.com",
+   "kyodonews.net"
+  ],
+  "KE": [
+   "nation.africa",
+   "standardmedia.co.ke",
+   "the-star.co.ke"
+  ],
+  "KG": [
+   "24.kg",
+   "kabar.kg"
+  ],
+  "KR": [
+   "yna.co.kr",
+   "koreaherald.com",
+   "koreatimes.co.kr"
+  ],
+  "KW": [
+   "kuwaittimes.com",
+   "kuna.net.kw",
+   "alqabas.com",
+   "alraimedia.com"
+  ],
+  "KZ": [
+   "inform.kz",
+   "tengrinews.kz",
+   "astanatimes.com"
+  ],
+  "LB": [
+   "naharnet.com",
+   "lorientlejour.com",
+   "annahar.com",
+   "nna-leb.gov.lb"
+  ],
+  "LY": [
+   "libyaobserver.ly",
+   "libyaherald.com"
+  ],
+  "MA": [
+   "hespress.com",
+   "le360.ma",
+   "mapexpress.ma",
+   "moroccoworldnews.com"
+  ],
+  "MK": [
+   "mia.mk",
+   "slobodenpecat.mk"
+  ],
+  "MX": [
+   "eluniversal.com.mx",
+   "milenio.com",
+   "jornada.com.mx"
+  ],
+  "MY": [
+   "thestar.com.my",
+   "malaymail.com",
+   "bernama.com"
+  ],
+  "NG": [
+   "punchng.com",
+   "premiumtimesng.com",
+   "vanguardngr.com",
+   "channelstv.com"
+  ],
+  "NL": [
+   "nos.nl",
+   "nu.nl",
+   "volkskrant.nl"
+  ],
+  "NO": [
+   "nrk.no",
+   "vg.no",
+   "aftenposten.no"
+  ],
+  "NZ": [
+   "rnz.co.nz",
+   "stuff.co.nz",
+   "nzherald.co.nz"
+  ],
+  "OM": [
+   "timesofoman.com",
+   "omanobserver.om",
+   "alwatan.com"
+  ],
+  "PE": [
+   "elcomercio.pe",
+   "larepublica.pe",
+   "andina.pe"
+  ],
+  "PH": [
+   "rappler.com",
+   "inquirer.net",
+   "philstar.com"
+  ],
+  "PK": [
+   "dawn.com",
+   "geo.tv",
+   "tribune.com.pk"
+  ],
+  "PL": [
+   "tvn24.pl",
+   "rp.pl",
+   "notesfrompoland.com"
+  ],
+  "PS": [
+   "wafa.ps",
+   "maannews.net"
+  ],
+  "PT": [
+   "publico.pt",
+   "rtp.pt",
+   "observador.pt"
+  ],
+  "QA": [
+   "aljazeera.net",
+   "gulf-times.com",
+   "thepeninsulaqatar.com",
+   "qna.org.qa",
+   "alsharq.com",
+   "al-watan.com",
+   "raya.com"
+  ],
+  "RO": [
+   "digi24.ro",
+   "hotnews.ro",
+   "agerpres.ro"
+  ],
+  "RS": [
+   "rts.rs",
+   "b92.net"
+  ],
+  "RU": [
+   "tass.com",
+   "rbc.ru",
+   "interfax.ru"
+  ],
+  "SA": [
+   "arabnews.com",
+   "saudigazette.com.sa",
+   "spa.gov.sa",
+   "okaz.com.sa",
+   "alriyadh.com",
+   "aawsat.com"
+  ],
+  "SD": [
+   "sudantribune.com",
+   "dabangasudan.org"
+  ],
+  "SE": [
+   "svt.se",
+   "dn.se",
+   "aftonbladet.se"
+  ],
+  "SG": [
+   "channelnewsasia.com",
+   "straitstimes.com"
+  ],
+  "SN": [
+   "aps.sn",
+   "seneweb.com"
+  ],
+  "SO": [
+   "hiiraan.com",
+   "garoweonline.com"
+  ],
+  "SY": [
+   "enabbaladi.net",
+   "sana.sy"
+  ],
+  "TH": [
+   "bangkokpost.com",
+   "thaipbsworld.com",
+   "nationthailand.com"
+  ],
+  "TM": [
+   "turkmenportal.com"
+  ],
+  "TN": [
+   "tap.info.tn",
+   "businessnews.com.tn",
+   "kapitalis.com"
+  ],
+  "TW": [
+   "focustaiwan.tw",
+   "taipeitimes.com"
+  ],
+  "UA": [
+   "ukrinform.net",
+   "kyivindependent.com",
+   "pravda.com.ua"
+  ],
+  "US": [
+   "apnews.com",
+   "npr.org",
+   "nytimes.com",
+   "cnn.com"
+  ],
+  "UZ": [
+   "kun.uz",
+   "gazeta.uz",
+   "uza.uz"
+  ],
+  "VE": [
+   "efectococuyo.com",
+   "elnacional.com"
+  ],
+  "VN": [
+   "vnexpress.net",
+   "tuoitre.vn",
+   "vietnamnews.vn"
+  ],
+  "ZA": [
+   "news24.com",
+   "iol.co.za",
+   "dailymaverick.co.za",
+   "sabcnews.com"
+  ]
+ },
+ "names": {
+  "AE": "BAE",
+  "AF": "Afganistan",
+  "AL": "Arnavutluk",
+  "AM": "Ermenistan",
+  "AR": "Arjantin",
+  "AT": "Avusturya",
+  "AU": "Avustralya",
+  "AZ": "Azerbaycan",
+  "BA": "Bosna-Hersek",
+  "BD": "Bangladeş",
+  "BE": "Belçika",
+  "BG": "Bulgaristan",
+  "BH": "Bahreyn",
+  "BR": "Brezilya",
+  "CA": "Kanada",
+  "CH": "İsviçre",
+  "CL": "Şili",
+  "CN": "Çin",
+  "CO": "Kolombiya",
+  "CY": "Kıbrıs",
+  "CZ": "Çekya",
+  "DE": "Almanya",
+  "DK": "Danimarka",
+  "DZ": "Cezayir",
+  "EG": "Mısır",
+  "ES": "İspanya",
+  "ET": "Etiyopya",
+  "FI": "Finlandiya",
+  "FR": "Fransa",
+  "GB": "Birleşik Krallık",
+  "GE": "Gürcistan",
+  "GH": "Gana",
+  "GR": "Yunanistan",
+  "HK": "Hong Kong",
+  "HU": "Macaristan",
+  "ID": "Endonezya",
+  "IE": "İrlanda",
+  "IL": "İsrail",
+  "IN": "Hindistan",
+  "IQ": "Irak",
+  "IR": "İran",
+  "IT": "İtalya",
+  "JO": "Ürdün",
+  "JP": "Japonya",
+  "KE": "Kenya",
+  "KG": "Kırgızistan",
+  "KR": "Güney Kore",
+  "KW": "Kuveyt",
+  "KZ": "Kazakistan",
+  "LB": "Lübnan",
+  "LY": "Libya",
+  "MA": "Fas",
+  "MK": "K. Makedonya",
+  "MX": "Meksika",
+  "MY": "Malezya",
+  "NG": "Nijerya",
+  "NL": "Hollanda",
+  "NO": "Norveç",
+  "NZ": "Yeni Zelanda",
+  "OM": "Umman",
+  "PE": "Peru",
+  "PH": "Filipinler",
+  "PK": "Pakistan",
+  "PL": "Polonya",
+  "PS": "Filistin",
+  "PT": "Portekiz",
+  "QA": "Katar",
+  "RO": "Romanya",
+  "RS": "Sırbistan",
+  "RU": "Rusya",
+  "SA": "Suudi Arabistan",
+  "SD": "Sudan",
+  "SE": "İsveç",
+  "SG": "Singapur",
+  "SN": "Senegal",
+  "SO": "Somali",
+  "SY": "Suriye",
+  "TH": "Tayland",
+  "TM": "Türkmenistan",
+  "TN": "Tunus",
+  "TW": "Tayvan",
+  "UA": "Ukrayna",
+  "US": "ABD",
+  "UZ": "Özbekistan",
+  "VE": "Venezuela",
+  "VN": "Vietnam",
+  "ZA": "Güney Afrika"
+ }
+}

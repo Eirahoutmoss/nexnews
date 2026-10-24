@@ -4,6 +4,40 @@ Dünyanın nabzı, tek akışta. Dil ve kaynak bağımsız RSS/Atom haber toplay
 aynı olayı farklı kaynaklardan tek habere toplar, ajans metinlerini ayırt eder,
 önem sırasına dizer ve "kim nasıl başlık attı?" karşılaştırması sunar.
 
+## RC86–RC93 (masaüstü 1.0.0-rc93)
+
+- **Sakin görünüm (varsayılan):** ana sayfa günün en önemli 7 olayını ve sonu belli bir
+  "Bugünlük bu kadar" kartını gösterir; "Tam akış" tek tıkla açılır. Amaç: haber yorgunluğu
+  yaratmadan bilgilendirmek.
+- **Kör nokta göstergesi:** her olay panelinde hangi bölgelerin kaynaklarının olayı haber
+  yaptığı, hangilerinin (son 48 saatte başka haber yayımladığı hâlde) sessiz kaldığı.
+- **Arayüz dili:** sistem diline göre otomatik — Türkçe, English, العربية (sözlüğü olmayan
+  diller İngilizce). Ayarlar › Görünüm › Arayüz dili. Haber başlıkları çevrilmez.
+- **Yerel haberler:** sistemin ülkesine göre o ülkenin başlıca haber sitelerinden otomatik
+  "📍 <Ülke>" kategorisi (90+ ülke, RSS adresleri otomatik keşifle bulunur).
+- **Canlı TV:** 371 kanal (Katar, Körfez, Balkanlar, Latin Amerika… yeni haber kanalları);
+  "📋 Listelerim" ile açık kaynak M3U listeleri adresle/dosyadan eklenir, yalnızca kullanıcı
+  istediğinde güncellenir, silinebilir; hazır liste tamamen gizlenebilir. Uzun izlemede ses
+  boğuklaşması (ABR'nin en düşük kata inmesi) giderildi.
+- **Widget:** opak / cam / bulanık / saydam modlar gerçekten farklı; saydam modda masaüstü
+  görünür (pencere `WS_EX_NOREDIRECTIONBITMAP` ile açılır — `third_party/go-webview2` yaması).
+- **Uzaktan güncelleme:** kanal, çeviri ve ülke listeleri ile yeni sürüm duyurusu `updates/`
+  klasöründen gelir. `manifest.json` **Ed25519** ile imzalıdır; uygulama gömülü açık anahtarla
+  doğrulamadığı hiçbir dosyayı ya da exe'yi kabul etmez. Yeni sürüm "⬆ Yeni sürüm" düğmesiyle
+  indirilir, SHA-256 özeti tutarsa kurulup yeniden başlatılır.
+
+### Güncelleme yayınlama (Actions gerekmez)
+
+```powershell
+# 1) exe'yi derle
+.\build.ps1
+# 2) listeleri ve (varsa) yeni exe'yi imzala — gizli anahtar depoda DEĞİL, imza\ klasöründe
+go run ./cmd/nexsign -key ..\imza\nexnews-guncelleme.key -app dist\NexNews.exe -version 1.0.0-rc94 -notes "Değişiklikler"
+# 3) updates\ klasörünü main'e gönder (commit mesajına [skip ci] ekle), exe'yi
+#    v1.0.0-rc94 etiketli GitHub sürümüne NexNews.exe adıyla yükle
+```
+Yalnızca liste güncellemek için `-app` vermeden çalıştırmak yeter (önceki sürüm bilgisi korunur).
+
 ## RC85 (masaüstü 1.0.0-rc85 · Android 0.2.0)
 
 - Masaüstündeki RC83–RC84 çalışmaları (canlı TV kararlılığı, veri modu, olay
@@ -30,6 +64,9 @@ aynı olayı farklı kaynaklardan tek habere toplar, ajans metinlerini ayırt ed
 | Klasör | İçerik |
 |---|---|
 | `core/` | Ortak Go çekirdeği: feed çekme, gruplama, sıralama, çeviri, depolama. Masaüstü ve Android aynı kodu kullanır. |
+| `cmd/nexsign/` | Uzaktan güncelleme paketini (`updates/`) üretip Ed25519 ile imzalayan araç. |
+| `updates/` | İmzalı uzaktan güncellemeler: `manifest.json(.sig)`, kanal/çeviri/ülke listeleri. |
+| `third_party/go-webview2/` | Saydam pencere için küçük yamalı WebView2 kütüphanesi. |
 | `cmd/nexnews/` | Windows masaüstü uygulaması (Go + WebView2, tek `.exe`). Arayüz: `core/assets/index.html`. |
 | `mobile/` | Android için gomobile köprüsü (`nexcore` paketi, JSON alışverişi). |
 | `android/` | Android uygulaması (Kotlin + Jetpack Compose). |

@@ -35,7 +35,7 @@ func pageHTML() string {
 	h = strings.ReplaceAll(h, "__NEXBG__", "data:image/jpeg;base64,"+strings.TrimSpace(bgB64))
 	h = strings.ReplaceAll(h, "__NEXRELAYTOKEN__", liveRelayToken)
 	h = strings.ReplaceAll(h, "__NEXLIVETV__", string(liveTVJSON()))
-	h = strings.ReplaceAll(h, "__NEXI18N__", string(i18nJSON))
+	h = strings.ReplaceAll(h, "__NEXI18N__", string(i18nSource()))
 	return h
 }
 
@@ -59,6 +59,7 @@ const (
 // RunDesktop starts the Windows desktop application (WebView2 window).
 func RunDesktop() {
 	startLiveRelay()
+	cleanupOldExe()
 	cfg = loadConfig()
 	applyDataMode(cfg.DataMode, cfg.DataLimitKBps)
 	startUsageLedger(onDataQuota)
@@ -110,6 +111,8 @@ func RunDesktop() {
 		pushData()
 		translatePass()
 		startAutoRefresh()
+		// RC93: imzalı uzaktan güncelleme (listeler + yeni sürüm duyurusu).
+		startUpdateLoop(func(s updStatus) { pushJS("nnOnUpdate", []byte(updStatusJSON())) })
 		// Kullanıcının ülkesine göre "📍 Yerel" kategorisi (ilk açılışta / ülke değişince).
 		if ensureLocalCategory(context.Background()) {
 			store.Refresh(context.Background())
@@ -511,6 +514,51 @@ func bindAll() {
 		return "started", nil
 	}))
 	must(ui.Bind("nnGetLiveState", func() (string, error) { return liveStateJSON(), nil }))
+	// RC93: güncellemeler
+	must(ui.Bind("nnUpdateStatus", func() (string, error) { return updStatusJSON(), nil }))
+	must(ui.Bind("nnSetHomeView", func(v string) (string, error) {
+		if v != "tam" {
+			v = "sakin"
+		}
+		cfg.mu.Lock()
+		cfg.HomeView = v
+		cfg.mu.Unlock()
+		return "ok", cfg.save()
+	}))
+	must(ui.Bind("nnCheckUpdates", func(ticket string) (string, error) {
+		go func() {
+			checkUpdates(context.Background())
+			asyncReply(ticket, updStatusJSON(), nil)
+		}()
+		return "started", nil
+	}))
+	// Yeni listeleri hemen uygulamak için sayfayı yeniden kur.
+	must(ui.Bind("nnReloadPage", func() (string, error) {
+		ui.Dispatch(func() { ui.SetHtml(pageHTML()) })
+		return "ok", nil
+	}))
+	must(ui.Bind("nnAppUpdate", func(ticket string) (string, error) {
+		go func() {
+			exe, err := installAppUpdate(context.Background())
+			if err != nil {
+				updMu.Lock()
+				v := ""
+				if updState.App != nil {
+					v = updState.App.Version
+				}
+				updMu.Unlock()
+				asyncReply(ticket, releasePageURL(v), err)
+				return
+			}
+			asyncReply(ticket, "ok", nil)
+			time.Sleep(1200 * time.Millisecond)
+			if err := restartInto(exe); err == nil {
+				usage.flush()
+				os.Exit(0)
+			}
+		}()
+		return "started", nil
+	}))
 	// RC87: kullanıcının kendi kanal listeleri (yalnızca istenince güncellenir).
 	must(ui.Bind("nnLiveLists", func() (string, error) { return liveListsJSON(), nil }))
 	must(ui.Bind("nnLiveListAdd", func(ticket, name, url, text string) (string, error) {

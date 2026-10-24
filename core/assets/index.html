@@ -1056,6 +1056,26 @@
   .ll-or{font-size:12px;color:var(--txt-dim);display:flex;align-items:center;gap:8px}
   .ll-builtin{flex-direction:row!important;align-items:center;gap:8px!important;font-size:13px!important;color:var(--txt)!important}
   .ll-list{max-height:220px;overflow:auto}
+  .coverage{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--inset)}
+  .cov-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .cov-chip{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line2)}
+  .cov-chip.on{border-color:var(--accent);color:var(--accent);cursor:pointer}
+  .cov-chip.on small{opacity:.75;margin-left:2px}
+  .cov-chip.off{color:var(--txt-faint);border-style:dashed}
+  .cov-note{font-size:11.5px;color:var(--txt-faint);margin-top:7px}
+  .about-upd{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:14px 0 4px}
+  .view-toggle{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--inset);border:1px solid var(--line);margin:0 0 12px}
+  .view-toggle button{font:inherit;font-size:12.5px;border:0;background:transparent;color:var(--txt-dim);padding:5px 14px;border-radius:999px;cursor:pointer}
+  .view-toggle button.active{background:var(--accent);color:#fff;font-weight:700}
+  .calm-sub{font-size:12px;color:var(--txt-faint);margin:-4px 16px 8px}
+  .calm-cats{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0 14px}
+  .calm-cat{font-size:12.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--line2);color:var(--txt-dim);cursor:pointer}
+  .calm-cat:hover{border-color:var(--accent);color:var(--accent)}
+  .calm-cat span{color:var(--accent);font-weight:700;margin-left:3px}
+  .upd-btn{border-color:var(--accent)!important;color:var(--accent)!important;font-weight:700}
+  .upd-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:9000;display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--panel-solid,#16202f);border:1px solid var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:13px}
+  .upd-notes{white-space:pre-wrap;font-size:13px;background:var(--inset);border-radius:8px;padding:8px 10px}
+  body.widget .upd-toast{display:none}
   .la-note{font-size:11px;color:var(--txt-faint)}
   .la-status{font-size:12px;color:var(--accent);min-height:16px}
   .follow-card-head{display:flex;align-items:center;gap:8px}
@@ -1086,6 +1106,7 @@
     <button class="data-mode-btn" id="dataModeBtn" type="button" onclick="toggleDataPanel(event)" title="Veri akışı ve kullanım">⚡ Tam veri</button>
     <span class="pulse-chip hide" id="pulseChip"></span>
     <span class="updated" id="updated"></span>
+    <button class="btn upd-btn hide" id="updBtn" onclick="openAppUpdate()" title="NexNews'in yeni sürümü hazır">⬆ Yeni sürüm</button>
     <button class="btn" id="refreshBtn" onclick="doRefresh()" title="Yenile (F5)">
       <svg class="icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
       <svg class="icon lbl-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
@@ -1698,7 +1719,13 @@
 
     renderPulseChip(data);
     updateNavCounts(data);
-    let html = breakingBandHTML(data.breaking) + forYouHTML(data.forYou) + importantHTML(data.important) + discoverHTML(data) + '<div class="grid">';
+    if(homeView()==='sakin'){
+      el.innerHTML = calmHTML(data);
+      if(KBD_IDX>=0) KBD_IDX=-1;
+      translateDOM();
+      return;
+    }
+    let html = viewToggleHTML() + breakingBandHTML(data.breaking) + forYouHTML(data.forYou) + importantHTML(data.important) + discoverHTML(data) + '<div class="grid">';
     const personalized = !!String(data.countryCode||'').trim();
     for(const c of data.categories){
       if(personalized && Number(c.total||0)===0) continue;
@@ -1786,6 +1813,59 @@
     return '<section class="important discover-win"><div class="imp-head">'+SEC_IC.compass+' Farklı bir pencere</div>'
       + (data.discoverReason?'<div class="discover-reason">'+esc(data.discoverReason)+'</div>':'')
       + '<div class="imp-list">'+itemHTML(data.discover,{thumbs:true})+'</div></section>';
+  }
+  // ---- RC93: kör nokta göstergesi ----
+  function coverageHTML(cv){
+    if(!cv) return '';
+    const cov=cv.covered||[], sil=cv.silent||[];
+    let h='<div class="coverage"><div class="evidence-head"><span>KİM HABER YAPTI, KİM SUSTU?</span><span>'+cov.length+'/'+(cov.length+sil.length)+' bölge</span></div><div class="cov-row">';
+    h+=cov.map(c=>'<a class="cov-chip on" data-url="'+encodeURIComponent(c.link||'')+'" data-act="open" title="'+esc(c.title||'')+'">✓ '+esc(c.region)+' <small>'+Number(c.sources||0)+'</small></a>').join('');
+    h+=sil.map(r=>'<span class="cov-chip off" title="Bu bölgenin kaynakları son 48 saatte başka haberler yayımladı ama bu olaya değinmedi">○ '+esc(r)+'</span>').join('');
+    h+='</div>';
+    if(sil.length) h+='<div class="cov-note">Sessiz kalan bölgeler bir kör nokta olabilir: olayın oradaki yankısını merak ediyorsan o bölgenin kaynaklarına göz at.</div>';
+    return h+'</div>';
+  }
+  // ---- RC93: sakin görünüm ----
+  // Sonsuz akış yerine günün birkaç önemli olayı ve açık bir "bugünlük bu
+  // kadar". Haber yorgunluğu (news fatigue) ve kaygı döngüsü, NexNews'in
+  // "yormadan bilgilendirme" amacıyla çelişir; tam akış tek tıkla açılır.
+  const CALM_MAX=7;
+  function homeView(){ return (CONFIG&&CONFIG.homeView)==='tam'?'tam':'sakin'; }
+  function setHomeView(v){
+    CONFIG=CONFIG||{}; CONFIG.homeView=v;
+    try{ window.nnSetHomeView(v); }catch(e){}
+    loadOverview(); window.scrollTo(0,0);
+  }
+  function viewToggleHTML(){
+    const v=homeView();
+    return '<div class="view-toggle" role="tablist"><button class="'+(v==='sakin'?'active':'')+'" onclick="setHomeView(\'sakin\')" title="Günün önemli olayları, sonu belli kısa bir özet">🌿 Sakin</button>'
+      + '<button class="'+(v==='tam'?'active':'')+'" onclick="setHomeView(\'tam\')" title="Tüm kategoriler ve başlıklar">Tam akış</button></div>';
+  }
+  function calmPicks(data){
+    const seen=new Set(), out=[];
+    const push=it=>{ if(!it||!it.link||seen.has(it.link)) return; seen.add(it.link); out.push(it); };
+    (data.important||[]).forEach(push);
+    if(out.length<CALM_MAX){
+      const rest=[]; (data.categories||[]).forEach(c=>(c.items||[]).forEach(it=>rest.push(it)));
+      rest.sort((a,b)=>(Number(b.score||0)-Number(a.score||0))||((b.ts||0)-(a.ts||0)));
+      rest.forEach(push);
+    }
+    return out.slice(0,CALM_MAX);
+  }
+  function calmHTML(data){
+    const picks=calmPicks(data);
+    const brk=(data.breaking||[]).slice(0,1);
+    let h=viewToggleHTML()+breakingBandHTML(brk);
+    h+='<section class="important calm-list"><div class="imp-head">🌿 Bugün bilmen gerekenler</div>'
+      +'<div class="calm-sub">Önem, bağımsız kaynak sayısı ve güncelliğe göre seçilen '+picks.length+' olay</div>'
+      +'<div class="imp-list">'+(picks.length?picks.map(it=>itemHTML(it)).join(''):'<div class="empty">Başlıklar yükleniyor…</div>')+'</div></section>';
+    if(data.discover) h+=discoverHTML(data);
+    const cats=(data.categories||[]).filter(c=>Number(c.total||0)>0);
+    h+='<section class="closing-card calm-close">'+SEC_IC.check+'<h3>Bugünlük bu kadar</h3>'
+      +'<p>Dünyada önemli bir şey olursa burada ve bildirimlerde görürsün. Merak ettiğin bir konu varsa:</p>'
+      +'<div class="calm-cats">'+cats.map(c=>'<a class="calm-cat" data-cat="'+encodeURIComponent(c.name)+'">'+esc(c.name)+(Number(c.unread||0)?' <span>'+Number(c.unread)+'</span>':'')+'</a>').join('')+'</div>'
+      +'<button class="btn" onclick="setHomeView(\'tam\')">Tüm akışı göster</button></section>';
+    return h;
   }
   function closingHTML(data){
     const unread = Number(data.totalUnread||0);
@@ -1918,12 +1998,13 @@
       h += '<div class="rel rel-'+(e.relLevel||'')+'">'+dot+' '+esc(e.relText)
          + (e.firstTs ? ' · İlk görülme: '+clockTime(e.firstTs) : '') + '</div>';
     }
-    if(e.sources && e.sources.length) h += '<div class="event-sources">Kaynaklar: '+e.sources.map(esc).join(" · ")+'</div>';
+    if(e.sources && e.sources.length) h += '<div class="event-sources"><span>Kaynaklar:</span> '+e.sources.map(esc).join(" · ")+'</div>';
     if(e.evidence){
       h += '<div class="evidence"><div class="evidence-head"><span>KANIT / KAYNAK YAPISI</span><span>'+Number(e.evidence.agreement||0)+'/100 mutabakat</span></div><div class="evidence-summary">'+esc(e.evidence.summary||'')+'</div><div class="evidence-src">';
       (e.evidence.sources||[]).forEach(s=>{ h += '<span class="evidence-chip '+(s.primary?'primary':'')+'">'+(s.primary?'✓ ':'')+esc(s.name||s.domain||'Kaynak')+'</span>'; });
       h += '</div></div>';
     }
+    h += coverageHTML(e.coverage);
     if(e.reason) h += '<div class="event-summary"><b>Neden önemli?</b><br>'+esc(e.reason)+'</div>';
     if(e.summary) h += '<div class="event-summary">'+esc(e.summary)+'</div>';
     h += framingHTML(e);
@@ -1952,6 +2033,49 @@
     if(!t){ t=document.createElement('div'); t.id='nnToast'; t.className='nn-toast'; t.setAttribute('role','status'); document.body.appendChild(t); }
     t.textContent=msg; t.classList.add('show');
     clearTimeout(nnToast._h); nnToast._h=setTimeout(()=>t.classList.remove('show'),2600);
+  }
+  // ---- RC93: uzaktan güncelleme ----
+  let UPD=null;
+  window.nnOnUpdate=function(s){
+    try{ UPD=typeof s==='string'?JSON.parse(s):s; }catch(e){ return; }
+    const b=document.getElementById('updBtn'); if(b) b.classList.toggle('hide',!UPD.app);
+    if(UPD.changed && !window._updToastShown){ window._updToastShown=true; showUpdToast(); }
+  };
+  function showUpdToast(){
+    let t=document.getElementById('updToast');
+    if(!t){ t=document.createElement('div'); t.id='updToast'; t.className='upd-toast'; document.body.appendChild(t); }
+    t.innerHTML='<span>Kanal ve çeviri listeleri güncellendi.</span><button class="mini" onclick="window.nnReloadPage()">Şimdi uygula</button><button class="mini" onclick="this.parentNode.remove()">Sonra</button>';
+  }
+  function openAppUpdate(){
+    if(!UPD||!UPD.app) return;
+    const a=UPD.app, mb=(a.size/1048576).toFixed(1);
+    const m=document.createElement('div'); m.className='modal-overlay open'; m.id='updModal';
+    m.onclick=e=>{ if(e.target===m) m.remove(); };
+    m.innerHTML='<div class="modal live-add"><div class="modal-head"><h2>⬆ Yeni sürüm: '+esc(a.version)+'</h2><button class="btn" onclick="document.getElementById(\'updModal\').remove()">Kapat</button></div><div class="live-ask-body">'
+      +'<p>Kurulu sürüm: <b>'+esc(UPD.appCurrent||'')+'</b> · indirme: '+mb+' MB</p>'
+      +(a.notes?'<p class="upd-notes">'+esc(a.notes)+'</p>':'')
+      +'<p class="la-note">Dosya GitHub sürüm sayfasından indirilir; imzalı güncelleme listesindeki özetle birebir tutmazsa kurulmaz. Ayarların, kanalların ve favorilerin korunur.</p>'
+      +'<div id="updStatus" class="la-status"></div></div>'
+      +'<div class="modal-foot"><button class="btn" onclick="try{window.nnOpen(\'https://github.com/Eirahoutmoss/nexnews/releases\')}catch(e){}">Sürüm sayfası</button><button class="btn primary" id="updGo" onclick="runAppUpdate()">Güncelle ve yeniden başlat</button></div></div>';
+    document.body.appendChild(m);
+  }
+  async function runAppUpdate(){
+    const st=document.getElementById('updStatus'), b=document.getElementById('updGo');
+    b.disabled=true; st.textContent='İndiriliyor ve doğrulanıyor…';
+    try{ await nnAsync('nnAppUpdate'); st.textContent='Kuruldu, yeniden başlatılıyor…'; }
+    catch(e){ st.textContent=String(e&&e.message||e)+' — Sürüm sayfasından elle indirebilirsin.'; b.disabled=false; }
+  }
+  async function checkUpdatesNow(btn){
+    if(btn){ btn.disabled=true; }
+    try{ const s=JSON.parse(await nnAsync('nnCheckUpdates')); window.nnOnUpdate(s); paintUpdInfo(s);
+      nnToast(s.err?('Güncelleme denetlenemedi: '+s.err):(s.app?('Yeni sürüm var: '+s.app.version):'Her şey güncel')); }
+    catch(e){ nnToast('Güncelleme denetlenemedi'); }
+    if(btn) btn.disabled=false;
+  }
+  function paintUpdInfo(s){
+    const el=document.getElementById('updInfo'); if(!el||!s) return;
+    const t=s.checked?new Date(s.checked*1000).toLocaleString(uiLocale()):'—';
+    el.textContent='Liste sürümü: '+(s.seq||'yerleşik')+' · son denetim: '+t+(s.err?(' · '+s.err):'');
   }
   async function toggleFollowEvent(id, link){
     if(!id && !link) return;
@@ -3522,7 +3646,12 @@
       +   aboutRow('Platformlar', 'Windows masaüstü (Go + WebView2, tek .exe) · Android (Kotlin + ortak Go çekirdeği)')
       +   aboutRow('Haber motoru', 'Çok kaynaklı olay gruplama, Türkçe ek farkındalığı, diller arası birleştirme, ajans (AA, DHA, Reuters, AFP…) ayrımı, "Kim nasıl başlık attı?"')
       +   aboutRow('Olay takibi', 'Takip edilen olaylar başlık değişse de izlenir; yeni gelişmede bildirim')
-      +   aboutRow('Canlı TV', LIVE_TV_CHANNELS.length+' kanal · 10 bölge · kategoriler, favoriler, kendi kanalını ekleme; yalnızca yayıncı ve lisanslı ücretsiz platform yayınları')
+      +   aboutRow('Görünüm', 'Sakin görünüm (günün önemli olayları ve “bugünlük bu kadar”) ya da tam akış; tek tıkla geçiş')
+      +   aboutRow('Kör nokta', 'Her olayda hangi bölgelerin haber yaptığı, hangilerinin sessiz kaldığı')
+      +   aboutRow('Canlı TV', LIVE_TV_CHANNELS.length+' kanal · 10 bölge · kategoriler, favoriler, kendi kanalını ve açık kaynak M3U listelerini ekleme (yalnızca istenince güncellenir)')
+      +   aboutRow('Yerel haberler', 'Sistem ülkesine göre o ülkenin başlıca haber sitelerinden otomatik “📍” kategorisi (90+ ülke)')
+      +   aboutRow('Arayüz dili', 'Sistem diline göre otomatik: Türkçe · English · العربية (diğer diller İngilizce)')
+      +   aboutRow('Güncellemeler', 'Kanal, çeviri ve ülke listeleri ile yeni sürümler GitHub üzerinden, Ed25519 imzası doğrulanarak gelir')
       +   aboutRow('Veri akışı', 'Tam / sınırlı mod, hız sınırı, aylık kota; oturum-gün-hafta-ay kullanım defteri')
       +   aboutRow('Sağ panel', 'Özet · Borsa · Spor · Analiz · Olay sekmeleri; kartlar yalnızca açıkken veri toplar')
       +   aboutRow('Masaüstü widget', 'Opak · cam · bulanık · saydam zemin, ayarlanabilir opaklık ve ton')
@@ -3531,9 +3660,11 @@
       +   aboutRow('Çeviri', 'Yerel LibreTranslate → Google · Lingva · SimplyTranslate (anahtarsız, yedekli; çeviriler diskte saklanır)')
       +   aboutRow('Kanal dizini', 'Yayıncı CDN\'leri + iptv-org açık veritabanı (lisanslı kaynaklarla süzülmüş)')
       + '</div>'
+      + '<div class="about-upd"><button class="btn" onclick="checkUpdatesNow(this)">⟳ Güncellemeleri denetle</button><span id="updInfo" class="access-note"></span></div>'
       + '<p class="about-note">Haber başlıkları, içerikler ve yayınlar ilgili kaynaklara aittir; NexNews yalnızca derler, bağlantı verir ve yayıncıların herkese açık akışlarını oynatır. Kişisel/eğitim amaçlı geliştirilmiştir.</p>'
       + '</div>';
     window.scrollTo(0,0);
+    try{ paintUpdInfo(JSON.parse(await window.nnUpdateStatus())); }catch(e){}
   }
   function aboutRow(k,v){ return '<div class="about-k">'+esc(k)+'</div><div class="about-v">'+esc(v)+'</div>'; }
 

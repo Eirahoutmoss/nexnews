@@ -1,0 +1,730 @@
+{
+ "version": 1,
+ "factcheck": [
+  {
+   "name": "Teyit",
+   "site": "https://teyit.org",
+   "feed": "https://teyit.org/feed",
+   "lang": "tr",
+   "country": "TR"
+  },
+  {
+   "name": "Doğruluk Payı",
+   "site": "https://www.dogrulukpayi.com",
+   "feed": "",
+   "lang": "tr",
+   "country": "TR"
+  },
+  {
+   "name": "Malumatfuruş",
+   "site": "https://www.malumatfurus.org",
+   "feed": "https://www.malumatfurus.org/feed/",
+   "lang": "tr",
+   "country": "TR"
+  },
+  {
+   "name": "AFP Fact Check",
+   "site": "https://factcheck.afp.com",
+   "feed": "",
+   "lang": "en",
+   "country": ""
+  },
+  {
+   "name": "Full Fact",
+   "site": "https://fullfact.org",
+   "feed": "https://fullfact.org/feed/",
+   "lang": "en",
+   "country": "GB"
+  },
+  {
+   "name": "PolitiFact",
+   "site": "https://www.politifact.com",
+   "feed": "https://www.politifact.com/rss/all/",
+   "lang": "en",
+   "country": "US"
+  },
+  {
+   "name": "Snopes",
+   "site": "https://www.snopes.com",
+   "feed": "https://www.snopes.com/feed/",
+   "lang": "en",
+   "country": "US"
+  },
+  {
+   "name": "CORRECTIV Faktencheck",
+   "site": "https://correctiv.org/faktencheck/",
+   "feed": "https://correctiv.org/faktencheck/feed/",
+   "lang": "de",
+   "country": "DE"
+  },
+  {
+   "name": "Les Décodeurs",
+   "site": "https://www.lemonde.fr/les-decodeurs/",
+   "feed": "https://www.lemonde.fr/les-decodeurs/rss_full.xml",
+   "lang": "fr",
+   "country": "FR"
+  },
+  {
+   "name": "Maldita",
+   "site": "https://maldita.es",
+   "feed": "https://maldita.es/feed/",
+   "lang": "es",
+   "country": "ES"
+  },
+  {
+   "name": "Misbar",
+   "site": "https://misbar.com",
+   "feed": "",
+   "lang": "ar",
+   "country": ""
+  },
+  {
+   "name": "StopFake",
+   "site": "https://www.stopfake.org/ru/",
+   "feed": "https://www.stopfake.org/ru/feed/",
+   "lang": "ru",
+   "country": ""
+  }
+ ],
+ "agenda": [
+  {
+   "date": "2026-01-22",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-03-12",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-04-22",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-06-11",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-07-23",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-09-10",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-10-22",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-12-10",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2027-01-21",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2027-03-18",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2027-04-22",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2027-06-10",
+   "time": "14:00",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB faiz kararı (PPK)",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-02-12",
+   "time": "",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB Enflasyon Raporu",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-05-14",
+   "time": "",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB Enflasyon Raporu",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-08-13",
+   "time": "",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB Enflasyon Raporu",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-11-12",
+   "time": "",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB Enflasyon Raporu",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2027-02-11",
+   "time": "",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB Enflasyon Raporu",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2027-05-13",
+   "time": "",
+   "tz": "Europe/Istanbul",
+   "title": "TCMB Enflasyon Raporu",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tcmb.gov.tr"
+  },
+  {
+   "date": "2026-01-28",
+   "time": "14:00",
+   "tz": "America/New_York",
+   "title": "ABD Merkez Bankası (Fed) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.federalreserve.gov"
+  },
+  {
+   "date": "2026-03-18",
+   "time": "14:00",
+   "tz": "America/New_York",
+   "title": "ABD Merkez Bankası (Fed) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.federalreserve.gov"
+  },
+  {
+   "date": "2026-04-29",
+   "time": "14:00",
+   "tz": "America/New_York",
+   "title": "ABD Merkez Bankası (Fed) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.federalreserve.gov"
+  },
+  {
+   "date": "2026-06-17",
+   "time": "14:00",
+   "tz": "America/New_York",
+   "title": "ABD Merkez Bankası (Fed) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.federalreserve.gov"
+  },
+  {
+   "date": "2026-07-29",
+   "time": "14:00",
+   "tz": "America/New_York",
+   "title": "ABD Merkez Bankası (Fed) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.federalreserve.gov"
+  },
+  {
+   "date": "2026-09-16",
+   "time": "14:00",
+   "tz": "America/New_York",
+   "title": "ABD Merkez Bankası (Fed) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.federalreserve.gov"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "14:00",
+   "tz": "America/New_York",
+   "title": "ABD Merkez Bankası (Fed) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.federalreserve.gov"
+  },
+  {
+   "date": "2026-12-09",
+   "time": "14:00",
+   "tz": "America/New_York",
+   "title": "ABD Merkez Bankası (Fed) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.federalreserve.gov"
+  },
+  {
+   "date": "2026-02-05",
+   "time": "14:15",
+   "tz": "Europe/Berlin",
+   "title": "Avrupa Merkez Bankası (ECB) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.ecb.europa.eu"
+  },
+  {
+   "date": "2026-03-19",
+   "time": "14:15",
+   "tz": "Europe/Berlin",
+   "title": "Avrupa Merkez Bankası (ECB) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.ecb.europa.eu"
+  },
+  {
+   "date": "2026-04-30",
+   "time": "14:15",
+   "tz": "Europe/Berlin",
+   "title": "Avrupa Merkez Bankası (ECB) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.ecb.europa.eu"
+  },
+  {
+   "date": "2026-06-11",
+   "time": "14:15",
+   "tz": "Europe/Berlin",
+   "title": "Avrupa Merkez Bankası (ECB) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.ecb.europa.eu"
+  },
+  {
+   "date": "2026-07-23",
+   "time": "14:15",
+   "tz": "Europe/Berlin",
+   "title": "Avrupa Merkez Bankası (ECB) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.ecb.europa.eu"
+  },
+  {
+   "date": "2026-09-10",
+   "time": "14:15",
+   "tz": "Europe/Berlin",
+   "title": "Avrupa Merkez Bankası (ECB) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.ecb.europa.eu"
+  },
+  {
+   "date": "2026-10-29",
+   "time": "14:15",
+   "tz": "Europe/Berlin",
+   "title": "Avrupa Merkez Bankası (ECB) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.ecb.europa.eu"
+  },
+  {
+   "date": "2026-12-17",
+   "time": "14:15",
+   "tz": "Europe/Berlin",
+   "title": "Avrupa Merkez Bankası (ECB) faiz kararı",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.ecb.europa.eu"
+  }
+ ],
+ "agendaRules": [
+  {
+   "rule": "monthly:3",
+   "time": "10:00",
+   "tz": "Europe/Istanbul",
+   "title": "TÜİK aylık enflasyon (TÜFE) verisi",
+   "kind": "ekonomi",
+   "country": "TR",
+   "link": "https://www.tuik.gov.tr",
+   "note": "genellikle ayın 3'ünde"
+  },
+  {
+   "rule": "firstweekday:5",
+   "time": "08:30",
+   "tz": "America/New_York",
+   "title": "ABD tarım dışı istihdam raporu",
+   "kind": "ekonomi",
+   "country": "",
+   "link": "https://www.bls.gov",
+   "note": "genellikle ayın ilk cuması"
+  }
+ ],
+ "emergency": {
+  "TR": [
+   {
+    "label": "Acil çağrı",
+    "number": "112"
+   },
+   {
+    "label": "AFAD",
+    "number": "122"
+   }
+  ],
+  "DE": [
+   {
+    "label": "Notruf",
+    "number": "112"
+   },
+   {
+    "label": "Polizei",
+    "number": "110"
+   }
+  ],
+  "FR": [
+   {
+    "label": "Urgences",
+    "number": "112"
+   },
+   {
+    "label": "SAMU",
+    "number": "15"
+   }
+  ],
+  "ES": [
+   {
+    "label": "Emergencias",
+    "number": "112"
+   }
+  ],
+  "IT": [
+   {
+    "label": "Emergenza",
+    "number": "112"
+   }
+  ],
+  "GR": [
+   {
+    "label": "Emergency",
+    "number": "112"
+   }
+  ],
+  "GB": [
+   {
+    "label": "Emergency",
+    "number": "999"
+   },
+   {
+    "label": "Emergency (EU)",
+    "number": "112"
+   }
+  ],
+  "US": [
+   {
+    "label": "Emergency",
+    "number": "911"
+   }
+  ],
+  "CA": [
+   {
+    "label": "Emergency",
+    "number": "911"
+   }
+  ],
+  "MX": [
+   {
+    "label": "Emergencias",
+    "number": "911"
+   }
+  ],
+  "AU": [
+   {
+    "label": "Emergency",
+    "number": "000"
+   }
+  ],
+  "NZ": [
+   {
+    "label": "Emergency",
+    "number": "111"
+   }
+  ],
+  "JP": [
+   {
+    "label": "Fire / ambulance",
+    "number": "119"
+   },
+   {
+    "label": "Police",
+    "number": "110"
+   }
+  ],
+  "RU": [
+   {
+    "label": "Экстренная служба",
+    "number": "112"
+   }
+  ],
+  "SA": [
+   {
+    "label": "Emergency",
+    "number": "911"
+   }
+  ],
+  "AE": [
+   {
+    "label": "Ambulance",
+    "number": "998"
+   },
+   {
+    "label": "Police",
+    "number": "999"
+   }
+  ],
+  "IN": [
+   {
+    "label": "Emergency",
+    "number": "112"
+   }
+  ],
+  "_": [
+   {
+    "label": "Emergency",
+    "number": "112"
+   }
+  ]
+ },
+ "observances": [
+  {
+   "rule": "yearly:01-27",
+   "title": "Uluslararası Holokost Kurbanlarını Anma Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:02-21",
+   "title": "Uluslararası Anadil Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:03-08",
+   "title": "Dünya Kadınlar Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:03-22",
+   "title": "Dünya Su Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:04-07",
+   "title": "Dünya Sağlık Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:04-22",
+   "title": "Dünya Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:04-23",
+   "title": "Dünya Kitap ve Telif Hakkı Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:05-03",
+   "title": "Dünya Basın Özgürlüğü Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:06-05",
+   "title": "Dünya Çevre Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:06-20",
+   "title": "Dünya Mülteciler Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:08-12",
+   "title": "Uluslararası Gençlik Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:09-21",
+   "title": "Uluslararası Barış Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:10-01",
+   "title": "Uluslararası Yaşlılar Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:10-16",
+   "title": "Dünya Gıda Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:10-24",
+   "title": "Birleşmiş Milletler Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:11-20",
+   "title": "Dünya Çocuk Hakları Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:11-25",
+   "title": "Kadına Yönelik Şiddete Karşı Uluslararası Mücadele Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:12-03",
+   "title": "Uluslararası Engelliler Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:12-10",
+   "title": "İnsan Hakları Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:03-12",
+   "title": "İstiklal Marşı'nın Kabulü ve Mehmet Akif Ersoy'u Anma Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "yearly:03-18",
+   "title": "Çanakkale Zaferi ve Şehitleri Anma Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "yearly:11-10",
+   "title": "Atatürk'ü Anma Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "yearly:11-24",
+   "title": "Öğretmenler Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "nth:05:0:2",
+   "title": "Anneler Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "nth:06:0:3",
+   "title": "Babalar Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  }
+ ]
+}

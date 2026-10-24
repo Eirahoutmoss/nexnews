@@ -1,10 +1,18 @@
 {
- "seq": 5,
- "issued": "2026-10-24T12:14:57Z",
+ "seq": 6,
+ "issued": "2026-10-24T15:10:26Z",
  "files": {
+  "extras.json": {
+   "sha256": "0f76092c26c9d1bff3c22e4cb8a8e0a3c6e36c06a9ef0e8d19c2ddbe60f6350d",
+   "size": 15364
+  },
+  "holidays.json": {
+   "sha256": "55fdb793fe69ad01f1b1478524a9efedfe53b495c7c1971d2334608ebf68bb8b",
+   "size": 405813
+  },
   "i18n.json": {
-   "sha256": "bfac2a883386628a3839c0552322f1a5f17c89491b890642a56e182141ccc5dc",
-   "size": 387416
+   "sha256": "b1981c39450ae7514d02717d894500764080faba73b45090df15c8a73275fa1e",
+   "size": 552793
   },
   "livetv.json": {
    "sha256": "daf883b022e05e80f0fb19a33f52e55e4f1a82c68b50da84015ffc052d0048bd",
@@ -20,10 +28,10 @@
   }
  },
  "app": {
-  "version": "1.0.0-rc95",
-  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0.-rd95/NexNews-rc95.exe",
-  "sha256": "46ced87b39558289f57ab56fc761683f374d0d36e1b55a86c1e13eb4e4f0e321",
-  "size": 10786304,
-  "notes": "7 arayüz dili (Türkçe, English, العربية, Deutsch, Français, Español, Русский) ve Arapçada sağdan sola düzen; kaynak sahipliği şeffaflığı (Kim anlatıyor?); Haftanın özeti; bildirim ve hava durumu metinleri de seçili dilde."
+  "version": "1.0.0-rc97",
+  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0-rc97/NexNews.exe",
+  "sha256": "a64d11b9582526396fa39831020cf552197a7309ee17ee6fb77fd3c9e9ffab9f",
+  "size": 11956736,
+  "notes": "Okuma aynası, abartılı dil işareti, 'sen bakmayalı ne değişti', doğrulama rozeti, kriz modu, bağlam kartı, bayramlar ve önemli günlerle gündem takvimi, Dünyada bugün, kolay okuma."
  }
 }

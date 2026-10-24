@@ -350,6 +350,11 @@ type outItem struct {
 	Image              string        `json:"image,omitempty"`
 	Syndicated         int           `json:"syndicated,omitempty"`
 	Read               bool          `json:"read,omitempty"`
+	Sens               int           `json:"sens,omitempty"`     // RC97: başlığın duygu yükü (0–100)
+	CalmFrom           string        `json:"calmFrom,omitempty"` // RC97: sakin başlık hangi kaynaktan alındı
+	OrigTitle          string        `json:"origTitle,omitempty"`
+	FactCheck          int           `json:"fc,omitempty"`  // RC97: eşleşen doğrulama yazısı sayısı
+	Upd                int           `json:"upd,omitempty"` // RC97: kullanıcı son baktığından beri gelen başlık
 }
 
 type outCat struct {
@@ -372,9 +377,10 @@ type overview struct {
 	PulseBand   string    `json:"pulseBand"`
 	// "FARKLI BİR PENCERE": one strong story from the region/topic the user
 	// has read least lately — a small counterweight to the interest filter.
-	Discover       *outItem `json:"discover,omitempty"`
-	DiscoverReason string   `json:"discoverReason,omitempty"`
-	TotalUnread    int      `json:"totalUnread"`
+	Discover       *outItem    `json:"discover,omitempty"`
+	DiscoverReason string      `json:"discoverReason,omitempty"`
+	TotalUnread    int         `json:"totalUnread"`
+	Crisis         *crisisInfo `json:"crisis,omitempty"` // RC97: kriz modu kartı
 }
 
 // Refresh fetches every source concurrently and rebuilds the cache. Cached feeds
@@ -910,6 +916,7 @@ func (s *Store) overviewJSON() ([]byte, error) {
 	}
 	ov.Pulse = pulseScore(s.important)
 	ov.PulseBand = pulseBand(ov.Pulse)
+	ov.Crisis = s.crisisFor()
 	return json.Marshal(ov)
 }
 
@@ -978,5 +985,24 @@ func (s *Store) storyOut(st *Story) outItem {
 		Followed:           follows.isStory(st),
 		Image:              st.Image,
 		Syndicated:         func() int { n, _ := syndicatedCount(st); return n }(),
+	}.withRC97(s, st)
+}
+
+// withRC97: duygu yükü, (ayar açıksa) sakin başlık ve doğrulama sayısı.
+func (o outItem) withRC97(s *Store, st *Story) outItem {
+	calm, src, sc := s.calmestTitle(st)
+	o.Sens = sc
+	if calm != "" && s.cfg != nil && s.cfg.CalmHeadlines {
+		o.OrigTitle, o.Title, o.CalmFrom = o.Title, calm, src
+		o.Sens = sensationScore(calm)
 	}
+	o.FactCheck = factCheckCount(s, st)
+	if v := visits.lastSeen(visitKey(st)); v > 0 {
+		for _, it := range st.items {
+			if it.HasDate && it.Published.Unix() > v {
+				o.Upd++
+			}
+		}
+	}
+	return o
 }

@@ -63,6 +63,7 @@ func RunDesktop() {
 	startUsageLedger(onDataQuota)
 	liveHealthDB.load()
 	defer usage.flush()
+	defer flushVisits()
 	store = newStore(cfg)
 	favs = newFavStore()
 	follows = newFollowStore()
@@ -127,7 +128,8 @@ func pushData() {
 	if ui == nil {
 		return
 	}
-	go recordWeekly(store) // haftalık özet günlüğü
+	go recordWeekly(store)                     // haftalık özet günlüğü
+	go refreshFactChecks(context.Background()) // RC97: doğrulama yazıları (en çok 3 saatte bir)
 	ui.Dispatch(func() { ui.Eval("window.nnOnData && window.nnOnData()") })
 	notifyAlerts()   // desktop toast for newly-appeared important events
 	notifyFollowed() // takip edilen olaylardaki gelişmeler
@@ -559,6 +561,19 @@ func bindAll() {
 				usage.flush()
 				os.Exit(0)
 			}
+		}()
+		return "started", nil
+	}))
+	// RC97: okuma aynası, bağlam kartı, gündem takvimi, sesli brifing.
+	must(ui.Bind("nnMirror", func() (string, error) { b, err := readingMirrorJSON(); return string(b), err }))
+	must(ui.Bind("nnAgenda", func() (string, error) { b, err := agendaJSON(14); return string(b), err }))
+	must(ui.Bind("nnAudioBrief", func() (string, error) { b, err := store.audioBriefJSON(); return string(b), err }))
+	must(ui.Bind("nnContext", func(ticket, link string) (string, error) {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+			defer cancel()
+			b, err := store.contextJSON(ctx, link)
+			asyncReply(ticket, string(b), err)
 		}()
 		return "started", nil
 	}))

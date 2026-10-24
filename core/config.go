@@ -38,6 +38,10 @@ type Config struct {
 	TranslateLang  string     `json:"translateLang"`  // target code; empty = system default
 	UILang         string     `json:"uiLang"`         // arayüz dili; boş = sistem dili
 	HomeView       string     `json:"homeView"`       // "sakin" (varsayılan) ya da "tam"
+	CalmHeadlines  bool       `json:"calmHeadlines"`  // RC97: abartılı başlık yerine olayın en sakin başlığı
+	CrisisMode     string     `json:"crisisMode"`     // RC97: "" = otomatik, "off" = kapalı
+	FactCheckOff   bool       `json:"factCheckOff"`   // RC97: doğrulama sitelerini hiç indirme
+	EasyRead       bool       `json:"easyRead"`       // RC97: kolay okuma görünümü
 	Weather        bool       `json:"weather"`        // show the weather panel
 	WeatherPlace   string     `json:"weatherPlace"`   // manual city; empty = auto (IP)
 	Interests      []string   `json:"interests"`      // keywords for the "SENİN İÇİN" section
@@ -778,6 +782,10 @@ func (c *Config) replaceFrom(raw []byte) error {
 	c.TranslateLang = tmp.TranslateLang
 	c.UILang = strings.ToLower(strings.TrimSpace(tmp.UILang))
 	c.HomeView = tmp.HomeView
+	c.CalmHeadlines = tmp.CalmHeadlines
+	c.CrisisMode = tmp.CrisisMode
+	c.FactCheckOff = tmp.FactCheckOff
+	c.EasyRead = tmp.EasyRead
 	c.Weather = tmp.Weather
 	c.WeatherPlace = tmp.WeatherPlace
 	c.Interests = tmp.Interests

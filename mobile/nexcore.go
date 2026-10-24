@@ -70,3 +70,9 @@ func LiveHealth() string                         { return core.MobileLiveHealth(
 func ProbeLive(id, cands, tvg, files string) string {
 	return core.MobileProbeLive(id, cands, tvg, files)
 }
+
+// RC97
+func Mirror() string                 { return core.MobileMirror() }
+func Agenda() string                 { return core.MobileAgenda() }
+func AudioBrief() string             { return core.MobileAudioBrief() }
+func ContextCard(link string) string { return core.MobileContext(link) }

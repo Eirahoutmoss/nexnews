@@ -28,7 +28,7 @@ type favStore struct {
 	histPath string
 }
 
-const historyCap = 200
+const historyCap = 600 // RC97: okuma aynası için 30 günü kapsasın
 
 func newFavStore() *favStore {
 	dir := filepath.Dir(configPath())

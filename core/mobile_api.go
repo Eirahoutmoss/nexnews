@@ -94,6 +94,13 @@ func MobileRefresh() {
 	}
 	ensureLocalCategory(context.Background())
 	store.Refresh(context.Background())
+	recordWeekly(store)
+}
+
+// MobileWeekly: son 7 günün özeti (JSON).
+func MobileWeekly() string {
+	b, err := weeklyJSON()
+	return jsonOr(b, err, `{"top":[]}`)
 }
 
 // MobileSetCountry tells the core the device's region (Locale country, ISO-3166).
@@ -389,7 +396,7 @@ func MobileNewAlerts() string {
 			if len(out) >= 5 {
 				break
 			}
-			out = append(out, mobileAlert{Title: fmt.Sprintf("Takip ettiğin olayda +%d yeni haber · %s", u.Added, u.Title), Link: u.Link, Source: "Takip", Score: 100, Followed: true})
+			out = append(out, mobileAlert{Title: fmt.Sprintf("%s +%d %s · %s", uiT("Takip ettiğin olayda"), u.Added, uiT("yeni haber"), u.Title), Link: u.Link, Source: "Takip", Score: 100, Followed: true})
 		}
 	}
 	usage.flush()

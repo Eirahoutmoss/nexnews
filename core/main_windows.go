@@ -18,9 +18,6 @@ import (
 	webview2 "github.com/jchv/go-webview2"
 )
 
-//go:embed assets/index.html
-var indexHTML string
-
 //go:embed assets/bg.b64
 var bgB64 string
 
@@ -30,12 +27,13 @@ var logoB64 string
 // pageHTML injects the embedded brand logo and premium background (as data URIs)
 // into the page before it is shown.
 func pageHTML() string {
-	h := indexHTML
+	h := indexPage()
 	h = strings.ReplaceAll(h, "__NEXLOGO__", "data:image/png;base64,"+strings.TrimSpace(logoB64))
 	h = strings.ReplaceAll(h, "__NEXBG__", "data:image/jpeg;base64,"+strings.TrimSpace(bgB64))
 	h = strings.ReplaceAll(h, "__NEXRELAYTOKEN__", liveRelayToken)
 	h = strings.ReplaceAll(h, "__NEXLIVETV__", string(liveTVJSON()))
 	h = strings.ReplaceAll(h, "__NEXI18N__", string(i18nSource()))
+	h = strings.ReplaceAll(h, "__NEXOWN__", string(ownershipJSON()))
 	return h
 }
 
@@ -79,7 +77,7 @@ func RunDesktop() {
 		Debug:     false,
 		AutoFocus: true,
 		WindowOptions: webview2.WindowOptions{
-			Title:  appTitle,
+			Title:  uiT(appTitle),
 			Width:  mainW,
 			Height: mainH,
 			Center: true,
@@ -129,6 +127,7 @@ func pushData() {
 	if ui == nil {
 		return
 	}
+	go recordWeekly(store) // haftalık özet günlüğü
 	ui.Dispatch(func() { ui.Eval("window.nnOnData && window.nnOnData()") })
 	notifyAlerts()   // desktop toast for newly-appeared important events
 	notifyFollowed() // takip edilen olaylardaki gelişmeler
@@ -145,10 +144,10 @@ func notifyFollowed() {
 		if i >= 3 {
 			break
 		}
-		title := "NexNews — Takip ettiğin olayda gelişme"
+		title := "NexNews — " + uiT("Takip ettiğin olayda gelişme")
 		msg := u.Title
 		if u.Added > 0 {
-			msg = fmt.Sprintf("+%d yeni haber · %s", u.Added, u.Title)
+			msg = fmt.Sprintf("+%d %s · %s", u.Added, uiT("yeni haber"), u.Title)
 		}
 		ui.Dispatch(func() { showToast(hwnd, title, msg) })
 	}
@@ -170,9 +169,9 @@ func notifyAlerts() {
 		return
 	}
 	for _, st := range store.alerts(min) {
-		title := "NexNews — Önemli"
+		title := "NexNews — " + uiT("Önemli")
 		if st.Breaking {
-			title = "NexNews — Son Dakika ⚡"
+			title = "NexNews — " + uiT("Son Dakika") + " ⚡"
 		}
 		msg := st.Title
 		hwnd := uintptr(ui.Window())
@@ -516,6 +515,10 @@ func bindAll() {
 	must(ui.Bind("nnGetLiveState", func() (string, error) { return liveStateJSON(), nil }))
 	// RC93: güncellemeler
 	must(ui.Bind("nnUpdateStatus", func() (string, error) { return updStatusJSON(), nil }))
+	must(ui.Bind("nnWeekly", func() (string, error) {
+		b, err := weeklyJSON()
+		return string(b), err
+	}))
 	must(ui.Bind("nnSetHomeView", func(v string) (string, error) {
 		if v != "tam" {
 			v = "sakin"
@@ -813,12 +816,12 @@ func bindAll() {
 		case "json":
 			b, _ := cfg.toJSON()
 			data = b
-			filter = "JSON\x00*.json\x00Tümü\x00*.*\x00\x00"
+			filter = "JSON\x00*.json\x00" + uiT("Tümü") + "\x00*.*\x00\x00"
 			defExt, defName = "json", "nexnews-yedek.json"
 		default: // csv
 			cats, _ := cfg.snapshot()
 			data = sourcesToCSV(cats)
-			filter = "CSV\x00*.csv\x00Metin\x00*.txt\x00Tümü\x00*.*\x00\x00"
+			filter = "CSV\x00*.csv\x00" + uiT("Metin") + "\x00*.txt\x00" + uiT("Tümü") + "\x00*.*\x00\x00"
 			defExt, defName = "csv", "nexnews-kaynaklar.csv"
 		}
 		path := saveFileDialog(hwnd, filter, defExt, defName)
@@ -834,7 +837,7 @@ func bindAll() {
 	// Import sources (CSV/TXT) or restore a full backup (JSON).
 	must(ui.Bind("nnImport", func() (string, error) {
 		hwnd := uintptr(ui.Window())
-		path := openFileDialog(hwnd, "Desteklenen\x00*.csv;*.txt;*.json\x00Tümü\x00*.*\x00\x00")
+		path := openFileDialog(hwnd, uiT("Desteklenen")+"\x00*.csv;*.txt;*.json\x00"+uiT("Tümü")+"\x00*.*\x00\x00")
 		if path == "" {
 			return "İçe aktarma iptal edildi.", nil
 		}
@@ -892,7 +895,7 @@ func onDataQuota(kind string) {
 	if ui == nil {
 		return
 	}
-	title, msg := "NexNews — Veri kotası", "Bu ayki veri kotanın %80'i kullanıldı."
+	title, msg := "NexNews — "+uiT("Veri kotası"), uiT("Bu ayki veri kotanın %80'i kullanıldı.")
 	if kind == "cap" {
 		cfg.mu.Lock()
 		if cfg.DataMode != dataModeLimited {
@@ -902,7 +905,7 @@ func onDataQuota(kind string) {
 		cfg.mu.Unlock()
 		applyDataMode(mode, kbps)
 		_ = cfg.save()
-		msg = "Aylık veri kotası doldu — NexNews sınırlı veri akışına geçti."
+		msg = uiT("Aylık veri kotası doldu — NexNews sınırlı veri akışına geçti.")
 	}
 	hwnd := uintptr(ui.Window())
 	ui.Dispatch(func() {

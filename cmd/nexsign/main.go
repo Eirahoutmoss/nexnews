@@ -79,6 +79,7 @@ func main() {
 		"livetv.json":    core.LiveTVAsset(),
 		"i18n.json":      core.I18nAsset(),
 		"localnews.json": core.LocalNewsCatalogJSON(),
+		"ownership.json": core.OwnershipAsset(),
 	} {
 		must(os.WriteFile(filepath.Join(*dir, name), b, 0o644))
 		m.Files[name] = file{SHA256: sum(b), Size: int64(len(b))}

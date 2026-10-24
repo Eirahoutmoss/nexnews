@@ -4,6 +4,22 @@ Dünyanın nabzı, tek akışta. Dil ve kaynak bağımsız RSS/Atom haber toplay
 aynı olayı farklı kaynaklardan tek habere toplar, ajans metinlerini ayırt eder,
 önem sırasına dizer ve "kim nasıl başlık attı?" karşılaştırması sunar.
 
+## RC95 (masaüstü 1.0.0-rc95)
+
+- **Arayüz dosyaları bölündü:** tek 4.600 satırlık `index.html` yerine `core/assets/ui/` altında
+  17 parça (stiller, çeviri katmanı, genel bakış, canlı TV, radyo, ayarlar…). Go çalışırken
+  `@@dosya@@` satırlarını birleştirir; çıktı eskisiyle bayt bayt aynıdır. Önizleme:
+  `go run ./cmd/nexpage > onizleme.html`.
+- **7 dil:** Türkçe, English, العربية, Deutsch, Français, Español, Русский (sözlüğü olmayan
+  diller İngilizce). Arapçada sayfa **sağdan sola** dizilir; haber başlıkları kendi yönünde kalır.
+- **Çekirdek mesajları da çevrilir:** masaüstü bildirimleri, pencere başlığı, dosya
+  pencereleri, hava durumu/gün/yön adları (`uiT`/`uiTK`, bağlama özel `hava:` `gün:` `yön:` anahtarları).
+- **Sahiplik şeffaflığı:** kaynakların kamu yayıncısı / devlet medyası / ticari grup /
+  bağımsız / resmî kurum sınıflandırması (`core/assets/ownership.json`, uzaktan güncellenebilir);
+  olay panelinde "Kim anlatıyor?" dağılımı.
+- **Haftanın özeti:** son 7 günün önemli olayları, bölgelere dağılım, takip edilen olaylar;
+  pazar/pazartesi sakin görünümde hatırlatma kartı (`weekly.json` günlüğü).
+
 ## RC86–RC93 (masaüstü 1.0.0-rc93)
 
 - **Sakin görünüm (varsayılan):** ana sayfa günün en önemli 7 olayını ve sonu belli bir
@@ -67,7 +83,8 @@ Yalnızca liste güncellemek için `-app` vermeden çalıştırmak yeter (öncek
 | `cmd/nexsign/` | Uzaktan güncelleme paketini (`updates/`) üretip Ed25519 ile imzalayan araç. |
 | `updates/` | İmzalı uzaktan güncellemeler: `manifest.json(.sig)`, kanal/çeviri/ülke listeleri. |
 | `third_party/go-webview2/` | Saydam pencere için küçük yamalı WebView2 kütüphanesi. |
-| `cmd/nexnews/` | Windows masaüstü uygulaması (Go + WebView2, tek `.exe`). Arayüz: `core/assets/index.html`. |
+| `cmd/nexnews/` | Windows masaüstü uygulaması (Go + WebView2, tek `.exe`). Arayüz: `core/assets/ui/` (parçalar). |
+| `cmd/nexpage/` | Birleştirilmiş arayüz sayfasını önizleme için yazar. |
 | `mobile/` | Android için gomobile köprüsü (`nexcore` paketi, JSON alışverişi). |
 | `android/` | Android uygulaması (Kotlin + Jetpack Compose). |
 | `translation-engine/` | İsteğe bağlı yerel çeviri motoru (Docker + LibreTranslate), masaüstü için. |

@@ -1,6 +1,6 @@
 {
- "seq": 4,
- "issued": "2026-10-24T07:39:19Z",
+ "seq": 5,
+ "issued": "2026-10-24T12:14:57Z",
  "files": {
   "i18n.json": {
    "sha256": "bfac2a883386628a3839c0552322f1a5f17c89491b890642a56e182141ccc5dc",
@@ -21,7 +21,7 @@
  },
  "app": {
   "version": "1.0.0-rc95",
-  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0-rc95/NexNews.exe",
+  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0.-rd95/NexNews-rc95.exe",
   "sha256": "46ced87b39558289f57ab56fc761683f374d0d36e1b55a86c1e13eb4e4f0e321",
   "size": 10786304,
   "notes": "7 arayüz dili (Türkçe, English, العربية, Deutsch, Français, Español, Русский) ve Arapçada sağdan sola düzen; kaynak sahipliği şeffaflığı (Kim anlatıyor?); Haftanın özeti; bildirim ve hava durumu metinleri de seçili dilde."

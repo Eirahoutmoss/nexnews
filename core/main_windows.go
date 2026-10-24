@@ -708,7 +708,7 @@ func bindAll() {
 	}))
 	must(ui.Bind("nnRadio", func() (string, error) {
 		go func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 			defer cancel()
 			b, err := radioJSON(ctx)
 			if err != nil || len(b) == 0 {

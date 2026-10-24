@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -80,55 +82,104 @@ func radioContext(lang string) (string, string) {
 	}
 }
 
+// RC94: radyo dizini büyütüldü. Yerel ülke (sistemin ülkesi ya da seçilen haber
+// bölgesi) ayrı "Yerel" grubunda yüzlerce istasyonla, dünya 110+ ülkeden ülke
+// başına 40 istasyonla gelir. Sonuç diske de yazılır; sonraki açılış anında
+// gelir, dizin arka planda tazelenir. Radio Browser'ın birden çok sunucusu denenir.
+var radioMirrors = []string{"de1", "nl1", "at1", "fi1", "de2"}
+
+var radioRegions = []struct {
+	Name  string
+	Codes []string
+}{
+	{"Avrupa", []string{"GB", "DE", "FR", "IT", "ES", "PT", "NL", "BE", "LU", "IE", "CH", "AT", "SE", "NO", "DK", "FI", "IS", "PL", "CZ", "SK", "HU", "RO", "BG", "GR", "CY", "HR", "SI", "RS", "BA", "ME", "MK", "AL", "XK", "UA", "MD", "LT", "LV", "EE", "MT", "TR"}},
+	{"Orta Doğu", []string{"AE", "SA", "QA", "KW", "BH", "OM", "JO", "LB", "IQ", "SY", "PS", "IL", "IR", "YE", "EG"}},
+	{"Asya", []string{"JP", "KR", "CN", "TW", "HK", "IN", "PK", "BD", "LK", "NP", "ID", "TH", "MY", "SG", "PH", "VN", "KH", "MN", "KZ", "UZ", "KG", "AZ", "GE", "AM", "AF"}},
+	{"Rusya", []string{"RU", "BY"}},
+	{"Afrika", []string{"ZA", "NG", "MA", "DZ", "TN", "LY", "KE", "GH", "TZ", "UG", "SN", "ET", "CM", "CI", "SD", "SO", "AO", "MZ", "ZW", "RW", "CD", "NA", "BW", "MU"}},
+	{"Kuzey Amerika", []string{"US", "CA", "MX", "CU", "JM", "DO", "HT", "CR", "PA", "GT", "HN", "SV", "NI", "PR", "TT", "BS"}},
+	{"Güney Amerika", []string{"BR", "AR", "CL", "CO", "PE", "UY", "EC", "BO", "PY", "VE"}},
+	{"Okyanusya", []string{"AU", "NZ", "FJ", "PG", "WS", "NC", "PF"}},
+}
+
+const (
+	radioLocalLimit = 500
+	radioWorldLimit = 40
+	radioTTL        = 6 * time.Hour
+)
+
+func radioCachePath() string { return filepath.Join(appDataDir(), "radio.json") }
+
 func radioJSON(ctx context.Context) ([]byte, error) {
 	radioCache.Lock()
-	if len(radioCache.board) > 0 && time.Since(radioCache.at) < 10*time.Minute {
+	if len(radioCache.board) == 0 {
+		if b, err := os.ReadFile(radioCachePath()); err == nil && json.Valid(b) {
+			radioCache.board = b
+			if fi, err := os.Stat(radioCachePath()); err == nil {
+				radioCache.at = fi.ModTime()
+			}
+		}
+	}
+	if len(radioCache.board) > 0 && time.Since(radioCache.at) < radioTTL {
 		b := append([]byte(nil), radioCache.board...)
 		radioCache.Unlock()
 		return b, nil
 	}
 	radioCache.Unlock()
 
-	code, flag := radioContext(systemLang())
-	client := &http.Client{Timeout: 6 * time.Second}
-	continentCodes := []struct {
-		Name  string
-		Codes []string
-	}{
-		{"Avrupa", []string{"GB", "DE", "FR", "IT", "ES", "PT", "NL", "SE", "NO", "PL", "CH", "AT", "GR", "IE", "BE"}},
-		{"Asya", []string{"TR", "JP", "KR", "CN", "IN", "ID", "TH", "MY", "SG", "PH", "VN", "AE", "SA", "IL", "PK"}},
-		{"Afrika", []string{"ZA", "NG", "EG", "MA", "DZ", "KE", "GH", "TZ", "UG", "SN", "TN", "ET"}},
-		{"Kuzey Amerika", []string{"US", "CA", "MX", "CU", "JM", "DO", "CR", "PA", "GT", "PR"}},
-		{"Güney Amerika", []string{"BR", "AR", "CL", "CO", "PE", "UY", "EC", "BO", "PY", "VE"}},
-		{"Okyanusya", []string{"AU", "NZ", "FJ", "PG", "WS", "NC"}},
+	code := strings.ToUpper(localNewsCountry())
+	flag := countryFlag(code)
+	if code == "" {
+		code, flag = radioContext(systemLang())
 	}
+	client := &http.Client{Timeout: 9 * time.Second}
 
-	type job struct{ continent, code string }
+	type job struct {
+		region, code string
+		limit        int
+	}
 	type result struct {
-		continent string
-		stations  []radioStation
+		region   string
+		stations []radioStation
+	}
+	var all []job
+	all = append(all, job{"Yerel", code, radioLocalLimit})
+	for _, r := range radioRegions {
+		for _, c := range r.Codes {
+			if c != code {
+				all = append(all, job{r.Name, c, radioWorldLimit})
+			}
+		}
 	}
 	jobs := make(chan job)
-	results := make(chan result, 96)
+	results := make(chan result, len(all))
 	var wg sync.WaitGroup
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 10; i++ {
 		wg.Add(1)
-		go func() {
+		go func(w int) {
 			defer wg.Done()
 			for j := range jobs {
-				endpoint := fmt.Sprintf("https://de1.api.radio-browser.info/json/stations/bycountrycodeexact/%s?order=votes&reverse=true&limit=6&hidebroken=true", j.code)
-				stations := radioFetch(ctx, client, endpoint)
-				for i := range stations {
-					stations[i].Continent = j.continent
+				var st []radioStation
+				for k := 0; k < len(radioMirrors) && st == nil; k++ {
+					m := radioMirrors[(w+k)%len(radioMirrors)]
+					endpoint := fmt.Sprintf("https://%s.api.radio-browser.info/json/stations/bycountrycodeexact/%s?order=clickcount&reverse=true&limit=%d&hidebroken=true", m, j.code, j.limit)
+					st = radioFetch(ctx, client, endpoint)
+					if ctx.Err() != nil {
+						break
+					}
 				}
-				results <- result{continent: j.continent, stations: stations}
+				for i := range st {
+					st[i].Continent = j.region
+				}
+				results <- result{region: j.region, stations: st}
 			}
-		}()
+		}(i)
 	}
 	go func() {
-		for _, c := range continentCodes {
-			for _, code := range c.Codes {
-				jobs <- job{continent: c.Name, code: code}
+		for _, j := range all {
+			select {
+			case jobs <- j:
+			case <-ctx.Done():
 			}
 		}
 		close(jobs)
@@ -136,7 +187,7 @@ func radioJSON(ctx context.Context) ([]byte, error) {
 		close(results)
 	}()
 
-	byContinent := map[string][]radioStation{}
+	byRegion := map[string][]radioStation{}
 	seen := map[string]bool{}
 	for r := range results {
 		for _, s := range r.stations {
@@ -144,30 +195,36 @@ func radioJSON(ctx context.Context) ([]byte, error) {
 			if key == "" {
 				key = strings.ToLower(strings.TrimSpace(s.Name)) + "|" + s.Country
 			}
-			if seen[key] || strings.TrimSpace(s.Stream) == "" {
+			name := strings.ToLower(strings.TrimSpace(s.Name)) + "|" + strings.ToUpper(s.Code)
+			if seen[key] || seen[name] || strings.TrimSpace(s.Stream) == "" || strings.TrimSpace(s.Name) == "" {
 				continue
 			}
-			seen[key] = true
-			if len(byContinent[r.continent]) < 20 {
-				byContinent[r.continent] = append(byContinent[r.continent], s)
+			seen[key], seen[name] = true, true
+			if len(s.Tags) > 80 {
+				s.Tags = s.Tags[:80]
 			}
+			byRegion[r.region] = append(byRegion[r.region], s)
 		}
 	}
-
-	stations := make([]radioStation, 0, 120)
-	for _, c := range continentCodes {
-		stations = append(stations, byContinent[c.Name]...)
+	stations := make([]radioStation, 0, 4000)
+	stations = append(stations, byRegion["Yerel"]...)
+	for _, r := range radioRegions {
+		stations = append(stations, byRegion[r.Name]...)
 	}
+	localCount := len(byRegion["Yerel"])
 	status := "healthy"
 	if len(stations) == 0 {
 		status = "error"
-	} else if len(stations) < 30 {
+	} else if len(stations) < 300 {
 		status = "degraded"
 	}
-	localCount := 0
-	for _, s := range stations {
-		if strings.EqualFold(s.Code, code) {
-			localCount++
+	if len(stations) == 0 {
+		// Dizine ulaşılamadıysa eski listeyi göster.
+		radioCache.Lock()
+		old := append([]byte(nil), radioCache.board...)
+		radioCache.Unlock()
+		if len(old) > 0 {
+			return old, nil
 		}
 	}
 	board := radioBoard{
@@ -182,11 +239,23 @@ func radioJSON(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	radioCache.Lock()
-	radioCache.at = time.Now()
-	radioCache.board = append([]byte(nil), b...)
-	radioCache.Unlock()
+	if len(stations) > 0 {
+		radioCache.Lock()
+		radioCache.at = time.Now()
+		radioCache.board = append([]byte(nil), b...)
+		radioCache.Unlock()
+		_ = atomicWriteFile(radioCachePath(), b)
+	}
 	return b, nil
+}
+
+// countryFlag: "TR" → 🇹🇷
+func countryFlag(code string) string {
+	if len(code) != 2 {
+		return "🌍"
+	}
+	r := []rune(strings.ToUpper(code))
+	return string([]rune{0x1F1E6 + (r[0] - 'A'), 0x1F1E6 + (r[1] - 'A')})
 }
 
 func radioFetch(ctx context.Context, client *http.Client, endpoint string) []radioStation {

@@ -1,10 +1,10 @@
 {
- "seq": 1,
- "issued": "2026-10-24T06:40:21Z",
+ "seq": 2,
+ "issued": "2026-10-24T06:54:37Z",
  "files": {
   "i18n.json": {
-   "sha256": "0cb777363bacd1c4e75a94ce1915b084ed63c6e2d804dfa033120cf2e975e49f",
-   "size": 98207
+   "sha256": "86f78ac67f7529f7bcef4fc164f365f8d7f8042291cd1e0267b64f83366698e2",
+   "size": 98694
   },
   "livetv.json": {
    "sha256": "daf883b022e05e80f0fb19a33f52e55e4f1a82c68b50da84015ffc052d0048bd",
@@ -16,10 +16,10 @@
   }
  },
  "app": {
-  "version": "1.0.0-rc93",
-  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0-rc93/NexNews.exe",
-  "sha256": "6296cffaa23b9d9d5ef3642fe328feb29af7256dd3a2bfca9e8f33f6f6801a6d",
-  "size": 10438656,
-  "notes": "Sakin görünüm, kör nokta göstergesi, arayüz dili (EN/AR), yerel ülke haberleri, kendi kanal listelerin, saydam widget ve imzalı otomatik güncelleme."
+  "version": "1.0.0-rc94",
+  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0-rc94/NexNews.exe",
+  "sha256": "5f6794658d8a73299cbb8c4794af4f87a648291a0307e8a92fbec10523de425d",
+  "size": 10443776,
+  "notes": "Radyo: bulunduğun ülkenin yüzlerce istasyonu ayrı Yerel sekmesinde, dünyadan 110+ ülke (ülke başına 40 istasyon), istasyon/ülke/tür araması, açılışta anında gelen önbellek."
  }
 }

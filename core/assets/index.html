@@ -664,8 +664,8 @@
    .radio-continent-panel.active{display:block}
    .radio-group-title{display:flex;align-items:center;gap:8px;margin:0 0 8px;padding:0 2px}
    .radio-group-title b{font-size:13px}.radio-group-title small{margin-left:auto;opacity:.45;font-size:11px}.radio-group-title span{font-size:16px}
-   .radio-grid{display:grid;grid-template-columns:1fr;gap:6px;max-height:430px;overflow:auto;padding-right:3px}
-   .radio-country-block{margin:0 0 12px}.radio-country-title{display:flex;align-items:center;gap:7px;padding:7px 3px;font-size:11px;border-bottom:1px solid var(--line)}.radio-country-title small{margin-left:auto;opacity:.45;font-size:11px}
+   .radio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px;max-height:62vh;overflow:auto;padding-right:3px}
+   .radio-country-block{margin:0 0 6px}.radio-country-block summary{cursor:pointer;list-style:none}.radio-country-block summary::-webkit-details-marker{display:none}.radio-country-block[open] summary{color:var(--accent)}.radio-toolbar{margin:0 0 8px}.radio-toolbar .live-search{width:100%;box-sizing:border-box}.radio-country-title{display:flex;align-items:center;gap:7px;padding:7px 3px;font-size:11px;border-bottom:1px solid var(--line)}.radio-country-title small{margin-left:auto;opacity:.45;font-size:11px}
    .radio-item{min-height:42px}
    @media(max-width:900px){.radio-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
    @media(max-width:600px){.radio-grid{grid-template-columns:1fr}.radio-continent-tab{flex:1 1 auto}}
@@ -3971,50 +3971,58 @@
 
 
   // ---------- world radio ----------
+  // RC94: Go tarafı her istasyonun grubunu (Yerel, Avrupa, Orta Doğu…) belirler.
   const RADIO_CONTINENTS=[
-    {name:'Avrupa',icon:'🇪🇺',codes:new Set(['AT','BE','BG','CH','CY','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LT','LU','LV','MT','NL','NO','PL','PT','RO','RS','SE','SI','SK','TR','UA'])},
-    {name:'Asya',icon:'🌏',codes:new Set(['AE','AM','AZ','BD','BH','CN','GE','HK','ID','IL','IN','IR','IQ','JP','JO','KZ','KH','KR','KW','LB','LK','MM','MN','MY','NP','OM','PH','PK','QA','SA','SG','TH','TJ','TM','UZ','VN'])},
-    {name:'Afrika',icon:'🌍',codes:new Set(['DZ','AO','BW','CM','CI','EG','ET','GH','KE','MA','MG','ML','MU','MZ','NA','NG','RW','SN','TN','TZ','UG','ZA','ZM','ZW'])},
-    {name:'Kuzey Amerika',icon:'🌎',codes:new Set(['CA','CR','CU','DO','GT','HN','JM','MX','NI','PA','PR','SV','US'])},
-    {name:'Güney Amerika',icon:'🌎',codes:new Set(['AR','BO','BR','CL','CO','EC','GY','PE','PY','SR','UY','VE'])},
-    {name:'Okyanusya',icon:'🌊',codes:new Set(['AU','FJ','NC','NZ','PG','WS'])}
+    {name:'Yerel',icon:'📍'},{name:'Avrupa',icon:'🇪🇺'},{name:'Orta Doğu',icon:'🕌'},{name:'Asya',icon:'🌏'},{name:'Rusya',icon:'🇷🇺'},
+    {name:'Afrika',icon:'🌍'},{name:'Kuzey Amerika',icon:'🌎'},{name:'Güney Amerika',icon:'🌎'},{name:'Okyanusya',icon:'🌊'}
   ];
-  function radioContinent(st){
-    const explicit=String(st?.continent||'').trim();
-    if(explicit) return explicit;
-    const code=String(st?.countryCode||st?.code||'').trim().toUpperCase();
-    const country=String(st?.country||'').toLocaleLowerCase('tr-TR');
-    for(const g of RADIO_CONTINENTS) if(g.codes.has(code)) return g.name;
-    if(country.includes('türkiye')||country.includes('turkey')) return 'Asya';
-    if(/united states|usa|kanada|canada|mexico|mexique/.test(country)) return 'Kuzey Amerika';
-    if(/brazil|brasil|argentina|chile|colombia|peru|uruguay|ecuador|bolivia|paraguay|venezuela/.test(country)) return 'Güney Amerika';
-    if(/australia|new zealand|fiji|papua/.test(country)) return 'Okyanusya';
-    return '';
-  }
+  let RADIO_Q='', RADIO_TAB='Yerel', RADIO_GROUPS={};
+  function radioContinent(st){ return String(st?.continent||'').trim()||'Asya'; }
   function radioGroupIcon(name){const g=RADIO_CONTINENTS.find(x=>x.name===name);return g?g.icon:'🌐';}
+  function radioItemHTML(st){
+    const i=window._radioBoard.stations.indexOf(st);
+    const tags=String(st.tags||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,3).join(' · ');
+    return '<button class="radio-item" data-radio-index="'+i+'"><span class="radio-play">▶</span><span class="radio-info"><span class="radio-name">'+esc(st.name||'Radyo')+'</span><span class="radio-meta">'+esc(tags||st.language||'')+'</span></span><span class="radio-live">CANLI</span></button>';
+  }
   function renderRadioGroup(name,stations){
-    const idx=RADIO_CONTINENTS.findIndex(x=>x.name===name);
-    const ordered=stations.slice().sort((a,b)=>String(a.country||'').localeCompare(String(b.country||''),'tr')||String(a.name||'').localeCompare(String(b.name||''),'tr'));
-    const countries={}; ordered.forEach(st=>{const c=String(st.country||'Bilinmeyen ülke').trim()||'Bilinmeyen ülke';(countries[c]||(countries[c]=[])).push(st);});
-    const countryBlocks=Object.keys(countries).sort((a,b)=>a.localeCompare(b,'tr')).map(country=>{
-      const items=countries[country].map(st=>{const i=window._radioBoard.stations.indexOf(st);return '<button class="radio-item" data-radio-index="'+i+'"><span class="radio-play">▶</span><span class="radio-info"><span class="radio-name">'+esc(st.name||'Radyo')+'</span><span class="radio-meta">'+esc((st.language||'')+(st.tags?' · '+st.tags:''))+'</span></span><span class="radio-live">CANLI</span></button>';}).join('');
-      return '<div class="radio-country-block"><div class="radio-country-title">🌐 <b>'+esc(country)+'</b><small>'+countries[country].length+' istasyon</small></div><div class="radio-grid">'+items+'</div></div>';
-    }).join('');
-    return '<div class="radio-continent-panel '+(idx===0?'active':'')+'" data-radio-continent="'+esc(name)+'"><div class="radio-group-title"><span>'+radioGroupIcon(name)+'</span><b>'+esc(name)+'</b><small>'+ordered.length+' istasyon</small></div>'+(ordered.length?countryBlocks:'<div class="radio-empty">Bu kıta için şu anda doğrulanmış istasyon bulunamadı.</div>')+'</div>';
+    if(!stations.length) return '<div class="radio-empty">Bu bölge için şu anda istasyon bulunamadı.</div>';
+    if(name==='Yerel') return '<div class="radio-grid">'+stations.map(radioItemHTML).join('')+'</div>';
+    const countries={}; stations.forEach(st=>{const c=String(st.country||'Bilinmeyen ülke').trim()||'Bilinmeyen ülke';(countries[c]||(countries[c]=[])).push(st);});
+    return Object.keys(countries).sort((a,b)=>a.localeCompare(b,'tr')).map(country=>
+      '<details class="radio-country-block"><summary class="radio-country-title">'+(countryFlagOf(countries[country][0].countryCode))+' <b>'+esc(country)+'</b><small>'+countries[country].length+' istasyon</small></summary><div class="radio-grid">'+countries[country].map(radioItemHTML).join('')+'</div></details>').join('');
+  }
+  function countryFlagOf(code){ code=String(code||'').toUpperCase(); if(!/^[A-Z]{2}$/.test(code)) return '🌐'; return String.fromCodePoint(...[...code].map(c=>0x1F1E6+c.charCodeAt(0)-65)); }
+  function paintRadioPanel(){
+    const host=document.getElementById('radioPanel'); if(!host) return;
+    if(RADIO_Q){
+      const q=RADIO_Q.toLocaleLowerCase('tr-TR');
+      const hits=(window._radioBoard.stations||[]).filter(st=>(String(st.name)+' '+st.country+' '+st.tags+' '+st.language).toLocaleLowerCase('tr-TR').includes(q));
+      host.innerHTML='<div class="radio-group-title"><span>🔎</span><b>“'+esc(RADIO_Q)+'”</b><small>'+hits.length+' istasyon</small></div>'+(hits.length?'<div class="radio-grid">'+hits.slice(0,400).map(radioItemHTML).join('')+'</div>':'<div class="radio-empty">Sonuç bulunamadı.</div>');
+      return;
+    }
+    const list=RADIO_GROUPS[RADIO_TAB]||[];
+    const title=RADIO_TAB==='Yerel'?(window._radioBoard.localFlag||'📍')+' Yerel':radioGroupIcon(RADIO_TAB)+' '+RADIO_TAB;
+    host.innerHTML='<div class="radio-group-title"><b>'+esc(title)+'</b><small>'+list.length+' istasyon</small></div>'+renderRadioGroup(RADIO_TAB,list);
   }
   function selectRadioContinent(name){
+    RADIO_TAB=name; RADIO_Q=''; const s=document.getElementById('radioSearch'); if(s) s.value='';
     document.querySelectorAll('.radio-continent-tab').forEach(b=>b.classList.toggle('active',b.dataset.radioContinent===name));
-    document.querySelectorAll('.radio-continent-panel').forEach(p=>p.classList.toggle('active',p.dataset.radioContinent===name));
+    paintRadioPanel();
   }
+  function radioSearch(v){ RADIO_Q=String(v||'').trim(); clearTimeout(radioSearch._t); radioSearch._t=setTimeout(paintRadioPanel,180); }
   function renderRadio(board){
     const up=document.getElementById('radioUpdated'), sub=document.getElementById('radioSub'), list=document.getElementById('radioList');
     if(!list)return; window._radioBoard=board||{};
     if(up)up.textContent=board&&board.updated?('güncellendi '+agoText(board.updated)):'veri yok';
     if(sub)sub.textContent=(board?.localFlag||'🌍')+' Yerel: '+Number(board?.localCount||0)+' · 🌍 '+Number(board?.worldCount||0)+' dünya istasyonu · '+(board?.directoryStatus==='healthy'?'dizin aktif':(board?.directoryStatus==='degraded'?'dizin sınırlı':'dizin erişilemiyor'));
     const stations=board?.stations||[];
-    const groups={}; RADIO_CONTINENTS.forEach(g=>groups[g.name]=[]);
-    stations.forEach(st=>{const c=radioContinent(st);if(c&&groups[c])groups[c].push(st);});
-    list.innerHTML='<div class="radio-continent-nav">'+RADIO_CONTINENTS.map((g,i)=>'<button class="radio-continent-tab '+(i===0?'active':'')+'" data-radio-continent="'+esc(g.name)+'" onclick="selectRadioContinent(\''+g.name+'\')">'+g.icon+' '+esc(g.name)+' <span>'+groups[g.name].length+'</span></button>').join('')+'</div>'+RADIO_CONTINENTS.map(g=>renderRadioGroup(g.name,groups[g.name])).join('');
+    RADIO_GROUPS={}; RADIO_CONTINENTS.forEach(g=>RADIO_GROUPS[g.name]=[]);
+    stations.forEach(st=>{const c=radioContinent(st);(RADIO_GROUPS[c]||(RADIO_GROUPS[c]=[])).push(st);});
+    if(!(RADIO_GROUPS[RADIO_TAB]||[]).length) RADIO_TAB=(RADIO_CONTINENTS.find(g=>(RADIO_GROUPS[g.name]||[]).length)||{name:'Yerel'}).name;
+    list.innerHTML='<div class="radio-toolbar"><input id="radioSearch" class="live-search" type="search" placeholder="İstasyon, ülke ya da tür ara… (ör. jazz, haber, Katar)" oninput="radioSearch(this.value)" onkeydown="event.stopPropagation()"></div>'
+      +'<div class="radio-continent-nav">'+RADIO_CONTINENTS.filter(g=>(RADIO_GROUPS[g.name]||[]).length).map(g=>'<button class="radio-continent-tab '+(g.name===RADIO_TAB?'active':'')+'" data-radio-continent="'+esc(g.name)+'" onclick="selectRadioContinent(\''+g.name+'\')">'+(g.name==='Yerel'?(board.localFlag||g.icon):g.icon)+' '+esc(g.name)+' <span>'+RADIO_GROUPS[g.name].length+'</span></button>').join('')+'</div>'
+      +'<div id="radioPanel" class="radio-continent-panel active"></div>';
+    paintRadioPanel();
   }
   window.nnOnRadio=function(board){try{renderRadio(board);}catch(e){}};
   function loadRadio(){try{window.nnRadio();}catch(e){}}

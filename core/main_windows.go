@@ -501,6 +501,25 @@ func bindAll() {
 		return "started", nil
 	}))
 	must(ui.Bind("nnGetLiveState", func() (string, error) { return liveStateJSON(), nil }))
+	// RC87: kullanıcının kendi kanal listeleri (yalnızca istenince güncellenir).
+	must(ui.Bind("nnLiveLists", func() (string, error) { return liveListsJSON(), nil }))
+	must(ui.Bind("nnLiveListAdd", func(ticket, name, url, text string) (string, error) {
+		go func() {
+			b, err := liveListAdd(context.Background(), name, url, text)
+			asyncReply(ticket, string(b), err)
+		}()
+		return "started", nil
+	}))
+	must(ui.Bind("nnLiveListRefresh", func(ticket, id string) (string, error) {
+		go func() {
+			b, err := liveListRefresh(context.Background(), id)
+			asyncReply(ticket, string(b), err)
+		}()
+		return "started", nil
+	}))
+	must(ui.Bind("nnLiveListDelete", func(id string) (string, error) { return "ok", liveListDelete(id) }))
+	must(ui.Bind("nnLiveListRename", func(id, name string) (string, error) { return "ok", liveListRename(id, name) }))
+	must(ui.Bind("nnLiveBuiltin", func(on bool) (string, error) { return "ok", liveSetBuiltin(on) }))
 	must(ui.Bind("nnSetLiveState", func(stateJSON string) (string, error) { return "ok", setLiveState(stateJSON) }))
 	must(ui.Bind("nnResetUsage", func() (string, error) { usage.reset(); return "ok", nil }))
 

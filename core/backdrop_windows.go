@@ -132,6 +132,10 @@ func applyWidgetBackdrop(hwnd uintptr, mode string, tint int, light bool) {
 	}
 	// The DWM system backdrop and the accent policy must not fight each other.
 	setSystemBackdrop(hwnd, dwmsbtNone)
+	// RC86: saydam/cam/bulanık her zaman koyu tonla çizilir. Açık temada açık
+	// ton + açık yüzey üst üste binince okunaksız gri bir kutu oluşuyordu;
+	// beyaz yazı + koyu ton her masaüstü arka planında okunur kalır.
+	light = false
 	switch mode {
 	case "opak":
 		setAccent(hwnd, accentDisabled, 0)
@@ -141,7 +145,7 @@ func applyWidgetBackdrop(hwnd uintptr, mode string, tint int, light bool) {
 		}
 	case "saydam":
 		// Fully clear unless a tint is requested.
-		setAccent(hwnd, accentTransparentGradient, tintColor(tint, light))
+		setAccent(hwnd, accentTransparentGradient, tintColor(tint*6/10, light))
 	default: // "cam"
 		c := tintColor(tint, light)
 		if c>>24 == 0 {

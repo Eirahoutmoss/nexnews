@@ -32,3 +32,27 @@ func systemLang() string {
 	}
 	return name
 }
+
+var procGetUserDefaultGeoName = windows.NewLazySystemDLL("kernel32.dll").NewProc("GetUserDefaultGeoName")
+
+// systemCountry returns the user's Windows home location as an ISO-3166
+// alpha-2 code ("QA"), falling back to the locale's region part ("ar-QA").
+func systemCountry() string {
+	defer func() { _ = recover() }()
+	if procGetUserDefaultGeoName.Find() == nil {
+		buf := make([]uint16, 16)
+		if r, _, _ := procGetUserDefaultGeoName.Call(uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf))); r > 0 {
+			if c := strings.ToUpper(strings.TrimSpace(syscall.UTF16ToString(buf))); len(c) == 2 {
+				return c
+			}
+		}
+	}
+	buf := make([]uint16, 85)
+	if r, _, _ := procGetUserDefaultLocaleName.Call(uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf))); r != 0 {
+		name := syscall.UTF16ToString(buf)
+		if i := strings.LastIndexByte(name, '-'); i > 0 && len(name)-i-1 == 2 {
+			return strings.ToUpper(name[i+1:])
+		}
+	}
+	return ""
+}

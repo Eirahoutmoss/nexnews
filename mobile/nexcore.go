@@ -7,6 +7,7 @@ import "nexnews/core"
 
 func Init(dataDir, lang string) error       { return core.MobileInit(dataDir, lang) }
 func Refresh()                              { core.MobileRefresh() }
+func SetCountry(code string)                { core.MobileSetCountry(code) }
 func Translate(max, seconds int)            { core.MobileTranslate(max, seconds) }
 func LastFetch() int64                      { return core.MobileLastFetch() }
 func IsFetching() bool                      { return core.MobileIsFetching() }

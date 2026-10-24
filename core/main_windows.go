@@ -104,6 +104,11 @@ func RunDesktop() {
 		pushData()
 		translatePass()
 		startAutoRefresh()
+		// Kullanıcının ülkesine göre "📍 Yerel" kategorisi (ilk açılışta / ülke değişince).
+		if ensureLocalCategory(context.Background()) {
+			store.Refresh(context.Background())
+			pushData()
+		}
 	}()
 
 	ui.SetHtml(pageHTML())
@@ -579,6 +584,7 @@ func bindAll() {
 		applyPersonalCfg()
 		resetWeatherCache()
 		go func() {
+			ensureLocalCategory(context.Background())
 			store.Refresh(context.Background())
 			pushData()
 			translatePass()

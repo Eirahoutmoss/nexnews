@@ -44,6 +44,7 @@ object Core {
             if (ready) return
             withContext(Dispatchers.IO) {
                 val dir = context.applicationContext.filesDir.absolutePath
+                runCatching { Nexcore.setCountry(Locale.getDefault().country) }
                 Nexcore.init(dir, Locale.getDefault().language)
                 ready = true
                 reloadLocal()

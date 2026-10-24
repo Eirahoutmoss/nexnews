@@ -93,6 +93,7 @@ data class Overview(
     val discoverReason: String = "",
     val totalUnread: Int = 0,
     val crisis: CrisisInfo? = null,
+    val today: List<AgendaItem> = emptyList(),
 )
 
 @Serializable
@@ -180,7 +181,7 @@ data class MirrorBoard(
 )
 
 @Serializable
-data class AgendaItem(val ts: Long = 0, val allDay: Boolean = false, val title: String = "", val kind: String = "", val country: String = "", val link: String = "", val note: String = "")
+data class AgendaItem(val ts: Long = 0, val allDay: Boolean = false, val title: String = "", val kind: String = "", val country: String = "", val link: String = "", val note: String = "", val flag: String = "", val local: Boolean = false)
 
 @Serializable
 data class AudioBrief(val text: String = "")

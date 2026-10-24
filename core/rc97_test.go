@@ -116,3 +116,34 @@ func TestCrisisCountryMatch(t *testing.T) {
 		t.Error("başka ülke eşleşti")
 	}
 }
+
+func TestHolidaysAndRules(t *testing.T) {
+	found := false
+	for _, h := range countryHolidays("MR") {
+		if h.Date == "2026-11-28" {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Moritanya bağımsızlık günü yok")
+	}
+	if len(countryHolidays("AQ")) == 0 {
+		t.Error("Antarktika günleri yok")
+	}
+	tr := countryHolidays("TR")
+	ok := false
+	for _, h := range tr {
+		if h.Date == "2026-10-29" {
+			ok = true
+		}
+	}
+	if !ok {
+		t.Error("29 Ekim yok")
+	}
+	if d := ruleDates("nth:05:0:2", time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)); d[0] != "2026-05-10" {
+		t.Errorf("Anneler Günü %v", d)
+	}
+	if flagEmoji("TR") != "🇹🇷" {
+		t.Error("bayrak")
+	}
+}

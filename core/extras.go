@@ -55,6 +55,7 @@ type extrasFile struct {
 	Agenda      []agendaFixed                `json:"agenda"`
 	AgendaRules []agendaRule                 `json:"agendaRules"`
 	Emergency   map[string][]emergencyNumber `json:"emergency"`
+	Observances []agendaRule                 `json:"observances"` // RC98: anma / dünya günleri
 }
 
 var (

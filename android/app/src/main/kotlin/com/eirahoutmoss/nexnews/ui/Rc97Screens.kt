@@ -69,7 +69,10 @@ private fun PageScaffold(title: String, nav: NexNav, content: @Composable (Paddi
     )
 }
 
-private val AGENDA_IC = mapOf("ekonomi" to "💹", "siyaset" to "🗳️", "spor" to "⚽", "bilim" to "🔭")
+private val AGENDA_IC = mapOf("ekonomi" to "💹", "siyaset" to "🗳️", "spor" to "⚽", "bilim" to "🔭", "bayram" to "🎉", "anma" to "🕯️", "dunya" to "🌍")
+
+fun agendaIcon(a: AgendaItem): String = a.flag.ifBlank { AGENDA_IC[a.kind] ?: "📌" }
+fun agendaTitle(a: AgendaItem): String = if (a.local) a.title else t(a.title)
 
 /** RC97 gündem takvimi: önümüzdeki 14 günün önceden bilinen olayları. */
 @Composable
@@ -85,10 +88,10 @@ fun AgendaScreen(nav: NexNav, bottomPad: PaddingValues) {
         if (l == null) { Box(Modifier.padding(pad)) { Loading() }; return@PageScaffold }
         LazyColumn(Modifier.fillMaxSize().padding(top = pad.calculateTopPadding()), contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 24.dp)) {
             item {
-                Text(t("Önceden bilinen, gündemi belirleyecek olaylar. Saatler cihazının saat dilimine göre."),
+                Text(t("Bayramlar, anma ve dünya günleri ile gündemi belirleyecek önceden bilinen olaylar. Saatler cihazının saat dilimine göre."),
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
             }
-            if (l.isEmpty()) item { Text(t("Önümüzdeki iki haftada kayıtlı bir olay yok."), modifier = Modifier.padding(16.dp)) }
+            if (l.isEmpty()) item { Text(t("Önümüzdeki 30 günde kayıtlı bir olay yok."), modifier = Modifier.padding(16.dp)) }
             var lastDay = ""
             l.forEach { a ->
                 val d = dayFmt.format(Date(a.ts * 1000))
@@ -98,9 +101,10 @@ fun AgendaScreen(nav: NexNav, bottomPad: PaddingValues) {
                 }
                 item(key = "a" + a.ts + a.title) {
                     Row(Modifier.fillMaxWidth().clickable(enabled = a.link.isNotBlank()) { openInBrowser(ctx, a.link) }.padding(horizontal = 16.dp, vertical = 10.dp)) {
-                        Text(if (a.allDay) "—" else timeFmt.format(Date(a.ts * 1000)), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, modifier = Modifier.width(56.dp))
+                        Text(if (a.allDay) t("tüm gün") else timeFmt.format(Date(a.ts * 1000)), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary,
+                            style = if (a.allDay) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium, modifier = Modifier.width(56.dp))
                         Column(Modifier.weight(1f)) {
-                            Text((AGENDA_IC[a.kind] ?: "📌") + " " + t(a.title), fontWeight = FontWeight.SemiBold)
+                            Text(agendaIcon(a) + " " + agendaTitle(a), fontWeight = FontWeight.SemiBold)
                             if (a.note.isNotBlank()) Text(t(a.note), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }

@@ -381,6 +381,7 @@ type overview struct {
 	DiscoverReason string      `json:"discoverReason,omitempty"`
 	TotalUnread    int         `json:"totalUnread"`
 	Crisis         *crisisInfo `json:"crisis,omitempty"` // RC97: kriz modu kartı
+	Today          []agendaOut `json:"today,omitempty"`  // RC98: bugünün bayram / anma / dünya günleri
 }
 
 // Refresh fetches every source concurrently and rebuilds the cache. Cached feeds
@@ -917,6 +918,7 @@ func (s *Store) overviewJSON() ([]byte, error) {
 	ov.Pulse = pulseScore(s.important)
 	ov.PulseBand = pulseBand(ov.Pulse)
 	ov.Crisis = s.crisisFor()
+	ov.Today = todayDays()
 	return json.Marshal(ov)
 }
 

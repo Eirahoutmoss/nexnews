@@ -37,7 +37,7 @@ var updatesBase = "https://raw.githubusercontent.com/Eirahoutmoss/nexnews/main/u
 const updatesPubKey = "0e69a0659fb1d6832983e96b0741de0d9300b18e210cc869dd6d7aef64d54c94"
 
 // Uzaktan değiştirilebilen dosyalar (başka ad kabul edilmez).
-var updatableFiles = map[string]bool{"livetv.json": true, "i18n.json": true, "localnews.json": true, "ownership.json": true, "extras.json": true}
+var updatableFiles = map[string]bool{"livetv.json": true, "i18n.json": true, "localnews.json": true, "ownership.json": true, "extras.json": true, "holidays.json": true}
 
 type updFile struct {
 	SHA256 string `json:"sha256"`

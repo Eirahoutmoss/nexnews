@@ -135,6 +135,7 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
                     )
                 }
                 o.crisis?.let { c -> if (c.key != crisisOff) item(key = "crisis") { CrisisCard(c, nav, onDismiss = { crisisOff = c.key; Prefs.get(ctx).crisisDismissed = c.key }) } }
+                if (o.today.isNotEmpty()) item(key = "today") { TodayStrip(o.today) { nav.agenda() } }
                 item { ViewToggle(calm) { setCalm(it) } }
                 item { ToolChips(nav, Core.configBool("easyRead", false)) }
                 if (calm) {
@@ -410,7 +411,7 @@ private fun CrisisCard(c: com.eirahoutmoss.nexnews.CrisisInfo, nav: NexNav, onDi
             c.numbers.forEach { n ->
                 androidx.compose.material3.AssistChip(onClick = {
                     runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_DIAL, android.net.Uri.parse("tel:" + n.number))) }
-                }, label = { Text(n.number + " " + n.label, fontWeight = FontWeight.Bold) })
+                }, label = { Text(n.number + " " + t(n.label), fontWeight = FontWeight.Bold) })
             }
         }
         if (c.stories.isNotEmpty()) {
@@ -421,5 +422,21 @@ private fun CrisisCard(c: com.eirahoutmoss.nexnews.CrisisInfo, nav: NexNav, onDi
         }
         Text(t("Doğrulanmamış bilgiyi paylaşmadan önce resmî kaynaklardan kontrol et. Afetlerde eski fotoğraf ve videolar sık sık yeniden dolaşıma sokulur."),
             style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
+    }
+}
+
+/** RC98: bugün bayram, anma ya da dünya günü varsa ince şerit. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun TodayStrip(list: List<com.eirahoutmoss.nexnews.AgendaItem>, onMore: () -> Unit) {
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(12.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)).clickable(onClick = onMore).padding(10.dp)
+    ) {
+        list.forEach { a ->
+            Text(agendaIcon(a) + " " + agendaTitle(a), fontWeight = if (a.kind == "bayram") FontWeight.Bold else FontWeight.Medium,
+                color = if (a.kind == "bayram") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium)
+        }
     }
 }

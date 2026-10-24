@@ -58,7 +58,7 @@ func MobileLiveBuiltin(on bool) error            { return liveSetBuiltin(on) }
 func MobileMirror() string { b, _ := readingMirrorJSON(); return string(b) }
 
 // MobileAgenda: önümüzdeki 14 günün gündem takvimi.
-func MobileAgenda() string { b, _ := agendaJSON(14); return string(b) }
+func MobileAgenda() string { b, _ := agendaJSON(30); return string(b) }
 
 // MobileAudioBrief: sesli brifing metni.
 func MobileAudioBrief() string {

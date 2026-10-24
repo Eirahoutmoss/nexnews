@@ -549,5 +549,182 @@
     "number": "112"
    }
   ]
- }
+ },
+ "observances": [
+  {
+   "rule": "yearly:01-27",
+   "title": "Uluslararası Holokost Kurbanlarını Anma Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:02-21",
+   "title": "Uluslararası Anadil Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:03-08",
+   "title": "Dünya Kadınlar Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:03-22",
+   "title": "Dünya Su Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:04-07",
+   "title": "Dünya Sağlık Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:04-22",
+   "title": "Dünya Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:04-23",
+   "title": "Dünya Kitap ve Telif Hakkı Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:05-03",
+   "title": "Dünya Basın Özgürlüğü Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:06-05",
+   "title": "Dünya Çevre Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:06-20",
+   "title": "Dünya Mülteciler Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:08-12",
+   "title": "Uluslararası Gençlik Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:09-21",
+   "title": "Uluslararası Barış Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:10-01",
+   "title": "Uluslararası Yaşlılar Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:10-16",
+   "title": "Dünya Gıda Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:10-24",
+   "title": "Birleşmiş Milletler Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:11-20",
+   "title": "Dünya Çocuk Hakları Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:11-25",
+   "title": "Kadına Yönelik Şiddete Karşı Uluslararası Mücadele Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:12-03",
+   "title": "Uluslararası Engelliler Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:12-10",
+   "title": "İnsan Hakları Günü",
+   "kind": "dunya",
+   "country": "",
+   "link": "https://www.un.org/en/observances/list-days-weeks"
+  },
+  {
+   "rule": "yearly:03-12",
+   "title": "İstiklal Marşı'nın Kabulü ve Mehmet Akif Ersoy'u Anma Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "yearly:03-18",
+   "title": "Çanakkale Zaferi ve Şehitleri Anma Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "yearly:11-10",
+   "title": "Atatürk'ü Anma Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "yearly:11-24",
+   "title": "Öğretmenler Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "nth:05:0:2",
+   "title": "Anneler Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  },
+  {
+   "rule": "nth:06:0:3",
+   "title": "Babalar Günü",
+   "kind": "anma",
+   "country": "TR",
+   "link": ""
+  }
+ ]
 }

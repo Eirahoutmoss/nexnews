@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexNews</title>
+<style>
+@@styles.css@@
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><img class="brand-logo" src="__NEXLOGO__" alt="">NexNews <small class="ver">v<span id="ver">0.1</span></small></div>
+    <input id="searchBox" class="search" type="text" placeholder="Ara: deprem türkiye · son 24 saat   ( / )" onkeydown="if(event.key==='Enter'){doSearch(this.value)}">
+    <button class="btn deep-search-btn" onclick="doDeepSearch(document.getElementById('searchBox').value)" title="Olay, kaynak ve kişi/kurum analiziyle ara"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/><path d="M8 11h6M11 8v6"/></svg><span>Derin Ara</span></button>
+    <div class="spacer"></div>
+    <button class="net-meter hide" id="netMeter" type="button" onclick="toggleNetSource()" aria-live="off"></button>
+    <button class="data-mode-btn" id="dataModeBtn" type="button" onclick="toggleDataPanel(event)" title="Veri akışı ve kullanım">⚡ Tam veri</button>
+    <span class="pulse-chip hide" id="pulseChip"></span>
+    <span class="updated" id="updated"></span>
+    <button class="btn upd-btn hide" id="updBtn" onclick="openAppUpdate()" title="NexNews'in yeni sürümü hazır">⬆ Yeni sürüm</button>
+    <button class="btn" id="refreshBtn" onclick="doRefresh()" title="Yenile (F5)">
+      <svg class="icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      <svg class="icon lbl-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      <span class="lbl">Yenile</span>
+    </button>
+    <button class="btn" onclick="enterWidget()" title="Masaüstü widget'ı">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 17h10"/></svg>
+      <span>Widget</span>
+    </button>
+    <button class="btn" onclick="openSettings()" title="Ayarlar ve kaynaklar">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Ayarlar</span>
+    </button>
+  </div>
+
+  <div class="wrap layout">
+    <aside class="leftcol" id="leftcol">
+      <div id="leftnav"></div>
+      <div class="wx-card wx-bar hide" id="wxCard" role="button" tabindex="0" title="Hava panosunu aç" onclick="openWeatherBoard()" onkeydown="if(event.key==='Enter')openWeatherBoard()"></div>
+    </aside>
+    <div class="main">
+      <div id="overview"><div class="loading-note">Yükleniyor…</div></div>
+      <div id="catpage" class="hide"></div>
+    </div>
+    <aside class="rightpanel" id="rightpanel">
+      <div class="rp-tabs" role="tablist" aria-label="Sağ panel">
+        <button class="rp-tab" role="tab" data-rtab="ozet" onclick="setRightTab('ozet')">Özet</button>
+        <button class="rp-tab" role="tab" data-rtab="borsa" onclick="setRightTab('borsa')">Borsa Analiz</button>
+        <button class="rp-tab" role="tab" data-rtab="spor" onclick="setRightTab('spor')">Spor</button>
+        <button class="rp-tab" role="tab" data-rtab="analiz" onclick="setRightTab('analiz')">Analiz</button>
+        <button class="rp-tab hide" role="tab" data-rtab="olay" id="rpTabOlay" onclick="setRightTab('olay')">Olay</button>
+      </div>
+      <div id="marketPanel" class="market-card"><div class="market-head"><h3>Borsa Analiz</h3><span class="market-upd" id="marketUpdated">yükleniyor…</span></div><div class="market-collapsible"><div class="market-summary" id="marketSummary"></div><div id="marketMovers" class="market-movers"></div><div class="market-tabs"><button class="market-tab active" data-mtab="borsa" onclick="setMarketTab('borsa')">Borsa</button><button class="market-tab" data-mtab="fx" onclick="setMarketTab('fx')">Döviz</button><button class="market-tab" data-mtab="emtia" onclick="setMarketTab('emtia')">Altın / Emtia</button></div><div id="marketList" class="market-empty">Piyasa verileri yükleniyor…</div><div class="mnews-head">Piyasayı ilgilendiren gündem</div><div id="marketNews" class="mnews-list"><div class="market-empty">Haberler taranıyor…</div></div><div class="market-foot"><button class="mini" onclick="openGoldDetail()">🪙 Altın detayları</button><button class="mini" onclick="openSettings()">Takip listesini düzenle</button></div></div></div>
+      <style>
+@@panels-inline.css@@
+</style>
+<div id="followPanel" class="follow-card"><div class="follow-card-head"><h3>Takip ettiklerim</h3><span class="smart-alert-upd" id="followCardUpd"></span></div><div id="followCardList" class="follow-card-list"><div class="rp-empty">Bir olayı ☆ Olayı takip et ile izlemeye al; gelişmeler burada görünür.</div></div></div>
+<div id="smartAlertPanel" class="smart-alert-card"><div class="smart-alert-head"><h3>Akıllı Uyarılar</h3><span class="smart-alert-upd" id="smartAlertUpdated">izleniyor…</span></div><div class="smart-alert-collapsible"><div id="smartAlertStats" class="smart-alert-stats"></div><div id="smartAlertList"></div><div class="smart-alert-foot">Olayın hızı, doğrulanma düzeyi ve önemine göre üretilir.</div></div></div>
+<div id="personalPanel" class="personal-card"><div class="personal-head"><h3>Kişisel Öncelikler</h3><span id="personalUpdated">hazırlanıyor…</span></div><div class="personal-score"><strong id="personalScore">--</strong><span>Kişisel öncelik</span></div><div class="personal-explicit" id="personalExplicit"></div><div class="personal-grid"><div><b>Konular</b><div id="personalTopics"></div></div><div><b>Kategoriler</b><div id="personalCategories"></div></div><div><b>İlgili varlıklar</b><div id="personalEntities"></div></div></div><div class="personal-reasons" id="personalReasons"></div><div id="personalStories" class="personal-stories"></div><div class="personal-foot">Genel önem skoru korunur; kişisel ilgi yalnızca önceliklendirmeye ek ağırlık verir.</div></div><div id="briefingPanel" class="briefing-card"><div class="briefing-head"><h3>Bugünün Dünyası</h3><span class="briefing-upd" id="briefingUpdated">hazırlanıyor…</span></div><div class="briefing-kicker" id="briefingWindow"></div><div class="briefing-headline" id="briefingHeadline">Yükleniyor…</div><div class="briefing-summary" id="briefingSummary"></div><div id="briefingItems" class="briefing-items"></div><div class="briefing-foot">Olay analizi ve gelişme eğilimine göre sıralanır.</div></div>
+
+<div id="contentIntelPanel" class="content-intel-card"><div class="content-intel-head"><h3>İçerik Süzgeci</h3><span id="contentIntelUpdated">izleniyor…</span></div><div id="contentIntelStats" class="content-intel-stats"></div><div id="contentIntelClasses" class="content-intel-classes"></div><div class="content-intel-foot">Canlı bülten ve liste/veri sayfaları akışta kalır ama olay gruplamasına alınmaz.</div></div><div id="sourceHealthPanel" class="source-health-card"><div class="source-health-head"><h3>Kaynak Sağlığı</h3><span id="sourceHealthUpdated">izleniyor…</span></div><div id="sourceHealthStats" class="source-health-stats"></div><div class="source-health-bar"><i id="sourceHealthBar" style="--w:0%"></i></div><div id="sourceHealthFailures"></div><div class="source-health-foot">Kaynak sayısı yalnızca config rakamı değildir: erişim, HTTP ve feed ayrıştırma durumu ayrıca ölçülür.</div></div><div id="officialPanel" class="official-card"><div class="official-head"><h3>Resmî Yayınlar</h3><span id="officialUpdated">hazırlanıyor…</span></div><div class="official-country" id="officialCountry"><b>Yerel resmî yayınlar</b><small>birincil kaynak</small></div><div id="officialList" class="official-list"></div><div id="officialPortals" class="official-portals"></div><div class="official-foot">Resmî yayınlar haber kaynağı sayısına dahil değildir. Birincil kaynak olarak ayrıca işaretlenir.</div></div>
+<div id="worldPanel" class="world-card"><div class="world-head"><h3>Dünya Nabzı</h3><span class="world-upd" id="worldUpdated">yükleniyor…</span></div><div id="worldSummary" class="world-summary"></div><div class="world-map-wrap"><div class="world-map-title"><span>Canlı olay katmanı</span><span id="worldFilterLabel">Tümü</span></div><svg id="worldMap" class="world-map" viewBox="0 0 720 340" role="img" aria-label="Dünya olay haritası"></svg><div id="worldMapLegend" class="world-map-legend"><button class="world-filter active" data-wfilter="all">Tümü</button><button class="world-filter" data-wfilter="yüksek">Yüksek</button><button class="world-filter" data-wfilter="gelişen">Gelişen</button><button class="world-filter" data-wfilter="ekonomi">Ekonomi</button></div></div><div id="worldRegions" class="world-regions"></div><div id="worldEvents" class="world-events"></div><div class="world-foot"><span class="market-upd">Bölgesel sinyal · olay mutabakatı</span></div></div>
+      <div id="standingsPanel" class="sport-card"><div class="sport-head"><h3>Puan Durumu</h3><span class="sport-upd" id="standingsUpdated">yükleniyor…</span></div><div class="sport-tools" id="standingsTabs"><button class="sport-filter active" data-league="futbol" onclick="setStandingsLeague('futbol')">⚽ Süper Lig</button><button class="sport-filter" data-league="basketbol" onclick="setStandingsLeague('basketbol')">🏀 Basketbol Süper Ligi</button></div><div id="standingsBody" class="sport-empty">Puan durumu yükleniyor…</div></div>
+      <div id="sportPanel" class="sport-card"><div class="sport-head"><h3>Maçlar</h3><span class="sport-upd" id="sportUpdated">yükleniyor…</span></div><div class="sport-tools"><button class="sport-filter active" data-sfilter="all" onclick="setSportFilter('all')">Tümü</button><button class="sport-filter" data-sfilter="live" onclick="setSportFilter('live')">🔴 Canlı</button><button class="sport-filter" data-sfilter="upcoming" onclick="setSportFilter('upcoming')">Yaklaşan</button><button class="sport-filter" data-sfilter="post" onclick="setSportFilter('post')">Sonuç</button></div><div id="sportCounts" class="sport-counts"></div><div id="sportList" class="sport-empty">Spor karşılaşmaları yükleniyor…</div><div class="sport-foot"><span class="market-upd">Futbol · Basketbol</span><button class="mini" onclick="openSettings()">Sporları düzenle</button></div></div>
+      <div id="intel2Panel" class="intel2-card"><div class="intel2-head"><h3>Olay Analizi</h3><span class="intel2-upd" id="intel2Updated">yükleniyor…</span></div><div id="intel2Stats" class="intel2-stats"></div><div id="intel2Events"></div></div>
+      <div id="predictPanel" class="predict-card"><div class="predict-head"><h3>Gelişme Eğilimi</h3><span class="predict-upd" id="predictUpdated">yükleniyor…</span></div><div id="predictStats" class="predict-stats"></div><div id="predictEvents"></div></div>
+      <div id="entityPanel" class="entity-card"><div class="entity-head"><h3>Kişi ve Kurumlar</h3><span class="entity-upd" id="entityUpdated">yükleniyor…</span></div><div id="entityStats" class="entity-stats"></div><div id="entityCloud" class="entity-cloud"></div><div id="entityRelations" class="entity-relations"></div></div>
+      <div id="eventGraphPanel" class="eg-card"><div class="eg-head"><h3>Olay İlişkileri</h3><span class="eg-upd" id="egUpdated">yükleniyor…</span></div><div id="egSummary" class="eg-summary">Olay · kaynak · bölge · kategori ilişkileri</div><div class="eg-wrap"><svg id="eventGraph" class="eg-svg" viewBox="0 0 720 300" role="img" aria-label="Global olay ilişkileri grafiği"></svg><div class="eg-legend"><span>🔵 Olay</span><span>🟢 Kaynak</span><span>🟠 Bölge</span><span>🟣 Kategori</span></div></div></div>
+      <div id="eventPanel"><div class="rp-empty">Bir olaya (📁) tıklayın — ayrıntı, kaynaklar ve zaman çizelgesi burada açılır.</div></div>
+    </aside>
+  </div>
+
+  <!-- widget (akış) modu -->
+  <div id="widget">
+    <div class="w-top">
+      <span class="w-brand"><span class="w-dot"></span>NexNews</span>
+      <span class="w-count" id="wCount"></span>
+      <span class="spacer"></span>
+      <button class="mini" data-wmenu-toggle onclick="showWMenu()" title="Widget görünümü">◐</button>
+      <button class="mini" onclick="doRefresh()" title="Yenile">⟳</button>
+      <button class="mini" onclick="exitWidget()" title="Tam ekrana dön">⤢</button>
+    </div>
+    <div class="w-break hide" id="wBreak"></div>
+    <div class="ticker"><div class="tk-item" id="wTicker" data-act="browser"></div></div>
+    <div class="w-resize" aria-label="Widget boyutlandır"></div>
+  </div>
+  <div class="wmenu hide" id="wmenu"></div>
+
+  <!-- kalıcı oynatıcı: sayfalar arasında gezinirken radyo/TV çalmaya devam eder -->
+  <div id="mediaDock" class="media-dock hide" aria-label="Oynatıcı">
+    <div class="md-tv hide" id="mdTV">
+      <div class="live-tv-frame" id="liveTVFrame"><video id="liveTVVideo" controls playsinline preload="metadata"></video><div id="liveTVStatus" class="live-tv-status">Canlı yayın hazırlanıyor…</div></div>
+    </div>
+    <div class="md-bar">
+      <span class="md-live" aria-hidden="true"></span>
+      <div class="md-info"><b id="mdTitle"></b><small id="mdSub"></small></div>
+      <button class="mini" id="mdPlay" onclick="mediaToggle()" title="Duraklat / sürdür">❚❚</button>
+      <input type="range" id="mdVol" min="0" max="100" value="80" title="Ses" oninput="mediaVolume(this.value)">
+      <button class="mini" onclick="mediaOpenPage()" title="Yayın sayfasına dön">⤢</button>
+      <button class="mini" onclick="mediaStop()" title="Kapat">✕</button>
+    </div>
+    <audio id="radioAudio" preload="none"></audio>
+  </div>
+
+  <!-- reader -->
+  <div class="reader-overlay" id="readerOverlay" onclick="closeReader()"></div>
+  <aside class="reader" id="reader">
+    <div class="reader-bar">
+      <span class="r-title" id="rSource">Okuyucu</span>
+      <div class="read-controls" aria-label="Okuma kontrolleri">
+        <button class="mini" onclick="readerScale(-10)" title="Metni küçült">A−</button>
+        <button class="mini" onclick="readerScale(10)" title="Metni büyüt">A+</button>
+        <button class="mini" onclick="readerLine(-0.1)" title="Satır aralığını azalt">↕−</button>
+        <button class="mini" onclick="readerLine(0.1)" title="Satır aralığını artır">↕+</button>
+        <button class="mini" onclick="toggleReaderFocus()" title="Odaklı okuma">◉</button>
+        <span class="read-state" id="readState" aria-live="polite"></span>
+      </div>
+      <button class="btn primary" id="rOpenBtn">Tarayıcıda Aç</button>
+      <button class="btn" onclick="closeReader()">Kapat</button>
+    </div>
+    <div class="reader-scroll" id="rScroll"></div>
+  </aside>
+
+  <!-- settings -->
+  <div class="modal-overlay" id="settingsOverlay">
+    <div class="modal settings-modal" role="dialog" aria-label="Ayarlar">
+      <div class="modal-head"><h2>Ayarlar</h2>
+        <button class="btn" onclick="closeSettings()">Kapat</button>
+      </div>
+      <div class="set-layout">
+        <nav class="set-nav" id="setNav">
+          <button data-sec="gorunum" class="active" onclick="showSetSec('gorunum')">Görünüm</button>
+          <button data-sec="okuma" onclick="showSetSec('okuma')">Okuma</button>
+          <button data-sec="akis" onclick="showSetSec('akis')">Haber akışı</button>
+          <button data-sec="bildirim" onclick="showSetSec('bildirim')">Bildirimler</button>
+          <button data-sec="widget" onclick="showSetSec('widget')">Widget</button>
+          <button data-sec="piyasa" onclick="showSetSec('piyasa')">Piyasa ve spor</button>
+          <button data-sec="kaynak" onclick="showSetSec('kaynak')">Kaynaklar</button>
+        </nav>
+        <div class="modal-body">
+          <section class="set-sec" data-sec="gorunum">
+            <h3>Görünüm</h3>
+            <div class="opt-row">
+              <label>Tema</label>
+              <select id="optTheme">
+                <option value="premium">Premium (kozmik)</option>
+                <option value="koyu">Koyu</option>
+                <option value="acik">Açık</option>
+                <option value="kontrast">Yüksek kontrast</option>
+              </select>
+              <span id="optGlassWrap">
+                <label style="margin-left:14px">Panel yoğunluğu</label>
+                <input type="range" id="optGlassOp" min="40" max="100" step="1" style="width:150px">
+                <span id="optGlassVal" class="access-note"></span>
+              </span>
+            </div>
+            <div class="opt-row">
+              <label>Arayüz dili</label>
+              <select id="optUILang">
+                <option value="">Otomatik (sistem dili)</option>
+                <option value="tr">Türkçe</option>
+                <option value="en">English</option>
+                <option value="ar">العربية</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="ru">Русский</option>
+              </select>
+            </div>
+            <div class="opt-row">
+              <label>Liste yoğunluğu</label>
+              <div class="seg" id="optDensity">
+                <button type="button" data-v="rahat">Rahat</button>
+                <button type="button" data-v="siki">Sıkı</button>
+              </div>
+              <span class="access-note">Sıkı: tek satırlık başlık listesi, görsel ve ayrıntı yok.</span>
+            </div>
+            <div class="opt-row">
+              <label><input type="checkbox" id="optNetMeter"> Üst çubukta bağlantı hızı ve son 5 dakikada çekilen veri</label>
+            </div>
+            <div class="opt-row">
+              <label><input type="checkbox" id="optWx"> Hava durumu paneli</label>
+            </div>
+          </section>
+
+          <section class="set-sec" data-sec="okuma">
+            <h3>Okuma ve erişilebilirlik</h3>
+            <div class="opt-row">
+              <label><input type="checkbox" id="optInApp"> Haberleri uygulama içi okuyucuda aç</label>
+            </div>
+            <div class="opt-row">
+              <label>Metin ölçeği <input type="range" id="optFontScale" min="80" max="160" step="5" style="width:150px"></label>
+              <span id="optFontScaleVal" class="access-note"></span>
+              <label>Satır aralığı <input type="range" id="optLineHeight" min="1.4" max="2.4" step="0.05" style="width:150px"></label>
+              <span id="optLineHeightVal" class="access-note"></span>
+            </div>
+            <div class="opt-row">
+              <label>Metin genişliği <select id="optReaderWidth"><option value="560">Dar</option><option value="680">Orta</option><option value="760">Rahat</option><option value="880">Geniş</option></select></label>
+              <label><input type="checkbox" id="optDyslexia"> Okuma dostu yazı aralığı</label>
+            </div>
+            <div class="opt-row">
+              <label><input type="checkbox" id="optTr"> Başlıkları yerel dile çevir</label>
+              <input type="text" id="optTrLang" placeholder="sistem dili" style="width:90px" title="dil kodu (boş = sistem dili), ör. tr, en, de">
+              <span id="optTrInfo" class="access-note"></span>
+            </div>
+            <div class="access-note">Çevrilen başlıklar diske kaydedilir; uygulama yeniden açıldığında tekrar çevrilmez. Farklı dillerdeki aynı haberler de çeviri üzerinden tek olayda birleşir.</div>
+          </section>
+
+          <section class="set-sec" data-sec="akis">
+            <h3>Haber akışı</h3>
+            <div class="opt-row">
+              <label>Kategori başına başlık</label>
+              <input type="number" id="optMax" min="1" max="30" style="width:70px">
+              <label style="margin-left:14px">Otomatik yenileme (dk, 0 = kapalı)</label>
+              <input type="number" id="optRefresh" min="0" max="240" style="width:70px">
+            </div>
+            <div class="opt-row" style="align-items:flex-start">
+              <label>Haber bölgesi</label>
+              <select id="optNewsCountry" style="min-width:210px"><option value="">Tüm dünya</option></select>
+              <select id="optCountryScope" title="Haber kapsamı"><option value="related">Ülke + ilgili dünya haberleri</option><option value="strict">Sadece ülke</option></select>
+              <div class="access-note" style="flex-basis:100%">Ülke, haberin kaynağına göre değil içeriğindeki ülke/başkent/coğrafi bağa göre belirlenir.</div>
+            </div>
+            <div class="opt-row" style="align-items:flex-start">
+              <label style="flex-basis:100%">İlgi alanların (virgülle) — "Senin için" bölümünü doldurur</label>
+              <input type="text" id="optInterests" placeholder="yapay zeka, deprem, uzay, siber güvenlik" style="flex-basis:100%">
+              <label style="flex-basis:100%;margin-top:6px">Gizle (virgülle) — konu haberin ana konusuysa gizlenir; suç/güvenlik gibi kritik bağlamlar korunur</label>
+              <input type="text" id="optHide" placeholder="magazin, transfer, kripto" style="flex-basis:100%">
+            </div>
+            <div class="access-note">"Farklı bir pencere" kartı, son iki haftada en az okuduğun bölge veya konudan güçlü bir haberi öne çıkarır.</div>
+          </section>
+
+          <section class="set-sec" data-sec="bildirim">
+            <h3>Bildirimler</h3>
+            <div class="opt-row">
+              <label><input type="checkbox" id="optNotify"> Masaüstü bildirimi (yalnızca önemli yeni olaylar)</label>
+              <label style="margin-left:10px">Eşik skoru</label>
+              <input type="number" id="optNotifyMin" min="40" max="100" style="width:70px">
+            </div>
+            <div class="opt-row">
+              <label><input type="checkbox" id="optQuiet"> Sessiz saatler</label>
+              <input type="time" id="optQuietFrom" value="23:00">
+              <span class="access-note">–</span>
+              <input type="time" id="optQuietTo" value="07:00">
+              <span class="access-note">Bu aralıkta bildirim gösterilmez; haberler akışta yine görünür.</span>
+            </div>
+          </section>
+
+          <section class="set-sec" data-sec="widget">
+            <h3>Widget</h3>
+            <div class="wprev-wrap">
+              <div class="wprev-bg"><div class="wprev" id="wPreview"><div class="wprev-top"><span class="w-dot"></span>NexNews</div><div class="wprev-line"><b>⚡</b> Örnek başlık: widget burada böyle görünür <i>BBC +2</i></div></div></div>
+              <div class="wprev-note">Önizleme: arkadaki desen masaüstünü temsil eder. Gerçek cam/bulanık efekti Windows tarafından çizilir.</div>
+            </div>
+            <div class="opt-row">
+              <label>Arka plan</label>
+              <div class="seg" id="optWMode">
+                <button type="button" data-v="opak">Opak</button>
+                <button type="button" data-v="cam">Cam</button>
+                <button type="button" data-v="bulanik">Bulanık</button>
+                <button type="button" data-v="saydam">Saydam</button>
+              </div>
+            </div>
+            <div class="opt-row">
+              <label>Yüzey opaklığı</label>
+              <input type="range" id="optWidgetOpacity" min="0" max="100" step="1" style="width:180px">
+              <span id="optWidgetOpacityVal" class="access-note"></span>
+              <label style="margin-left:12px" id="optWTintLbl">Cam tonu</label>
+              <input type="range" id="optWTint" min="0" max="100" step="1" style="width:140px">
+              <span id="optWTintVal" class="access-note"></span>
+            </div>
+            <div class="access-note" style="margin:-6px 0 14px">Opak: düz zemin. Cam: buzlu cam (Windows 10/11). Bulanık: tonsuz bulanıklık. Saydam: yalnızca yazılar, masaüstü doğrudan görünür. Değişiklikler widget açıksa anında uygulanır.</div>
+            <div class="opt-row">
+              <label><input type="checkbox" id="optWSingle"> Tek satır (son dakika ayrı satırda gösterilmez)</label>
+              <label><input type="checkbox" id="optWImp"> Yalnızca önemli / son dakika</label>
+              <label>Kayma süresi
+                <select id="optWSlide" style="margin-left:6px">
+                  <option value="2">2 sn</option><option value="3">3 sn</option>
+                  <option value="5">5 sn</option><option value="8">8 sn</option>
+                  <option value="12">12 sn</option>
+                </select>
+              </label>
+            </div>
+            <div class="opt-row" style="align-items:flex-start">
+              <label style="flex-basis:100%">Gösterilecek kategoriler (hiçbiri seçili değilse tümü)</label>
+              <div id="widgetCatSel" style="display:flex;flex-wrap:wrap;gap:12px;flex-basis:100%"></div>
+            </div>
+          </section>
+
+          <section class="set-sec" data-sec="piyasa">
+            <h3>Piyasa ve spor</h3>
+            <div class="opt-row" style="align-items:flex-start">
+              <label style="flex-basis:100%"><b>Piyasa takip listesi</b></label>
+              <input type="text" id="optMarketWatch" placeholder="THYAO, ASELS, GARAN, USDTRY=X, EURTRY=X, GC=F" style="flex-basis:100%">
+              <div class="access-note" style="flex-basis:100%">BIST hisseleri için kod yeterli: <b>THYAO</b>. Döviz/emtia için Yahoo Finance sembolü: <b>USDTRY=X</b>, <b>EURTRY=X</b>, <b>GC=F</b>. Boş bırakılırsa varsayılan liste kullanılır.</div>
+            </div>
+            <div class="opt-row" style="align-items:flex-start">
+              <label style="flex-basis:100%"><b>Spor takip listesi</b></label>
+              <input type="text" id="optSportsWatch" placeholder="futbol, ucl, premier, nba" style="flex-basis:100%">
+              <div class="access-note" style="flex-basis:100%">Desteklenen ligler: <b>futbol</b> (Süper Lig), <b>premier</b>, <b>ucl</b>, <b>nba</b>, <b>euroleague</b>, <b>nfl</b>.</div>
+            </div>
+            <div class="opt-row" style="align-items:flex-start">
+              <label style="flex-basis:100%"><b>Favori takımlar</b></label>
+              <input type="text" id="optSportsTeams" placeholder="Galatasaray, Fenerbahçe, Beşiktaş" style="flex-basis:100%">
+            </div>
+          </section>
+
+          <section class="set-sec" data-sec="kaynak">
+            <h3>Kaynaklar</h3>
+            <div class="opt-row">
+              <button class="btn" onclick="exportCfg('csv')">Dışa aktar (CSV)</button>
+              <button class="btn" onclick="exportCfg('json')">Yedekle (JSON)</button>
+              <button class="btn" onclick="importCfg()">İçe aktar…</button>
+              <span id="ioInfo" class="access-note" style="flex-basis:100%"></span>
+            </div>
+            <div class="src-legend"><span><i class="hdot ok"></i>çalışıyor</span><span><i class="hdot stale"></i>yavaş/eski</span><span><i class="hdot err"></i>hata</span><span><i class="hdot"></i>henüz denenmedi</span></div>
+            <div id="catsEditor"></div>
+            <button class="btn" onclick="addCategory()">+ Kategori ekle</button>
+          </section>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <span class="access-note set-foot-note">Kısayollar: <b>J/K</b> gezin · <b>O</b> aç · <b>S</b> favori · <b>/</b> ara · <b>?</b> yardım</span>
+        <button class="btn" onclick="closeSettings()">Vazgeç</button>
+        <button class="btn primary" onclick="saveSettings()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- klavye kısayolları -->
+  <div class="modal-overlay" id="keysOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="modal keys-modal">
+      <div class="modal-head"><h2>Klavye kısayolları</h2><button class="btn" onclick="document.getElementById('keysOverlay').classList.remove('open')">Kapat</button></div>
+      <div class="modal-body keys-grid">
+        <kbd>J</kbd><span>Sonraki haber</span><kbd>K</kbd><span>Önceki haber</span>
+        <kbd>O</kbd> <span>Aç (okuyucu ya da tarayıcı ayarına göre)</span><kbd>Enter</kbd><span>Aç</span>
+        <kbd>R</kbd><span>Uygulama içi okuyucuda aç</span><kbd>B</kbd><span>Tarayıcıda aç</span>
+        <kbd>E</kbd><span>Olay ayrıntısı</span><kbd>S</kbd><span>Favorilere ekle/çıkar</span>
+        <kbd>/</kbd><span>Aramaya git</span><kbd>G</kbd><span>Ana sayfaya dön</span>
+        <kbd>F5</kbd><span>Yenile</span><kbd>Esc</kbd><span>Kapat</span>
+        <kbd>?</kbd><span>Bu pencere</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+@@i18n.js@@
+</script>
+<script>
+@@app-00-temel.js@@
+@@app-10-genel-bakis.js@@
+@@app-20-olay-guncelleme.js@@
+@@app-30-arama-okuyucu-ceviri.js@@
+@@app-40-widget.js@@
+@@app-50-ayarlar.js@@
+@@app-60-gezinme.js@@
+@@app-70-canli-tv.js@@
+@@app-80-radar-hava.js@@
+@@app-85-piyasa-paneller.js@@
+@@app-86-radyo.js@@
+@@app-90-analiz-panelleri.js@@
+@@app-95-sag-kartlar.js@@
+@@app-99-baslat.js@@
+</script>
+</body>
+</html>

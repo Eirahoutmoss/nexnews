@@ -321,7 +321,7 @@ func buildBoard(ctx context.Context, place string) weatherBoard {
 			s.Temp = at(temp, hi)
 			s.PrecipProb = iat(prob, hi)
 			s.Gust = at(gust, hi)
-			s.Icon, s.Desc = weatherText(s.Code)
+			s.Icon, s.Desc = weatherTextUI(s.Code)
 			s.DirName = dirName(s.DirFrom)
 			s.ToName = dirName((s.DirFrom + 180) % 360)
 			return s
@@ -335,7 +335,7 @@ func buildBoard(ctx context.Context, place string) weatherBoard {
 		s.Gust = at(gust, i)
 		s.DirFrom = int(math.Round(at(dir, i)))
 		s.Code = iat(code, i)
-		s.Icon, s.Desc = weatherText(s.Code)
+		s.Icon, s.Desc = weatherTextUI(s.Code)
 		s.DirName = dirName(s.DirFrom)
 		s.ToName = dirName((s.DirFrom + 180) % 360)
 		return s
@@ -373,7 +373,7 @@ func buildBoard(ctx context.Context, place string) weatherBoard {
 	}
 	for i := start; i < end; i++ {
 		h := wbHour{TS: hourTimes[i].Unix(), Label: hourTimes[i].Format("15:04"), Temp: at(temp, i), Precip: at(precip, i), Prob: iat(prob, i), Wind: at(wind, i)}
-		h.Icon, h.Desc = weatherText(iat(code, i))
+		h.Icon, h.Desc = weatherTextUI(iat(code, i))
 		board.Hourly = append(board.Hourly, h)
 	}
 
@@ -463,7 +463,7 @@ func enrichBoard(ctx context.Context, ll string, now time.Time, board *weatherBo
 		d.Prob = int(atv(r.Daily.Prob, i))
 		d.Wind = atv(r.Daily.WindMax, i)
 		d.Code = int(atv(r.Daily.Code, i))
-		d.Icon, d.Desc = weatherText(d.Code)
+		d.Icon, d.Desc = weatherTextUI(d.Code)
 		board.Days = append(board.Days, d)
 	}
 
@@ -499,7 +499,8 @@ func dayLabel(t time.Time, i int) string {
 	if i == 1 {
 		return "Yarın"
 	}
-	return trWeekdays[int(t.Weekday())]
+	d := trWeekdays[int(t.Weekday())]
+	return uiTK("gün:"+d, d)
 }
 
 func hhmm(s string) string {
@@ -889,7 +890,14 @@ var compass = []string{"K", "KD", "D", "GD", "G", "GB", "B", "KB"}
 
 func dirName(deg int) string {
 	deg = ((deg % 360) + 360) % 360
-	return compass[int(math.Round(float64(deg)/45))%8]
+	c := compass[int(math.Round(float64(deg)/45))%8]
+	return uiTK("yön:"+c, c)
+}
+
+// weatherTextUI: weatherText'in arayüz dilindeki hâli ("Açık" burada gökyüzü).
+func weatherTextUI(code int) (string, string) {
+	ic, d := weatherText(code)
+	return ic, uiTK("hava:"+d, d)
 }
 
 // weatherText maps a WMO weather code to an emoji icon and a Turkish label.

@@ -156,7 +156,7 @@ func liveHostHeader(raw string) (liveCandidate, bool) {
 			}
 		}
 		var all []json.RawMessage
-		_ = json.Unmarshal(liveTVRaw, &all)
+		_ = json.Unmarshal(liveTVSource(), &all)
 		add(all)
 		if cfg != nil {
 			cfg.mu.RLock()

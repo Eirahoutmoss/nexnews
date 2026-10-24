@@ -14,8 +14,16 @@ var liveTVRaw []byte
 // liveTVJSON returns the channel list as compact JSON.
 func liveTVJSON() []byte {
 	var b bytes.Buffer
-	if err := json.Compact(&b, liveTVRaw); err != nil {
+	if err := json.Compact(&b, liveTVSource()); err != nil {
 		return []byte("[]")
 	}
 	return b.Bytes()
+}
+
+// liveTVSource: uzaktan güncellenmiş (imzası doğrulanmış) liste varsa o, yoksa gömülü liste.
+func liveTVSource() []byte {
+	if b := updatedAsset("livetv.json"); b != nil {
+		return b
+	}
+	return liveTVRaw
 }

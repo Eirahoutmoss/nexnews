@@ -7,3 +7,11 @@ import _ "embed"
 //
 //go:embed assets/i18n.json
 var i18nJSON []byte
+
+// i18nSource: uzaktan güncellenmiş çeviriler varsa onlar, yoksa gömülü olanlar.
+func i18nSource() []byte {
+	if b := updatedAsset("i18n.json"); b != nil {
+		return b
+	}
+	return i18nJSON
+}

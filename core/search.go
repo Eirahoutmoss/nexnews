@@ -28,6 +28,7 @@ type tlItem struct {
 
 type outEvent struct {
 	Found              bool           `json:"found"`
+	Coverage           *coverage      `json:"coverage,omitempty"`
 	Title              string         `json:"title"`
 	Category           string         `json:"category"`
 	Kind               string         `json:"kind"`
@@ -196,6 +197,7 @@ func (s *Store) storyJSON(link string) ([]byte, error) {
 	e.Evidence = evidenceForStory(st)
 	e.Followed = follows.isStory(st)
 	e.Headlines = s.framingHeadlines(st)
+	e.Coverage = s.coverageFor(st)
 
 	// Timeline ascending (oldest → newest), like an event log.
 	items := make([]Item, len(st.items))

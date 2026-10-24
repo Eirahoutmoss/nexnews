@@ -79,7 +79,8 @@ func setAccent(hwnd uintptr, state uint32, color uint32) bool {
 		ap.AccentFlags = 2 // honour GradientColor
 	}
 	data := winCompAttrData{Attrib: wcaAccentPolicy, PvData: unsafe.Pointer(&ap), CbData: unsafe.Sizeof(ap)}
-	r, _, _ := procSetWindowCompositionAttribute.Call(hwnd, uintptr(unsafe.Pointer(&data)))
+	r, _, e := procSetWindowCompositionAttribute.Call(hwnd, uintptr(unsafe.Pointer(&data)))
+	diagf("  setAccent state=%d color=%#x ok=%v err=%v", state, color, r != 0, e)
 	return r != 0
 }
 
@@ -141,6 +142,7 @@ func applyWidgetBackdrop(hwnd uintptr, mode string, tint int, light bool) {
 	// pencerenin piksel başına saydamlığını açar: WebView2'nin saydam
 	// arka planı doğrudan masaüstünü gösterir. Diğer modlarda kapatılır.
 	setPerPixelAlpha(hwnd, mode == "saydam")
+	diagf("backdrop mode=%s tint=%d win11=%v", mode, tint, isWin11())
 	switch mode {
 	case "opak":
 		setAccent(hwnd, accentDisabled, 0)
@@ -197,7 +199,8 @@ func setPerPixelAlpha(hwnd uintptr, on bool) {
 		rgn, _, _ := procCreateRectRgn.Call(0, 0, ^uintptr(0), ^uintptr(0)) // (0,0,-1,-1): boş bölge
 		bb.Flags |= 0x2                                                     // DWM_BB_BLURREGION
 		bb.Enable, bb.RgnBlur = 1, rgn
-		procDwmEnableBlurBehindWindow.Call(hwnd, uintptr(unsafe.Pointer(&bb)))
+		hr, _, _ := procDwmEnableBlurBehindWindow.Call(hwnd, uintptr(unsafe.Pointer(&bb)))
+		diagf("  blurBehind(empty rgn) rgn=%#x hr=%#x", rgn, hr)
 		if rgn != 0 {
 			procDeleteObject.Call(rgn)
 		}

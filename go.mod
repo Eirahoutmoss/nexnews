@@ -24,3 +24,6 @@ replace golang.org/x/text => github.com/golang/text v0.24.0
 replace golang.org/x/crypto => github.com/golang/crypto v0.37.0
 
 replace golang.org/x/term => github.com/golang/term v0.31.0
+
+// NexNews: pencere WS_EX_NOREDIRECTIONBITMAP ile oluşturulur (saydam widget).
+replace github.com/jchv/go-webview2 => ./third_party/go-webview2

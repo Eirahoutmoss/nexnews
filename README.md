@@ -4,6 +4,38 @@ Dünyanın nabzı, tek akışta. Dil ve kaynak bağımsız RSS/Atom haber toplay
 aynı olayı farklı kaynaklardan tek habere toplar, ajans metinlerini ayırt eder,
 önem sırasına dizer ve "kim nasıl başlık attı?" karşılaştırması sunar.
 
+## RC97 (masaüstü 1.0.0-rc97 · Android 0.4.0)
+
+İnsanın haberle ilişkisini merkeze alan sürüm: neyi, nereden, nasıl okuduğunu fark ettirmek.
+
+- **Okuma aynası:** son 30 günde hangi kaynakları, bölgeleri ve sahiplik türlerini okuduğun;
+  kaynak çeşitliliği (normalleştirilmiş entropi) ve "hep aynı kaynak / hiç okumadığın bölgeler"
+  gibi nazik notlar. Yalnızca cihazdaki okuma geçmişinden hesaplanır (`core/mirror.go`).
+- **Abartılı dil işareti:** başlıkların duygu yükü / merak tuzağı puanı (`core/sensation.go`);
+  istenirse olayın en sakin başlığı gösterilir (Ayarlar › Sakin başlıklar).
+- **Sen bakmayalı ne değişti?** Açılan olayların ziyaret zamanı saklanır (`visits.json`);
+  akışta "+N yeni" rozeti, olay sayfasında yeni başlıklar işaretli.
+- **Doğrulama rozeti:** Teyit, Doğruluk Payı, Malumatfuruş, Full Fact, PolitiFact, CORRECTIV…
+  yazıları olaylarla eşleştirilir; NexNews hüküm vermez, kuruluşun yazısını gösterir (`core/factcheck.go`).
+- **Kriz modu:** kullanıcının ülkesinde büyük deprem (M ≥ 5,5) ya da GDACS turuncu/kırmızı uyarısında
+  akışın en üstünde sade kart: doğrulanmış gelişmeler, acil numaralar, paylaşmadan önce doğrula (`core/crisis.go`).
+- **Bağlam kartı:** "Bu konuya yeni misin?" — olaydaki adlar için Vikipedi özeti ve önceki olaylar;
+  yalnızca istenince indirilir (`core/contextcard.go`).
+- **Gündem takvimi (30 gün):** merkez bankası kararları ve veri açıklamaları, ülkenin **resmî
+  tatil ve bayramları** (247 ülke ve bölge, Antarktika dahil — `core/assets/holidays.json`,
+  `tools/gen_holidays.py` ile python-holidays verisinden üretilir), Türkiye'nin anma günleri ve
+  BM dünya günleri. Bugün özel bir gün varsa akışta ince şerit.
+- **Dünyada bugün:** bugün bağımsızlık / cumhuriyet / ulusal günü olan ülkeler.
+- **Kolay okuma:** büyük yazı, sade görünüm.
+- **Uzaktan güncellenen yeni veriler:** `extras.json` (doğrulama siteleri, takvim, acil numaralar)
+  ve `holidays.json` imzalı güncellemeyle tazelenir.
+
+## RC96 (Android 0.3.0)
+
+- Android 7 dilde (Arapçada sağdan sola), sakin görünüm, haftanın özeti, kör nokta ve
+  "Kim anlatıyor?", kendi M3U kanal listeleri — masaüstüyle eşit.
+- Kendiliğinden güncelleme: sürüm adresi 404 verirse yayınlarda aynı özeti taşıyan exe aranır.
+
 ## RC95 (masaüstü 1.0.0-rc95)
 
 - **Arayüz dosyaları bölündü:** tek 4.600 satırlık `index.html` yerine `core/assets/ui/` altında
@@ -48,9 +80,9 @@ aynı olayı farklı kaynaklardan tek habere toplar, ajans metinlerini ayırt ed
 # 1) exe'yi derle
 .\build.ps1
 # 2) listeleri ve (varsa) yeni exe'yi imzala — gizli anahtar depoda DEĞİL, imza\ klasöründe
-go run ./cmd/nexsign -key ..\imza\nexnews-guncelleme.key -app dist\NexNews.exe -version 1.0.0-rc94 -notes "Değişiklikler"
+go run ./cmd/nexsign -key ..\imza\nexnews-guncelleme.key -app dist\NexNews.exe -version 1.0.0-rc97 -notes "Değişiklikler"
 # 3) updates\ klasörünü main'e gönder (commit mesajına [skip ci] ekle), exe'yi
-#    v1.0.0-rc94 etiketli GitHub sürümüne NexNews.exe adıyla yükle
+#    v1.0.0-rc97 etiketli GitHub sürümüne NexNews.exe adıyla yükle
 ```
 Yalnızca liste güncellemek için `-app` vermeden çalıştırmak yeter (önceki sürüm bilgisi korunur).
 
@@ -87,6 +119,7 @@ Yalnızca liste güncellemek için `-app` vermeden çalıştırmak yeter (öncek
 | `cmd/nexpage/` | Birleştirilmiş arayüz sayfasını önizleme için yazar. |
 | `mobile/` | Android için gomobile köprüsü (`nexcore` paketi, JSON alışverişi). |
 | `android/` | Android uygulaması (Kotlin + Jetpack Compose). |
+| `tools/` | Veri üreticileri (ör. `gen_holidays.py`: resmî tatil verisi). |
 | `translation-engine/` | İsteğe bağlı yerel çeviri motoru (Docker + LibreTranslate), masaüstü için. |
 
 ## Derleme
@@ -113,9 +146,10 @@ ve güncellemeler kaldırıp kurmadan yüklenir:
 
 ## Masaüstü
 
-- Sürüm: **1.0.0-rc82**
+- Sürüm: **1.0.0-rc97**
 - Ayarlar ve önbellek: `%APPDATA%\NexNews\` (`config.json`, `feed-cache.json`,
-  `translations.json`, `favorites.json`, `history.json`, `follows.json`).
+  `translations.json`, `favorites.json`, `history.json`, `follows.json`, `weekly.json`,
+  `visits.json`, `factcheck.json`, `wikicache.json`).
 
 ## RC84 değişiklikleri (masaüstü)
 

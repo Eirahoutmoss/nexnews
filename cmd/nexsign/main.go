@@ -57,6 +57,7 @@ func main() {
 	appExe := flag.String("app", "", "yayınlanacak exe (isteğe bağlı)")
 	version := flag.String("version", "", "exe sürümü, ör. 1.0.0-rc93")
 	notes := flag.String("notes", "", "sürüm notu")
+	appURL := flag.String("url", "", "exe'nin GitHub sürüm adresi (boşsa .../releases/download/v<sürüm>/NexNews.exe)")
 	keepApp := flag.Bool("keep-app", true, "exe verilmezse önceki manifestteki uygulama bilgisini koru")
 	flag.Parse()
 	raw, err := os.ReadFile(*keyPath)
@@ -88,8 +89,11 @@ func main() {
 		}
 		b, err := os.ReadFile(*appExe)
 		must(err)
-		m.App = &app{Version: *version, SHA256: sum(b), Size: int64(len(b)), Notes: *notes,
-			URL: "https://github.com/Eirahoutmoss/nexnews/releases/download/v" + *version + "/NexNews.exe"}
+		u := *appURL
+		if u == "" {
+			u = "https://github.com/Eirahoutmoss/nexnews/releases/download/v" + *version + "/NexNews.exe"
+		}
+		m.App = &app{Version: *version, SHA256: sum(b), Size: int64(len(b)), Notes: *notes, URL: u}
 	} else if *keepApp {
 		m.App = old.App
 	}

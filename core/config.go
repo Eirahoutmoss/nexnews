@@ -36,6 +36,7 @@ type Config struct {
 	Theme          string     `json:"theme"`          // premium / koyu / acik / kontrast
 	Translate      bool       `json:"translate"`      // translate titles to local language
 	TranslateLang  string     `json:"translateLang"`  // target code; empty = system default
+	UILang         string     `json:"uiLang"`         // arayüz dili; boş = sistem dili
 	Weather        bool       `json:"weather"`        // show the weather panel
 	WeatherPlace   string     `json:"weatherPlace"`   // manual city; empty = auto (IP)
 	Interests      []string   `json:"interests"`      // keywords for the "SENİN İÇİN" section
@@ -774,6 +775,7 @@ func (c *Config) replaceFrom(raw []byte) error {
 	c.Theme = tmp.Theme
 	c.Translate = tmp.Translate
 	c.TranslateLang = tmp.TranslateLang
+	c.UILang = strings.ToLower(strings.TrimSpace(tmp.UILang))
 	c.Weather = tmp.Weather
 	c.WeatherPlace = tmp.WeatherPlace
 	c.Interests = tmp.Interests

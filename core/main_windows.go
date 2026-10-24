@@ -35,6 +35,7 @@ func pageHTML() string {
 	h = strings.ReplaceAll(h, "__NEXBG__", "data:image/jpeg;base64,"+strings.TrimSpace(bgB64))
 	h = strings.ReplaceAll(h, "__NEXRELAYTOKEN__", liveRelayToken)
 	h = strings.ReplaceAll(h, "__NEXLIVETV__", string(liveTVJSON()))
+	h = strings.ReplaceAll(h, "__NEXI18N__", string(i18nJSON))
 	return h
 }
 

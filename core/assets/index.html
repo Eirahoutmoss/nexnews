@@ -1275,6 +1275,15 @@
               </span>
             </div>
             <div class="opt-row">
+              <label>Arayüz dili</label>
+              <select id="optUILang">
+                <option value="">Otomatik (sistem dili)</option>
+                <option value="tr">Türkçe</option>
+                <option value="en">English</option>
+                <option value="ar">العربية</option>
+              </select>
+            </div>
+            <div class="opt-row">
               <label>Liste yoğunluğu</label>
               <div class="seg" id="optDensity">
                 <button type="button" data-v="rahat">Rahat</button>
@@ -1450,6 +1459,116 @@
   </div>
 
 <script>
+/* ---- RC92: arayüz dili (NexI18n) ----
+   Sayfa Türkçe yazılmıştır. Seçilen dil Türkçe değilse ekrana yazılan her
+   arayüz metni sözlükten çevrilir. Haber başlıkları/içerikleri asla
+   çevrilmez: hem bilinen haber kapsayıcıları atlanır hem de bir metin ancak
+   tamamı sözlükteki parçalardan (artı sayı/simge) oluşuyorsa çevrilir. */
+(function(){
+  const DATA = __NEXI18N__;
+  const SKIP_TAGS = {SCRIPT:1,STYLE:1,TEXTAREA:1,CODE:1,PRE:1,NOSCRIPT:1};
+  const NEWS = '.item .title,.item-title,.tk-item,.tk-ttl,.wb-txt,.t-tx,.art,.tl-title,.tl-src,.event-summary,.evidence-summary,.predict-title,.intel2-title,.deep-event-title,.radio-name,.disc-name,.fm-t,.world-hotspot-label,.reader-body,.reader-title,.rd-body,.summary,.item .src,[data-noi18n],[contenteditable]';
+  const ATTRS = ['title','placeholder','aria-label'];
+  let lang='tr', dict=null, re=null, cache=new Map(), regionNames=null, observer=null;
+  const orig = new WeakMap();      // text node -> Turkish original
+  const wrote = new WeakMap();     // text node -> the value we last wrote
+  const origAttr = new WeakMap();  // element -> {attr: original}
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  function countryName(code){
+    try{ if(!regionNames) regionNames=new Intl.DisplayNames([lang],{type:'region'}); return regionNames.of(code)||null; }catch(e){ return null; }
+  }
+  function build(){
+    cache=new Map(); regionNames=null;
+    if(lang==='tr'){ dict=null; re=null; return; }
+    const base=(DATA.langs[lang]||DATA.langs.en||{});
+    dict=Object.assign({}, lang==='en'?{}:(DATA.langs.en||{}), base);
+    // ülke adları: tarayıcının kendi bölge adları (her dilde doğru yazım)
+    for(const [tr,code] of Object.entries(DATA.countries||{})){ if(!dict[tr]){ const n=countryName(code); if(n) dict[tr]=n; } }
+    const keys=Object.keys(dict).filter(k=>k.length>=2).sort((a,b)=>b.length-a.length);
+    re=new RegExp('(?<![\\p{L}\\p{N}])('+keys.map(esc).join('|')+')(?![\\p{L}\\p{N}])','gu');
+  }
+  function tr(s){
+    if(!dict || !s) return s;
+    const t=s.trim(); if(!t || !/\p{L}/u.test(t)) return s;
+    if(cache.has(s)) return cache.get(s);
+    let out=s;
+    if(dict[t]!==undefined){ out=s.replace(t,dict[t]); }
+    else{
+      re.lastIndex=0;
+      const rep=t.replace(re,m=>'\u0001'+dict[m]+'\u0002');
+      // Kalan (çevrilmemiş) kısımda 3+ harfli bir kelime varsa dokunma: büyük olasılıkla haber metni.
+      const rest=rep.replace(/\u0001[^\u0002]*\u0002/g,' ');
+      if(rep!==t && !/\p{L}{3,}/u.test(rest)) out=s.replace(t,rep.replace(/[\u0001\u0002]/g,''));
+    }
+    if(cache.size>5000) cache.clear();
+    cache.set(s,out); return out;
+  }
+  function skipEl(el){ return !el || SKIP_TAGS[el.tagName] || (el.closest && el.closest(NEWS)); }
+  function doText(n){
+    const p=n.parentElement; if(skipEl(p)) return;
+    let o=orig.get(n);
+    // Düğümdeki değer bizim yazdığımız değilse sayfa yeni (Türkçe) metin koymuştur.
+    if(o===undefined || (n.nodeValue!==o && n.nodeValue!==wrote.get(n))){ o=n.nodeValue; orig.set(n,o); }
+    const v=lang==='tr'?o:tr(o);
+    wrote.set(n,v);
+    if(n.nodeValue!==v) n.nodeValue=v;
+  }
+  function doAttrs(el){
+    if(skipEl(el)) return;
+    let m=origAttr.get(el);
+    for(const a of ATTRS){
+      if(!el.hasAttribute(a)) continue;
+      const cur=el.getAttribute(a);
+      if(!m) { m={w:{}}; origAttr.set(el,m); }
+      if(m[a]===undefined || (cur!==m[a] && cur!==m.w[a])) m[a]=cur;
+      const v=lang==='tr'?m[a]:tr(m[a]);
+      m.w[a]=v;
+      if(cur!==v) el.setAttribute(a,v);
+    }
+  }
+  function walk(root){
+    if(!root) return;
+    if(root.nodeType===3){ doText(root); return; }
+    if(root.nodeType!==1 || skipEl(root)) return;
+    doAttrs(root);
+    const tw=document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT, {acceptNode:n=>{
+      if(n.nodeType===1) return skipEl(n)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT;
+      return NodeFilter.FILTER_ACCEPT;
+    }});
+    let n; while((n=tw.nextNode())){ if(n.nodeType===3) doText(n); else doAttrs(n); }
+  }
+  function start(){
+    if(observer) return;
+    observer=new MutationObserver(ms=>{
+      if(lang==='tr' && !dictWasOn) return;
+      for(const m of ms){
+        if(m.type==='characterData') doText(m.target);
+        else if(m.type==='attributes') doAttrs(m.target);
+        else m.addedNodes.forEach(walk);
+      }
+    });
+    observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:ATTRS});
+  }
+  let dictWasOn=false;
+  function setLang(l){
+    l=String(l||'').toLowerCase().split(/[-_]/)[0]||'tr';
+    if(l!=='tr' && !DATA.langs[l]) l='en'; // sözlüğü olmayan diller İngilizce görür
+    if(l===lang && (dict||l==='tr')) return lang;
+    lang=l; build(); if(l!=='tr') dictWasOn=true;
+    document.documentElement.lang=l;
+    if(document.body) walk(document.body);
+    start();
+    return lang;
+  }
+  window.NexI18n={ setLang, t:tr, get lang(){ return lang; }, langs:()=>Object.keys(DATA.langs),
+    locale:()=>({tr:'tr-TR',en:'en-GB',ar:'ar-QA',de:'de-DE',fr:'fr-FR',es:'es-ES',ru:'ru-RU'})[lang]||lang };
+  // İlk tahmin: sistem/tarayıcı dili (ayar sonradan okunur).
+  const first=(navigator.language||'tr');
+  const go=()=>setLang(first);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',go); else go();
+})();
+</script>
+<script>
   "use strict";
   const LIVE_RELAY_TOKEN = "__NEXRELAYTOKEN__";
   let CONFIG = null;
@@ -1502,7 +1621,7 @@
     if(d < 86400) return Math.floor(d/3600)+" sa";
     if(d < 604800) return Math.floor(d/86400)+" gün";
     const dt = new Date(ts*1000);
-    return dt.toLocaleDateString("tr-TR",{day:"numeric",month:"short"});
+    return dt.toLocaleDateString(uiLocale(),{day:"numeric",month:"short"});
   }
   // HTML + öznitelik güvenli kaçış (tırnaklar da kaçırılır: feed'den gelen
   // başlık/URL'ler value="…" ve title="…" içinde de kullanılıyor).
@@ -1639,7 +1758,7 @@
          + '<span class="title" data-act="'+titleAct+'"><span class="kdot k-'+kind+'"></span><span class="t-tx">'+esc(it.title)
          + (it.count>1?'<span class="evt-tag" title="Aynı olayı bildiren '+Number(it.sourceCount||it.count)+' kaynak — ayrıntı için tıklayın">'+Number(it.sourceCount||it.count)+' kaynak</span>':'')+'</span></span>'
          + '<div class="meta"><span class="src">'+faviconHTML(it.link)+'<span class="src-tx">'+sourcesText(it)+'</span></span>'
-         + '<span class="time" title="'+esc(it.ts?new Date(it.ts*1000).toLocaleString('tr-TR'):'')+'">'+relTime(it.ts)+'</span>'
+         + '<span class="time" title="'+esc(it.ts?new Date(it.ts*1000).toLocaleString(uiLocale()):'')+'">'+relTime(it.ts)+'</span>'
          + signalHTML(it)
          + '</div><div class="actions">'
          + starHTML(it.link)
@@ -1727,9 +1846,9 @@
   function clockTime(ts){
     if(!ts) return "—";
     const d = new Date(ts*1000);
-    const hhmm = d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+    const hhmm = d.toLocaleTimeString(uiLocale(),{hour:"2-digit",minute:"2-digit"});
     const ageDays = (Date.now()/1000 - ts)/86400;
-    if(ageDays >= 1){ return d.toLocaleDateString("tr-TR",{day:"numeric",month:"short"})+" "+hhmm; }
+    if(ageDays >= 1){ return d.toLocaleDateString(uiLocale(),{day:"numeric",month:"short"})+" "+hhmm; }
     return hhmm;
   }
   function eventDuration(a,b){
@@ -2089,9 +2208,12 @@
     return normalizeLocalLang((navigator&&navigator.language)||"") || "en";
   }
   function trTarget(){ return localLanguage(); }
-  function applyDocumentLanguage(){
-    try{ document.documentElement.lang=localLanguage(); }catch(e){}
+  function applyDocumentLanguage(){ applyUILang(); }
+  // Arayüz dili: ayarda seçilen, yoksa sistem dili. Sözlüğü olmayan diller İngilizce.
+  function applyUILang(){
+    try{ window.NexI18n && NexI18n.setLang((CONFIG&&CONFIG.uiLang)||TR_SYS||navigator.language||'tr'); }catch(e){}
   }
+  function uiLocale(){ try{ return NexI18n.locale(); }catch(e){ return 'tr-TR'; } }
   function trParseGTX(d){ try{ return (d[0]||[]).map(s=>s[0]).join(""); }catch(e){ return null; } }
   async function trFetch(text, target){
     const q = encodeURIComponent(text), tl = encodeURIComponent(target), p = encodeURIComponent(text);
@@ -2351,6 +2473,7 @@
     document.getElementById("optInApp").checked = !!CONFIG.openInApp;
     document.getElementById("optRefresh").value = CONFIG.refreshMinutes||0;
     // cam kontrolleri
+    const ul=document.getElementById('optUILang'); if(ul){ ul.value=CONFIG.uiLang||''; ul.onchange=()=>{ CONFIG.uiLang=ul.value; applyUILang(); }; }
     const th = document.getElementById("optTheme");
     const go = document.getElementById("optGlassOp");
     const gv = document.getElementById("optGlassVal");
@@ -2426,7 +2549,7 @@
     if(!ov.classList.contains("open")) return;
     ov.classList.remove("open");
     // Kaydedilmeden kapatıldıysa önizleme amaçlı canlı değişiklikleri geri al.
-    window.nnGetConfig().then(j=>{ try{ CONFIG=JSON.parse(j); applyGlass(); }catch(e){} }).catch(()=>{});
+    window.nnGetConfig().then(j=>{ try{ CONFIG=JSON.parse(j); applyGlass(); applyUILang(); }catch(e){} }).catch(()=>{});
   }
 
   let openSourceCat = -1;
@@ -2773,7 +2896,7 @@
       d.classList.toggle('ok',!!(h&&h.ok)); d.classList.toggle('bad',!!(h&&!h.ok));
       b.classList.toggle('is-bad',!!(h&&!h.ok));
       const c=LIVE_TV_CHANNELS.find(x=>x.id===id)||{};
-      b.title=(h? (h.ok?'Çalışıyor'+(h.ms?' · '+h.ms+' ms':''):'Çalışmıyor: '+(h.reason||'')) +' · denetim: '+new Date(h.ts*1000).toLocaleString('tr-TR') : 'Henüz denetlenmedi')+(c.geo?'\nBölge kısıtı olabilir: '+c.geo:'')+(c.note?'\n'+c.note:'');
+      b.title=(h? (h.ok?'Çalışıyor'+(h.ms?' · '+h.ms+' ms':''):'Çalışmıyor: '+(h.reason||'')) +' · denetim: '+new Date(h.ts*1000).toLocaleString(uiLocale()) : 'Henüz denetlenmedi')+(c.geo?'\nBölge kısıtı olabilir: '+c.geo:'')+(c.note?'\n'+c.note:'');
     });
   }
   let LIVE_SCAN=null;
@@ -2797,7 +2920,7 @@
     await loadLiveHealth();
     const bad=LIVE_TV_CHANNELS.filter(c=>LIVE_HEALTH[c.id] && !LIVE_HEALTH[c.id].ok);
     if(!bad.length){ nnToast('Denetlenmiş ve çalışmayan kanal yok — önce 🩺 Kanalları denetle.'); return; }
-    const lines=['NexNews '+(await (window.nnVersion?window.nnVersion():''))+' · canlı TV sorun raporu · '+new Date().toLocaleString('tr-TR'),''];
+    const lines=['NexNews '+(await (window.nnVersion?window.nnVersion():''))+' · canlı TV sorun raporu · '+new Date().toLocaleString(uiLocale()),''];
     bad.forEach(c=>{ const h=LIVE_HEALTH[c.id]; lines.push('■ '+c.name+' ['+c.id+'] — '+(h.reason||'?')+(h.code?' (HTTP '+h.code+')':'')); liveCands(c).forEach(x=>lines.push('   · '+x.u+(x.r?'  [ref '+x.r+']':''))); });
     const txt=lines.join('\n');
     let ok=false; try{ await navigator.clipboard.writeText(txt); ok=true; }catch(e){}
@@ -2849,7 +2972,7 @@
     const old=document.getElementById('liveLists'); if(old) old.remove();
     const m=document.createElement('div'); m.className='modal-overlay open'; m.id='liveLists';
     m.onclick=e=>{ if(e.target===m) m.remove(); };
-    const fmt=ts=>ts?new Date(ts*1000).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+    const fmt=ts=>ts?new Date(ts*1000).toLocaleString(uiLocale(),{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
     const rows=LIVE_LISTS.length?LIVE_LISTS.map(l=>'<div class="ll-row"><div class="ll-info"><b>'+esc(l.name)+'</b><small>'+(l.channels||[]).length+' kanal · son güncelleme: '+fmt(l.updated)+'</small><small class="ll-src">'+(l.url?esc(l.url):'Dosyadan / yapıştırarak eklendi')+'</small></div>'
       +'<div class="ll-act">'+(l.url?'<button class="mini" onclick="refreshLiveList(\''+esc(l.id)+'\',this)" title="Listeyi kaynağından şimdi yeniden indir">⟳ Güncelle</button>':'')
       +'<button class="mini" onclick="renameLiveList(\''+esc(l.id)+'\')">✎</button><button class="mini" onclick="deleteLiveList(\''+esc(l.id)+'\')" title="Listeyi ve kanallarını sil">🗑 Sil</button></div></div>').join('')
@@ -3371,7 +3494,7 @@
     RADAR.layers.forEach((l,j)=>l.setOpacity(j===i?0.75:0));
     const f=RADAR.frames[i]; const t=new Date(f.time*1000);
     const future=i>=RADAR.nowStart;
-    document.getElementById("radarTime").textContent=(future?"tahmin ":"")+t.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("radarTime").textContent=(future?"tahmin ":"")+t.toLocaleTimeString(uiLocale(),{hour:"2-digit",minute:"2-digit"});
   }
   function radarToggle(){
     const b=document.getElementById("radarPlay"); if(!RADAR) return;
@@ -3493,7 +3616,7 @@
           + '<h1>Hava Panosu — '+esc(w.city||"")+'</h1>'
           + '<span class="pill">'+w.models+' model ort.</span>'
           + '<span class="pill">güven: '+esc(w.confidence)+'</span>'
-          + '<span class="pill">güncelleme: '+(w.updated?new Date(w.updated*1000).toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"}):"—")+'</span></div>'
+          + '<span class="pill">güncelleme: '+(w.updated?new Date(w.updated*1000).toLocaleTimeString(uiLocale(),{hour:"2-digit",minute:"2-digit"}):"—")+'</span></div>'
           + '<div class="wx-location">'
           + '<span class="wx-location-label">📍 Konum</span>'
           + '<input id="wxLocationInput" class="wx-location-input" type="text" value="'+esc(CONFIG.weatherPlace||"")+'" placeholder="Şehir, ilçe veya posta kodu yazın…" autocomplete="off" spellcheck="false" onmousedown="event.stopPropagation()" onclick="event.stopPropagation()" onfocus="event.stopPropagation()" onkeydown="event.stopPropagation();if(event.key===\'Enter\'){event.preventDefault();setWeatherLocation()}" />'
@@ -3600,9 +3723,9 @@
     const p=Number(q.price||0), ch=Number(q.change||0), pc=Number(q.changePct||0), d5=Number(q.change5dPct||0);
     const cls=ch>0?'market-pos':(ch<0?'market-neg':'market-flat'), sign=ch>0?'+':'';
     const cur=q.currency||'';
-    const price=p>=1000?p.toLocaleString('tr-TR',{maximumFractionDigits:2}):p.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:4});
-    const extra=q.dayHigh?(' <span class="market-flat">G '+Number(q.dayHigh).toLocaleString('tr-TR',{maximumFractionDigits:2})+' / D '+Number(q.dayLow||0).toLocaleString('tr-TR',{maximumFractionDigits:2})+'</span>'):'';
-    return '<div class="market-price">'+sparkline(q)+'<b>'+price+' '+esc(cur)+'</b><span class="'+cls+'">'+sign+ch.toLocaleString('tr-TR',{maximumFractionDigits:2})+' ('+sign+pc.toFixed(2)+'%) · 5g '+(d5>=0?'+':'')+d5.toFixed(2)+'%</span>'+extra+'</div>';
+    const price=p>=1000?p.toLocaleString(uiLocale(),{maximumFractionDigits:2}):p.toLocaleString(uiLocale(),{minimumFractionDigits:2,maximumFractionDigits:4});
+    const extra=q.dayHigh?(' <span class="market-flat">G '+Number(q.dayHigh).toLocaleString(uiLocale(),{maximumFractionDigits:2})+' / D '+Number(q.dayLow||0).toLocaleString(uiLocale(),{maximumFractionDigits:2})+'</span>'):'';
+    return '<div class="market-price">'+sparkline(q)+'<b>'+price+' '+esc(cur)+'</b><span class="'+cls+'">'+sign+ch.toLocaleString(uiLocale(),{maximumFractionDigits:2})+' ('+sign+pc.toFixed(2)+'%) · 5g '+(d5>=0?'+':'')+d5.toFixed(2)+'%</span>'+extra+'</div>';
   }
   function financeLabel(q){ const s=(q.symbol||'').toUpperCase(); const names={'^XU100':'BIST 100','^XU030':'BIST 30','THYAO.IS':'Türk Hava Yolları','ASELS.IS':'Aselsan','GARAN.IS':'Garanti BBVA','BIMAS.IS':'BİM','USDTRY=X':'Dolar / TL','EURTRY=X':'Euro / TL','GC=F':'Altın (Ons)'}; return names[s]||q.name||s; }
   function financeGroup(q){ const s=(q.symbol||'').toUpperCase(); if(s.includes('=X')) return 'fx'; if(s==='GC=F'||s.includes('=F')) return 'emtia'; return 'borsa'; }
@@ -3617,9 +3740,9 @@
     let el=document.getElementById('marketDetail');
     if(!el){el=document.createElement('div');el.id='marketDetail';el.className='market-detail';const panel=document.getElementById('marketPanel');panel.parentNode.insertBefore(el,panel.nextSibling);}
     const p=Number(q.price||0), d=Number(q.change||0), pc=Number(q.changePct||0), d5=Number(q.change5dPct||0); const cls=pc>0?'market-pos':pc<0?'market-neg':'market-flat';
-    const price=p.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:4});
+    const price=p.toLocaleString(uiLocale(),{minimumFractionDigits:2,maximumFractionDigits:4});
     el.innerHTML='<div class="market-detail-head"><strong class="market-detail-title">📊 '+esc(financeLabel(q))+'</strong><button class="market-detail-close" onclick="closeMarketDetail()">Kapat</button></div>'
-      +'<div class="market-detail-grid"><div class="market-detail-stat"><span>Fiyat</span><b>'+price+' '+esc(q.currency||'')+'</b></div><div class="market-detail-stat"><span>Günlük</span><b class="'+cls+'">'+(d>=0?'+':'')+d.toLocaleString('tr-TR',{maximumFractionDigits:2})+' ('+(pc>=0?'+':'')+pc.toFixed(2)+'%)</b></div><div class="market-detail-stat"><span>5 gün</span><b class="'+(d5>0?'market-pos':d5<0?'market-neg':'market-flat')+'">'+(d5>=0?'+':'')+d5.toFixed(2)+'%</b></div><div class="market-detail-stat"><span>Gün aralığı</span><b>'+(q.dayLow?q.dayLow.toLocaleString('tr-TR',{maximumFractionDigits:2}):'—')+' / '+(q.dayHigh?q.dayHigh.toLocaleString('tr-TR',{maximumFractionDigits:2}):'—')+'</b></div></div>'
+      +'<div class="market-detail-grid"><div class="market-detail-stat"><span>Fiyat</span><b>'+price+' '+esc(q.currency||'')+'</b></div><div class="market-detail-stat"><span>Günlük</span><b class="'+cls+'">'+(d>=0?'+':'')+d.toLocaleString(uiLocale(),{maximumFractionDigits:2})+' ('+(pc>=0?'+':'')+pc.toFixed(2)+'%)</b></div><div class="market-detail-stat"><span>5 gün</span><b class="'+(d5>0?'market-pos':d5<0?'market-neg':'market-flat')+'">'+(d5>=0?'+':'')+d5.toFixed(2)+'%</b></div><div class="market-detail-stat"><span>Gün aralığı</span><b>'+(q.dayLow?q.dayLow.toLocaleString(uiLocale(),{maximumFractionDigits:2}):'—')+' / '+(q.dayHigh?q.dayHigh.toLocaleString(uiLocale(),{maximumFractionDigits:2}):'—')+'</b></div></div>'
       +'<div class="market-detail-chart">'+detailSpark(q)+'</div>'
       +'<div class="market-detail-note">5 günlük trend, NexNews tarafında alınan günlük kapanış verilerinden oluşturulur. Veri kaynağı piyasa kotasyonudur; işlem önerisi değildir.</div>';
     el.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -3630,7 +3753,7 @@
     let el=document.getElementById('goldDetail');
     if(!el){ el=document.createElement('div'); el.id='goldDetail'; el.className='market-detail'; const panel=document.getElementById('marketPanel'); panel.parentNode.insertBefore(el,panel.nextSibling); }
     el.innerHTML='<div class="market-detail-head"><strong class="market-detail-title">🪙 Altın Detayları</strong><button class="market-detail-close" onclick="closeGoldDetail()">Kapat</button></div>'
-      +'<div class="gold-detail">'+gold.map(g=>'<div class="gold-detail-row"><b>'+esc(g.name)+'</b><span>'+Number(g.valueTry||0).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' TL · '+(Number(g.purity||0)*24).toFixed(1)+' ayar · 5g '+(Number(g.change5dPct||0)>=0?'+':'')+Number(g.change5dPct||0).toFixed(2)+'%</span></div>').join('')+'</div>'
+      +'<div class="gold-detail">'+gold.map(g=>'<div class="gold-detail-row"><b>'+esc(g.name)+'</b><span>'+Number(g.valueTry||0).toLocaleString(uiLocale(),{minimumFractionDigits:2,maximumFractionDigits:2})+' TL · '+(Number(g.purity||0)*24).toFixed(1)+' ayar · 5g '+(Number(g.change5dPct||0)>=0?'+':'')+Number(g.change5dPct||0).toFixed(2)+'%</span></div>').join('')+'</div>'
       +'<div class="market-detail-note">'+esc(gold[0].note||'Teorik referans değeridir.')+' Kaynak hesabı: '+esc(gold[0].basis||'Ons Altın + USD/TRY')+'. Gerçek kuyumcu fiyatı değildir.</div>';
     el.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
@@ -3895,7 +4018,7 @@
   // ---------- sports ----------
   let sportFilter='all';
   function countdown(ts){ const d=(Number(ts||0)*1000-Date.now())/60000; if(!(d>0)||d>48*60) return ''; const h=Math.floor(d/60), m=Math.floor(d%60); return (h?h+' sa ':'')+m+' dk sonra'; }
-  function sportStatus(g){ if(g.status==='in') return '● CANLI · '+(g.statusDetail||''); if(g.status==='post') return (g.statusDetail||'Bitti')+' · '+new Date((g.start||0)*1000).toLocaleDateString('tr-TR',{day:'2-digit',month:'short'}); if(g.statusDetail) return g.statusDetail; const t=new Date((g.start||0)*1000); return t.toLocaleDateString('tr-TR',{weekday:'short'})+' '+t.toLocaleDateString('tr-TR',{day:'numeric',month:'short'})+' · '+t.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}); }
+  function sportStatus(g){ if(g.status==='in') return '● CANLI · '+(g.statusDetail||''); if(g.status==='post') return (g.statusDetail||'Bitti')+' · '+new Date((g.start||0)*1000).toLocaleDateString(uiLocale(),{day:'2-digit',month:'short'}); if(g.statusDetail) return g.statusDetail; const t=new Date((g.start||0)*1000); return t.toLocaleDateString(uiLocale(),{weekday:'short'})+' '+t.toLocaleDateString(uiLocale(),{day:'numeric',month:'short'})+' · '+t.toLocaleTimeString(uiLocale(),{hour:'2-digit',minute:'2-digit'}); }
   function setSportFilter(f){ sportFilter=f; document.querySelectorAll('.sport-filter[data-sfilter]').forEach(b=>b.classList.toggle('active',b.dataset.sfilter===f)); if(window._sportsBoard) renderSports(window._sportsBoard); }
   function sportFavorite(g, board){ if(g.fav) return true; const fold=x=>String(x||'').toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i'); const a=fold((g.home||'')+' '+(g.away||'')); return ((board&&board.favorites)||[]).some(x=>x&&fold(x).length>=3&&a.includes(fold(x))); }
   function renderSports(board){ const list=document.getElementById('sportList'), up=document.getElementById('sportUpdated'), counts=document.getElementById('sportCounts'); if(!list)return; window._sportsBoard=board; if(up)up.textContent=board&&board.updated?('güncellendi '+agoText(board.updated)):'veri yok'; const games=[...((board&&board.games)||[])]; const live=games.filter(g=>g.status==='in').length, post=games.filter(g=>g.status==='post').length, upcoming=games.length-live-post; if(counts)counts.innerHTML='<span>Toplam <b>'+games.length+'</b></span><span>🔴 <b>'+live+'</b> canlı</span><span>Yaklaşan <b>'+upcoming+'</b></span><span>Sonuç <b>'+post+'</b></span>'; const filtered=games.filter(g=>sportFilter==='all'||(sportFilter==='live'&&g.status==='in')||(sportFilter==='upcoming'&&g.status==='prematch')||(sportFilter==='post'&&g.status==='post')); if(!filtered.length){list.innerHTML='<div class="sport-empty">'+(games.length?'Bu filtrede karşılaşma yok.':'Önümüzdeki günlerde takip ettiğin liglerde maç görünmüyor.')+'</div>';return;} list.innerHTML=filtered.slice(0,8).map(g=>{const fav=sportFavorite(g,board); const cd=g.status==='prematch'?countdown(g.start):''; const sc=(g.status==='prematch')?'–':(esc(g.homeScore||'0')+' - '+esc(g.awayScore||'0')); return '<div class="sport-row"><div class="sport-league">'+esc(g.leagueName||g.league||'Spor')+(fav?'<span class="sport-fav">⭐ FAVORİ</span>':'')+'</div><div class="sport-teams"><span class="sport-team">'+esc(g.home||'')+'</span><span class="sport-score">'+sc+'</span><span class="sport-team">'+esc(g.away||'')+'</span></div><div class="sport-status">'+esc(sportStatus(g))+(cd?'<span class="sport-countdown">· '+cd+'</span>':'')+'</div></div>';}).join(''); }
@@ -4043,15 +4166,15 @@
     n=Number(n||0);
     const u=['B','KB','MB','GB']; let i=0;
     while(n>=1024 && i<u.length-1){ n/=1024; i++; }
-    return (i===0?Math.round(n):n.toLocaleString('tr-TR',{maximumFractionDigits:n<10?1:0}))+' '+u[i];
+    return (i===0?Math.round(n):n.toLocaleString(uiLocale(),{maximumFractionDigits:n<10?1:0}))+' '+u[i];
   }
   function fmtRate(bytesPerSec){
     if(bytesPerSec==null || bytesPerSec<0) return '—';
     const bits=bytesPerSec*8;
     if(bits<1000) return Math.round(bits)+' bps';
-    if(bits<1e6) return (bits/1e3).toLocaleString('tr-TR',{maximumFractionDigits:bits<1e4?1:0})+' Kbps';
-    if(bits<1e9) return (bits/1e6).toLocaleString('tr-TR',{maximumFractionDigits:bits<1e7?1:0})+' Mbps';
-    return (bits/1e9).toLocaleString('tr-TR',{maximumFractionDigits:2})+' Gbps';
+    if(bits<1e6) return (bits/1e3).toLocaleString(uiLocale(),{maximumFractionDigits:bits<1e4?1:0})+' Kbps';
+    if(bits<1e9) return (bits/1e6).toLocaleString(uiLocale(),{maximumFractionDigits:bits<1e7?1:0})+' Mbps';
+    return (bits/1e9).toLocaleString(uiLocale(),{maximumFractionDigits:2})+' Gbps';
   }
   function toggleNetSource(){
     NET_SRC = NET_SRC==='pc' ? 'app' : 'pc';
@@ -4076,7 +4199,7 @@
       'NexNews son 5 dakikada: ⇣ '+fmtBytes(st.down5m)+'  ⇡ '+fmtBytes(st.up5m)+(st.web5m?('  (sayfa içi: '+fmtBytes(st.web5m)+')'):''),
       'Bu oturumda: ⇣ '+fmtBytes(st.sessionDown)+'  ⇡ '+fmtBytes(st.sessionUp),
     ];
-    if(st.adapter) lines.push('Bağlantı: '+st.adapter+(st.linkMbps?(' · '+st.linkMbps.toLocaleString('tr-TR')+' Mbps bağlantı hızı'):''));
+    if(st.adapter) lines.push('Bağlantı: '+st.adapter+(st.linkMbps?(' · '+st.linkMbps.toLocaleString(uiLocale())+' Mbps bağlantı hızı'):''));
     lines.push('', 'Tıkla: '+(usePc?'NexNews':'bilgisayar')+' hızını göster');
     el.title = lines.join('\n');
   }
@@ -4101,7 +4224,7 @@
     const b=document.getElementById('dataModeBtn'); if(!b) return;
     b.classList.toggle('lim',lim);
     b.textContent=(lim?'🐢 Sınırlı':'⚡ Tam')+' · bugün '+fmtBytes((u.today&&u.today.down)||0);
-    b.title=(lim?'Sınırlı veri akışı (en çok '+(u.limitKBps||256)+' KB/s)':'Tam veri akışı')+'\nBu oturum: ⇣ '+fmtBytes((u.session&&u.session.down)||0)+'\nBu ay: ⇣ '+fmtBytes((u.month&&u.month.down)||0)+(u.quotaMB?(' / '+u.quotaMB.toLocaleString('tr-TR')+' MB kota'):'')+'\nTıkla: ayrıntılar ve mod seçimi';
+    b.title=(lim?'Sınırlı veri akışı (en çok '+(u.limitKBps||256)+' KB/s)':'Tam veri akışı')+'\nBu oturum: ⇣ '+fmtBytes((u.session&&u.session.down)||0)+'\nBu ay: ⇣ '+fmtBytes((u.month&&u.month.down)||0)+(u.quotaMB?(' / '+u.quotaMB.toLocaleString(uiLocale())+' MB kota'):'')+'\nTıkla: ayrıntılar ve mod seçimi';
   }
   async function loadDataUsage(){ try{ DATA_USAGE=JSON.parse(await window.nnUsage()); }catch(e){ return; } paintDataMode(); const pn=document.getElementById('dataPanel'); if(pn && !pn.classList.contains('hide')) renderDataPanel(); }
   window.nnOnDataMode=loadDataUsage;
@@ -4121,7 +4244,7 @@
       +usageRow('Bu oturum',u.session)+usageRow('Bugün',u.today)+usageRow('Bu hafta',u.week)+usageRow('Bu ay',u.month)+usageRow('Son 30 gün',u.last30)+usageRow('Toplam',u.all)+'</table>'
       +q
       +'<div class="dp-chart" title="Son 30 günün günlük indirmesi">'+bars+'</div>'
-      +'<div class="dp-foot">Toplam, '+(u.since?new Date(u.since*1000).toLocaleDateString('tr-TR'):'—')+' tarihinden bu yana · açık kalınan gün başına ortalama ⇣ '+fmtBytes(u.dailyAvg||0)+'<button class="mini" onclick="resetDataUsage()">Sayaçları sıfırla</button></div>';
+      +'<div class="dp-foot">Toplam, '+(u.since?new Date(u.since*1000).toLocaleDateString(uiLocale()):'—')+' tarihinden bu yana · açık kalınan gün başına ortalama ⇣ '+fmtBytes(u.dailyAvg||0)+'<button class="mini" onclick="resetDataUsage()">Sayaçları sıfırla</button></div>';
   }
   function toggleDataPanel(ev){
     if(ev) ev.stopPropagation();

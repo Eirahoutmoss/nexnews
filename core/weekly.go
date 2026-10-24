@@ -64,6 +64,7 @@ func recordWeekly(s *Store) {
 	if s == nil {
 		return
 	}
+	flushVisits() // RC97: "ne değişti" ziyaret kayıtları da yenilemeyle birlikte yazılır
 	now := time.Now()
 	type snap struct {
 		e   weekEntry

@@ -24,6 +24,7 @@ type tlItem struct {
 	Source string `json:"source"`
 	Link   string `json:"link"`
 	TS     int64  `json:"ts"`
+	New    bool   `json:"new,omitempty"` // RC97: kullanıcının önceki ziyaretinden sonra geldi
 }
 
 type outEvent struct {
@@ -53,6 +54,12 @@ type outEvent struct {
 	Evidence           EventEvidence  `json:"evidence,omitempty"`
 	Followed           bool           `json:"followed"`
 	Headlines          []headlineView `json:"headlines,omitempty"` // "Kim nasıl başlık attı?"
+	Sens               int            `json:"sens,omitempty"`      // RC97: temsilci başlığın duygu yükü
+	CalmTitle          string         `json:"calmTitle,omitempty"` // RC97: olayın en sakin başlığı
+	CalmSource         string         `json:"calmSource,omitempty"`
+	LastVisit          int64          `json:"lastVisit,omitempty"` // RC97: önceki ziyaret (ne değişti?)
+	NewSince           int            `json:"newSince,omitempty"`  // önceki ziyaretten bu yana gelen başlık
+	FactChecks         []factMatch    `json:"factChecks,omitempty"`
 }
 
 // headlineView is one outlet's headline for the framing comparison.
@@ -64,6 +71,7 @@ type headlineView struct {
 	TS         int64    `json:"ts"`
 	Via        string   `json:"via,omitempty"`      // wire agency copy
 	Distinct   []string `json:"distinct,omitempty"` // words only this outlet used
+	Sens       int      `json:"sens,omitempty"`     // RC97: başlığın duygu yükü (0–100)
 }
 
 // framingHeadlines returns one headline per outlet with the words that set
@@ -121,6 +129,7 @@ func (s *Store) framingHeadlines(st *Story) []headlineView {
 			hv.TS = c.it.Published.Unix()
 		}
 		_, hv.Via = wireOf(c.it)
+		hv.Sens = sensationScore(s.trTitle(c.it.Title))
 		dup := map[string]bool{}
 		for i, w := range c.words {
 			if df[c.stems[i]] == 1 && !dup[c.stems[i]] {
@@ -198,6 +207,10 @@ func (s *Store) storyJSON(link string) ([]byte, error) {
 	e.Followed = follows.isStory(st)
 	e.Headlines = s.framingHeadlines(st)
 	e.Coverage = s.coverageFor(st)
+	e.CalmTitle, e.CalmSource, e.Sens = s.calmestTitle(st)
+	e.FactChecks = factChecksFor(s.storyTokens(st), st)
+	prevVisit := visits.touch(visitKey(st))
+	e.LastVisit = prevVisit
 
 	// Timeline ascending (oldest → newest), like an event log.
 	items := make([]Item, len(st.items))
@@ -210,12 +223,18 @@ func (s *Store) storyJSON(link string) ([]byte, error) {
 		if it.HasDate {
 			ts = it.Published.Unix()
 		}
-		e.Timeline = append(e.Timeline, tlItem{
+		tl := tlItem{
 			Title:  s.trTitle(it.Title),
 			Source: it.Source,
 			Link:   it.Link,
 			TS:     ts,
-		})
+		}
+		// Yeni: önceki ziyaretten sonra yayımlanmış (tarihsizse ilk görülme sayılmaz).
+		if prevVisit > 0 && ts > prevVisit {
+			tl.New = true
+			e.NewSince++
+		}
+		e.Timeline = append(e.Timeline, tl)
 	}
 	return json.Marshal(e)
 }

@@ -95,6 +95,7 @@ func MobileRefresh() {
 	ensureLocalCategory(context.Background())
 	store.Refresh(context.Background())
 	recordWeekly(store)
+	refreshFactChecks(context.Background())
 }
 
 // MobileWeekly: son 7 günün özeti (JSON).

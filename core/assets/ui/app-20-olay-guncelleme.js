@@ -50,10 +50,11 @@
       });
       h+='<div class="framing-row" data-url="'+encodeURIComponent(x.link||'')+'" data-act="open">'
         +'<div class="framing-src">'+faviconHTML(x.link)+esc(x.source||hostOf(x.link))+(x.via?'<span class="via" title="Bu kaynak ajans metnini kullanıyor">'+esc(x.via)+' metni</span>':'')+'<span style="margin-left:auto;font-weight:500;color:var(--txt-faint)">'+clockTime(x.ts)+'</span></div>'
-        +'<div class="framing-title">'+t+'</div>'
+        +'<div class="framing-title">'+t+(Number(x.sens||0)>=40?' <span class="sig sens" title="Bu başlıkta abartılı ya da duygu yüklü dil var">⚠ Abartılı dil</span>':'')+'</div>'
         +(x.translated?'<div class="framing-tr">Özgün: '+esc(x.title)+'</div>':'')
         +'</div>';
     });
+    if(e.calmTitle) h+='<div class="framing-note calm-note">🌿 <span>En sakin başlık</span>: <span data-noi18n>'+esc(e.calmTitle)+(e.calmSource?' — '+esc(e.calmSource):'')+'</span></div>';
     if(ev.syndicated) h+='<div class="framing-note">'+Number(ev.syndicated)+' kaynak aynı ajans metnini'+((ev.agencies||[]).length?' ('+esc(ev.agencies.join(', '))+')':'')+' kullanıyor; bağımsız kaynak sayısında tek kaynak sayıldı.</div>';
     return h+'</div>';
   }
@@ -66,6 +67,8 @@
        + '<span class="pill" title="Önem puanı">önem '+e.score+'</span>'
        + '<span class="pill" title="Kaynak mutabakatı">güven '+e.confidence+'</span>'
        + '</div>';
+    if(e.lastVisit && Number(e.newSince||0)>0) h += '<div class="since-note" data-noi18n>🕑 '+esc(tf('Son baktığından beri ({t}) {n} yeni başlık — zaman çizelgesinde işaretli',{t:trList(relTime(e.lastVisit)),n:Number(e.newSince)}))+'</div>';
+    else if(e.lastVisit) h += '<div class="since-note quiet">🕑 <span>Son baktığından beri yeni başlık yok.</span></div>';
     h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">'
        + '<button id="followEventBtn" type="button" class="btn primary'+(e.followed?' on':'')+'" data-follow-event="'+esc(e.eventId||'')+'" data-follow-link="'+encodeURIComponent(e._link||'')+'">'+(e.followed?'✓ Olayı takip ediyorsun':'☆ Olayı takip et')+'</button>'
        + '<button class="btn" data-follow-topic="'+esc(e.category||'')+'">☆ Konuyu takip et</button></div>';
@@ -82,16 +85,18 @@
     }
     h += coverageHTML(e.coverage);
     h += ownershipHTML(e);
+    h += factChecksHTML(e);
+    h += '<div class="ctx-box" id="ctxBox"><button class="btn" data-ctx-link="'+encodeURIComponent(e._link||'')+'" onclick="loadContextCard(this)">📚 Bu konuya yeni misin? Bağlamı göster</button></div>';
     if(e.reason) h += '<div class="event-summary"><b>Neden önemli?</b><br>'+esc(e.reason)+'</div>';
     if(e.summary) h += '<div class="event-summary">'+esc(e.summary)+'</div>';
     h += framingHTML(e);
     h += timelineIntelHTML(e);
     h += '<div class="tl-head">Zaman çizelgesi</div><div class="timeline">';
     (e.timeline||[]).forEach(t=>{
-      h += '<div class="tl-row" data-url="'+encodeURIComponent(t.link||"")+'" data-act="open">'
+      h += '<div class="tl-row'+(t.new?' tl-new':'')+'" data-url="'+encodeURIComponent(t.link||"")+'" data-act="open">'
          + '<div class="tl-time">'+clockTime(t.ts)+'</div>'
          + '<div class="tl-line"><span class="tl-dot"></span></div>'
-         + '<div class="tl-body"><div class="tl-title">'+esc(t.title)+'</div><div class="tl-src">'+esc(t.source)+'</div></div>'
+         + '<div class="tl-body"><div class="tl-title">'+(t.new?'<span class="tl-newtag">yeni</span> ':'')+esc(t.title)+'</div><div class="tl-src">'+esc(t.source)+'</div></div>'
          + '</div>';
     });
     h += '</div>';
@@ -248,4 +253,41 @@
     h+='</div><div class="own-list">'+rows.filter(r=>r.o).map(r=>'<span title="'+esc(ownTypeLabel(r.o[0])+' — '+r.o[1])+'"><i class="own-dot own-'+r.o[0]+'"></i>'+esc(r.src)+'</span>').join(' · ')+'</div>';
     h+='<div class="cov-note">Sahiplik bilgisi herkese açık kaynaklardan derlenmiştir ve bilgi amaçlıdır; zamanla değişmiş olabilir.</div></div>';
     return h;
+  }
+
+  // ---- RC97: doğrulama yazıları ve bağlam kartı ----
+  const FC_VERDICT={yanlis:['✗','Yanlış'],yaniltici:['!','Yanıltıcı / eksik'],dogru:['✓','Doğru']};
+  function factChecksHTML(e){
+    const fs=e.factChecks||[];
+    if(!fs.length) return '';
+    let h='<div class="coverage factcheck"><div class="evidence-head"><span>🔎 DOĞRULAMA YAZILARI</span><span>'+fs.length+'</span></div><div class="fc-list">';
+    fs.forEach(f=>{
+      const v=FC_VERDICT[f.verdict];
+      h+='<div class="fc-row" data-url="'+encodeURIComponent(f.link||'')+'" data-act="browser">'
+        +(v?'<span class="fc-v fc-'+esc(f.verdict)+'">'+v[0]+' '+v[1]+'</span>':'<span class="fc-v">İnceleme</span>')
+        +'<span class="fc-t" data-noi18n>'+esc(f.title)+'</span><span class="fc-s">'+esc(f.source)+(f.ts?' · '+relTime(f.ts):'')+'</span></div>';
+    });
+    h+='</div><div class="cov-note">Bu yazılar bağımsız doğrulama kuruluşlarına aittir ve olayla kelime benzerliğiyle eşleştirildi; NexNews kendisi doğru/yanlış hükmü vermez. Hükmü kuruluşun yazısından oku.</div></div>';
+    return h;
+  }
+  async function loadContextCard(btn){
+    const box=btn.closest('.ctx-box'); if(!box) return;
+    const link=decodeURIComponent(btn.getAttribute('data-ctx-link')||'');
+    btn.disabled=true; btn.textContent='Bağlam getiriliyor…';
+    let c={};
+    try{ c=JSON.parse(await nnAsync('nnContext',link))||{}; }catch(e){ btn.disabled=false; btn.textContent='📚 Bu konuya yeni misin? Bağlamı göster'; nnToast('Bağlam getirilemedi.'); return; }
+    const ents=c.entities||[], rel=c.related||[];
+    let h='<div class="coverage ctx-card"><div class="evidence-head"><span>📚 BAĞLAM</span><span>Vikipedi</span></div>';
+    if(!ents.length && !rel.length) h+='<div class="cov-note">Bu olay için bağlam bulunamadı.</div>';
+    ents.forEach(x=>{
+      h+='<div class="ctx-ent">'+(x.thumb?'<img src="'+esc(x.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'')
+        +'<div><b data-noi18n>'+esc(x.title)+'</b>'+(x.desc?' <small data-noi18n>'+esc(x.desc)+'</small>':'')
+        +'<p data-noi18n>'+esc(x.extract)+'</p>'+(x.url?'<a class="mini" data-act="openurl" data-url="'+encodeURIComponent(x.url)+'">Vikipedi\'de oku ↗</a>':'')+'</div></div>';
+    });
+    if(rel.length){
+      h+='<div class="tl-head">Bu konudaki önceki olaylar</div>';
+      rel.forEach(r=>{ h+='<div class="tl-row" data-url="'+encodeURIComponent(r.link||'')+'" data-act="event"><div class="tl-time">'+(r.first?new Date(r.first*1000).toLocaleDateString(uiLocale(),{day:'numeric',month:'short'}):'')+'</div><div class="tl-line"><span class="tl-dot"></span></div><div class="tl-body"><div class="tl-title">'+esc(r.title)+'</div><div class="tl-src">'+esc(r.category||'')+'</div></div></div>'; });
+    }
+    h+='<div class="cov-note">Özetler Vikipedi\'nin herkese açık özetlerinden alınır (CC BY-SA); güncel olmayabilir.</div></div>';
+    box.innerHTML=h;
   }

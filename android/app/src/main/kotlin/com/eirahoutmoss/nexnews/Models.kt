@@ -61,6 +61,12 @@ data class NewsItem(
     val image: String = "",
     val syndicated: Int = 0,
     val read: Boolean = false,
+    // RC97
+    val sens: Int = 0,
+    val calmFrom: String = "",
+    val origTitle: String = "",
+    val fc: Int = 0,
+    val upd: Int = 0,
 )
 
 @Serializable
@@ -86,6 +92,7 @@ data class Overview(
     val discover: NewsItem? = null,
     val discoverReason: String = "",
     val totalUnread: Int = 0,
+    val crisis: CrisisInfo? = null,
 )
 
 @Serializable
@@ -96,7 +103,7 @@ data class CategoryPage(
 )
 
 @Serializable
-data class TimelineItem(val title: String = "", val source: String = "", val link: String = "", val ts: Long = 0)
+data class TimelineItem(val title: String = "", val source: String = "", val link: String = "", val ts: Long = 0, val new: Boolean = false)
 
 @Serializable
 data class Headline(
@@ -107,6 +114,7 @@ data class Headline(
     val ts: Long = 0,
     val via: String = "",
     val distinct: List<String> = emptyList(),
+    val sens: Int = 0,
 )
 
 @Serializable
@@ -135,7 +143,56 @@ data class StoryDetail(
     val followed: Boolean = false,
     val headlines: List<Headline> = emptyList(),
     val coverage: Coverage? = null,
+    // RC97
+    val sens: Int = 0,
+    val calmTitle: String = "",
+    val calmSource: String = "",
+    val lastVisit: Long = 0,
+    val newSince: Int = 0,
+    val factChecks: List<FactCheck> = emptyList(),
 )
+
+@Serializable
+data class FactCheck(val source: String = "", val title: String = "", val link: String = "", val ts: Long = 0, val verdict: String = "")
+
+@Serializable
+data class EmergencyNumber(val label: String = "", val number: String = "")
+
+@Serializable
+data class CrisisInfo(
+    val key: String = "", val kind: String = "", val level: String = "", val mag: Double = 0.0, val title: String = "",
+    val link: String = "", val ts: Long = 0, val country: String = "",
+    val stories: List<NewsItem> = emptyList(), val numbers: List<EmergencyNumber> = emptyList(),
+)
+
+@Serializable
+data class MirrorCount(val name: String = "", val label: String = "", val count: Int = 0, val pct: Int = 0)
+
+@Serializable
+data class MirrorNote(val kind: String = "", val name: String = "", val pct: Int = 0)
+
+@Serializable
+data class MirrorBoard(
+    val days: Int = 30, val total: Int = 0, val sources: List<MirrorCount> = emptyList(), val sourceCount: Int = 0,
+    val diversity: Int = 0, val regions: List<MirrorCount> = emptyList(), val silentRegions: List<String> = emptyList(),
+    val owners: List<MirrorCount> = emptyList(), val ownerUnknown: Int = 0, val cats: List<MirrorCount> = emptyList(),
+    val notes: List<MirrorNote> = emptyList(),
+)
+
+@Serializable
+data class AgendaItem(val ts: Long = 0, val allDay: Boolean = false, val title: String = "", val kind: String = "", val country: String = "", val link: String = "", val note: String = "")
+
+@Serializable
+data class AudioBrief(val text: String = "")
+
+@Serializable
+data class WikiSummary(val query: String = "", val title: String = "", val desc: String = "", val extract: String = "", val url: String = "", val thumb: String = "")
+
+@Serializable
+data class RelatedEvent(val title: String = "", val link: String = "", val category: String = "", val first: Long = 0, val sources: Int = 0)
+
+@Serializable
+data class ContextBoard(val lang: String = "", val entities: List<WikiSummary> = emptyList(), val related: List<RelatedEvent> = emptyList())
 
 /** Bölgelere göre kapsama: olayı hangi bölgelerin kaynakları yazdı, hangileri sustu. */
 @Serializable

@@ -59,6 +59,11 @@ class Prefs private constructor(private val sp: SharedPreferences) {
         get() = sp.getInt("widgetOpacity", 70)
         set(v) { sp.edit().putInt("widgetOpacity", v).apply(); bump() }
 
+    /** RC97: kapatılan kriz kartının anahtarı (aynı afet bir daha gösterilmez). */
+    var crisisDismissed: String
+        get() = sp.getString("crisisDismissed", "") ?: ""
+        set(v) { sp.edit().putString("crisisDismissed", v).apply() }
+
     var askedNotificationPermission: Boolean
         get() = sp.getBoolean("askedNotif", false)
         set(v) { sp.edit().putBoolean("askedNotif", v).apply() }

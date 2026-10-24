@@ -104,3 +104,15 @@ func TestVisitsTouch(t *testing.T) {
 		t.Fatalf("aynı ziyaret tabanı değişti: %d", p)
 	}
 }
+
+func TestCrisisCountryMatch(t *testing.T) {
+	if !titleMentionsCountry("M 6.1 - 12 km SW of Sindirgi, Turkey", "TR") {
+		t.Error("USGS Turkey eşleşmedi")
+	}
+	if !titleMentionsCountry("Orange earthquake alert (Magnitude 6.3M) in Türkiye", "TR") {
+		t.Error("Türkiye eşleşmedi")
+	}
+	if titleMentionsCountry("M 6.5 - 40 km S of Kokopo, Papua New Guinea", "TR") {
+		t.Error("başka ülke eşleşti")
+	}
+}

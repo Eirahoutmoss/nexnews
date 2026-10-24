@@ -28,6 +28,8 @@
     h += '</div><div class="nav-grp">';
     h += '<div class="navi" onclick="navFollowed(this)">'+navIc('bell')+'<span class="n-tx">Takip ettiklerim</span><span class="n-cnt" id="navFollowCnt"></span></div>';
     h += '<div class="navi" onclick="navWeekly(this)">'+navIc('clock')+'<span class="n-tx">Haftanın özeti</span></div>';
+    h += '<div class="navi nav-sub" onclick="navAgenda(this)">'+navIc('clock')+'<span class="n-tx">Gündem takvimi</span></div>';
+    h += '<div class="navi nav-sub" onclick="navMirror(this)">'+navIc('star')+'<span class="n-tx">Okuma aynan</span></div>';
     h += '<div class="navi" onclick="navList(this,\'favs\')">'+navIc('star')+'<span class="n-tx">Favoriler</span></div>';
     h += '<div class="navi" onclick="navList(this,\'history\')">'+navIc('clock')+'<span class="n-tx">Okuma geçmişi</span></div>';
     h += '<div class="navi" onclick="navSearch()">'+navIc('search')+'<span class="n-tx">Ara</span></div>';
@@ -78,4 +80,6 @@
   function navLiveTV(el){ setNavActive(el); openLiveTV(); }
   function navRadio(el){ setNavActive(el); openWorldRadio(); }
   function navWeekly(el){ setNavActive(el); openWeekly(); }
+  function navAgenda(el){ setNavActive(el); openAgenda(); }
+  function navMirror(el){ setNavActive(el); openMirror(); }
 

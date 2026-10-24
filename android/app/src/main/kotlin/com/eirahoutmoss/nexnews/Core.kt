@@ -206,6 +206,12 @@ object Core {
         runCatching { NexJson.decodeFromString<OwnershipCatalog>(Nexcore.ownership()) }.getOrDefault(OwnershipCatalog())
     }.also { if (it.d.isNotEmpty()) ownershipCache = it }
 
+    // ---- RC97 ----
+    suspend fun mirror(): MirrorBoard = io { runCatching { NexJson.decodeFromString<MirrorBoard>(Nexcore.mirror()) }.getOrDefault(MirrorBoard()) }
+    suspend fun agenda(): List<AgendaItem> = io { runCatching { NexJson.decodeFromString<List<AgendaItem>>(Nexcore.agenda()) }.getOrDefault(emptyList()) }
+    suspend fun audioBrief(): AudioBrief = io { runCatching { NexJson.decodeFromString<AudioBrief>(Nexcore.audioBrief()) }.getOrDefault(AudioBrief()) }
+    suspend fun contextCard(link: String): ContextBoard = io { runCatching { NexJson.decodeFromString<ContextBoard>(Nexcore.contextCard(link)) }.getOrDefault(ContextBoard()) }
+
     fun config(): JsonObject =
         runCatching { NexJson.parseToJsonElement(Nexcore.config()).jsonObject }.getOrDefault(JsonObject(emptyMap()))
 

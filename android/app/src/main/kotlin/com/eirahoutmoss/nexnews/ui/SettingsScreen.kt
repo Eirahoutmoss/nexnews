@@ -179,6 +179,8 @@ fun SettingsScreen(nav: NexNav, bottomPad: PaddingValues) {
                 }
                 ChoiceRow(t("Tema"), listOf("sistem" to t("Sistem"), "koyu" to t("Koyu"), "acik" to t("Açık")), prefs.theme) { prefs.theme = it }
                 ChoiceRow(t("Liste"), listOf("siki" to t("Sıkı"), "rahat" to t("Rahat (görselli)")), prefs.density) { prefs.density = it }
+                SwitchRow(t("Kolay okuma"), t("Büyük yazı, sade görünüm"), cfg["easyRead"].bool(false)) { b -> save { it["easyRead"] = JsonPrimitive(b) } }
+                SwitchRow(t("Sakin başlıklar"), t("Abartılı başlık yerine olayın en sakin başlığını göster"), cfg["calmHeadlines"].bool(false)) { b -> save { it["calmHeadlines"] = JsonPrimitive(b) } }
                 SwitchRow(t("Görselleri yalnızca Wi-Fi'de yükle"), t("Mobil veride küçük resimler indirilmez"), prefs.imagesWifiOnly) { prefs.imagesWifiOnly = it }
             }
             item {
@@ -220,6 +222,8 @@ fun SettingsScreen(nav: NexNav, bottomPad: PaddingValues) {
                 TextSetting(t("İlgi alanların"), cfg["interests"].strList().joinToString(", "), "yapay zeka, deprem, uzay") { v -> save { it["interests"] = strArray(csv(v)) } }
                 TextSetting(t("Gizlenecek konular"), cfg["hideWords"].strList().joinToString(", "), "magazin, transfer") { v -> save { it["hideWords"] = strArray(csv(v)) } }
                 SwitchRow(t("Başlıkları cihaz diline çevir"), t("Farklı dillerdeki aynı haberler de birleşir"), cfg["translate"].bool(true)) { b -> save { it["translate"] = JsonPrimitive(b) } }
+                SwitchRow(t("Kriz modu"), t("Ülkemde büyük bir afet olursa sade kriz kartını göster"), cfg["crisisMode"].str("") != "off") { b -> save { it["crisisMode"] = JsonPrimitive(if (b) "" else "off") } }
+                SwitchRow(t("Doğrulama yazıları"), t("Doğrulama sitelerinin yazılarını kontrol et"), !cfg["factCheckOff"].bool(false)) { b -> save { it["factCheckOff"] = JsonPrimitive(!b) } }
                 SwitchRow(t("Haberleri uygulama içinde aç"), t("Kapalıysa tek kaynaklı haberler tarayıcıda açılır"), cfg["openInApp"].bool(true)) { b -> save { it["openInApp"] = JsonPrimitive(b) } }
                 ChoiceRow(t("Kategori başına başlık"), listOf("3" to "3", "5" to "5", "8" to "8", "12" to "12"), cfg["maxPerCategory"].int(5).toString()) { v -> save { it["maxPerCategory"] = JsonPrimitive(v.toInt()) } }
                 NavRow(t("Kaynaklar"), t("Kategoriler, feed'ler ve kaynak sağlığı")) { nav.sources() }

@@ -1117,3 +1117,50 @@
   .wr-row{display:grid;grid-template-columns:150px 1fr 40px;align-items:center;gap:10px;font-size:13px;padding:4px 0}
   .wr-row i{display:block;height:8px;border-radius:999px;background:var(--accent)}
   .wr-row b{text-align:end;font-variant-numeric:tabular-nums}
+
+  /* ---- RC97 ---- */
+  .sig.upd{color:var(--accent);background:var(--accent-soft);border-color:var(--accent)}
+  .sig.fc{color:#5b8cff;background:rgba(91,140,255,.10);border-color:rgba(91,140,255,.45)}
+  .sig.sens{color:#e0a83a;background:rgba(224,168,58,.10);border-color:rgba(224,168,58,.45)}
+  .sig.calm{color:#36c98f;background:rgba(54,201,143,.10);border-color:rgba(54,201,143,.45);cursor:help}
+  .view-toggle .vt-sep{display:inline-block;width:1px;height:18px;background:var(--line);margin:0 6px;vertical-align:middle}
+  .crisis-card{margin:10px 0 16px;padding:14px 16px;border-radius:14px;border:2px solid #f59e0b;background:rgba(245,158,11,.08)}
+  .crisis-card.lvl-red{border-color:#ef4444;background:rgba(239,68,68,.09)}
+  .crisis-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .crisis-head .mini{margin-inline-start:auto}
+  .crisis-badge{font-weight:900;letter-spacing:.06em;font-size:12px;color:#fff;background:#f59e0b;border-radius:6px;padding:2px 8px}
+  .crisis-card.lvl-red .crisis-badge{background:#ef4444}
+  .crisis-time{font-size:12px;color:var(--txt-faint)}
+  .crisis-title{font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;line-height:1.4}
+  .crisis-nums{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+  .crisis-num{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12.5px;background:var(--surface)}
+  .crisis-num b{font-size:14px;margin-inline-end:4px}
+  .crisis-sub{font-size:12px;font-weight:700;color:var(--txt-dim);margin:4px 0 2px}
+  .crisis-tip{font-size:12px;color:var(--txt-dim);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
+  .since-note{margin:10px 0;padding:8px 12px;border-radius:10px;background:var(--accent-soft);border:1px solid var(--accent);font-size:13px}
+  .since-note.quiet{background:transparent;border-color:var(--line);color:var(--txt-faint)}
+  .tl-row.tl-new .tl-dot{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .tl-newtag{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:0 5px;margin-inline-end:4px;text-transform:uppercase}
+  .calm-note{color:#36c98f}
+  .fc-list{display:flex;flex-direction:column;gap:6px;margin:6px 0}
+  .fc-row{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--surface)}
+  .fc-row:hover{border-color:var(--accent)}
+  .fc-t{font-size:13px;line-height:1.35}
+  .fc-s{grid-column:2;font-size:11.5px;color:var(--txt-faint)}
+  .fc-v{grid-row:span 2;font-size:11px;font-weight:800;border-radius:6px;padding:2px 7px;border:1px solid var(--line);white-space:nowrap}
+  .fc-v.fc-yanlis{color:#ef4444;border-color:#ef4444}
+  .fc-v.fc-yaniltici{color:#e0a83a;border-color:#e0a83a}
+  .fc-v.fc-dogru{color:#22c55e;border-color:#22c55e}
+  .ctx-box{margin:12px 0}
+  .ctx-ent{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--hair)}
+  .ctx-ent img{width:56px;height:56px;object-fit:cover;border-radius:8px;flex:0 0 auto}
+  .ctx-ent small{color:var(--txt-faint)}
+  .ctx-ent p{margin:4px 0 6px;font-size:13px;line-height:1.5;color:var(--txt-dim)}
+  .mirror-note{margin:8px 0;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:13.5px;line-height:1.5}
+  .agenda-item .title{display:flex;gap:12px;align-items:baseline}
+  .agenda-time{font-variant-numeric:tabular-nums;font-weight:800;color:var(--accent);min-width:48px}
+  /* Kolay okuma: büyük yazı, az ayrıntı */
+  html.easy-read .item .title{font-size:17px;line-height:1.55}
+  html.easy-read .item .thumb,html.easy-read .item .actions,html.easy-read .item .sig:not(.brk),html.easy-read .pulse-chip,html.easy-read .calm-sub{display:none!important}
+  html.easy-read .item{padding-block:14px}
+  html.easy-read .imp-head{font-size:18px}

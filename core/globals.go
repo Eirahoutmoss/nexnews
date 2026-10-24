@@ -6,7 +6,7 @@ package core
 
 import "strings"
 
-const appVersion = "1.0.0-rc95"
+const appVersion = "1.0.0-rc97"
 
 // sysLangOverride is the device language set by the Android host.
 var sysLangOverride string

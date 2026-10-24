@@ -48,12 +48,12 @@
     renderPulseChip(data);
     updateNavCounts(data);
     if(homeView()==='sakin'){
-      el.innerHTML = calmHTML(data);
+      el.innerHTML = crisisHTML(data.crisis) + calmHTML(data);
       if(KBD_IDX>=0) KBD_IDX=-1;
       translateDOM();
       return;
     }
-    let html = viewToggleHTML() + breakingBandHTML(data.breaking) + forYouHTML(data.forYou) + importantHTML(data.important) + discoverHTML(data) + '<div class="grid">';
+    let html = crisisHTML(data.crisis) + viewToggleHTML() + breakingBandHTML(data.breaking) + forYouHTML(data.forYou) + importantHTML(data.important) + discoverHTML(data) + '<div class="grid">';
     const personalized = !!String(data.countryCode||'').trim();
     for(const c of data.categories){
       if(personalized && Number(c.total||0)===0) continue;
@@ -114,7 +114,7 @@
          + (it.count>1?'<span class="evt-tag" title="Aynı olayı bildiren '+Number(it.sourceCount||it.count)+' kaynak — ayrıntı için tıklayın">'+Number(it.sourceCount||it.count)+' kaynak</span>':'')+'</span></span>'
          + '<div class="meta"><span class="src" title="'+esc(ownTitle(it.link))+'">'+faviconHTML(it.link)+ownDot(it.link)+'<span class="src-tx">'+sourcesText(it)+'</span></span>'
          + '<span class="time" title="'+esc(it.ts?new Date(it.ts*1000).toLocaleString(uiLocale()):'')+'">'+relTime(it.ts)+'</span>'
-         + signalHTML(it)
+         + signalHTML(it) + rc97BadgesHTML(it)
          + '</div><div class="actions">'
          + starHTML(it.link)
          + '<button class="mini" data-act="read" title="Uygulamada oku (R)">Oku</button>'
@@ -167,7 +167,9 @@
   function viewToggleHTML(){
     const v=homeView();
     return '<div class="view-toggle" role="tablist"><button class="'+(v==='sakin'?'active':'')+'" onclick="setHomeView(\'sakin\')" title="Günün önemli olayları, sonu belli kısa bir özet">🌿 Sakin</button>'
-      + '<button class="'+(v==='tam'?'active':'')+'" onclick="setHomeView(\'tam\')" title="Tüm kategoriler ve başlıklar">Tam akış</button></div>';
+      + '<button class="'+(v==='tam'?'active':'')+'" onclick="setHomeView(\'tam\')" title="Tüm kategoriler ve başlıklar">Tam akış</button>'
+      + '<span class="vt-sep"></span><button id="audioBriefBtn" class="'+(AUDIO_ON?'active':'')+'" onclick="toggleAudioBrief()" title="Günün özetini sesli dinle">'+(AUDIO_ON?'■ Durdur':'🔊 Dinle')+'</button>'
+      + '<button class="'+(easyRead()?'active':'')+'" onclick="toggleEasyRead()" title="Büyük yazı, sade görünüm">Aa Kolay okuma</button></div>';
   }
   function calmPicks(data){
     const seen=new Set(), out=[];
@@ -277,4 +279,118 @@
     }
     h+='<section class="closing-card calm-close">'+SEC_IC.check+'<h3>Haftanın özeti bu kadar</h3><p>Gelecek haftanın özeti pazar günü hazır olur.</p></section>';
     p.innerHTML=h; window.scrollTo(0,0);
+  }
+
+  // ---- RC97: rozetler, kriz modu, sesli brifing, kolay okuma, gündem, okuma aynası ----
+  function rc97BadgesHTML(it){
+    let h='';
+    if(Number(it.upd||0)>0) h+='<span class="sig upd" title="Bu olaya son baktığından beri gelen başlıklar">+'+Number(it.upd)+' yeni</span>';
+    if(Number(it.fc||0)>0) h+='<span class="sig fc" title="Bağımsız doğrulama kuruluşları bu konuda yazı yayımladı — olay sayfasında">🔎 Doğrulama</span>';
+    if(it.calmFrom) h+='<span class="sig calm" data-noi18n title="'+esc((it.origTitle||'')+' — '+it.calmFrom)+'">🌿</span>';
+    else if(Number(it.sens||0)>=40) h+='<span class="sig sens" title="Bu başlıkta abartılı ya da duygu yüklü dil var">⚠ Abartılı dil</span>';
+    return h;
+  }
+  const CRISIS_KIND={deprem:'Deprem',tsunami:'Tsunami',sel:'Sel',yangın:'Orman yangını',fırtına:'Fırtına',heyelan:'Heyelan',afet:'Afet'};
+  function crisisDismissed(c){ try{ return localStorage.getItem('nnCrisisOff')===c.key; }catch(e){ return false; } }
+  function dismissCrisis(key){ try{ localStorage.setItem('nnCrisisOff',key); }catch(e){} loadOverview(); }
+  function crisisHTML(c){
+    if(!c || crisisDismissed(c)) return '';
+    const list=(c.stories||[]);
+    let h='<section class="crisis-card lvl-'+esc(c.level||'orange')+'" role="alert"><div class="crisis-head"><span class="crisis-badge">⚠ KRİZ MODU</span><b>'+esc(CRISIS_KIND[c.kind]||'Afet')+'</b>'
+      +(c.mag?'<span class="pill">M '+Number(c.mag).toFixed(1)+'</span>':'')+'<span class="crisis-time">'+relTime(c.ts)+'</span>'
+      +'<button class="mini" onclick="dismissCrisis(\''+esc(c.key)+'\')" title="Bu afet için kartı gizle">Kapat</button></div>';
+    h+='<div class="crisis-title" data-url="'+encodeURIComponent(c.link||'')+'" data-act="'+(list.length?'event':'open')+'"><span class="t-tx">'+esc(c.title||'')+'</span></div>';
+    h+='<div class="crisis-nums">'+(c.numbers||[]).map(n=>'<span class="crisis-num"><b>'+esc(n.number)+'</b> '+esc(n.label)+'</span>').join('')+'</div>';
+    if(list.length){
+      h+='<div class="crisis-sub">Resmî ya da en az 3 bağımsız kaynakla doğrulanmış gelişmeler</div><div class="imp-list">'+list.map(it=>itemHTML(it)).join('')+'</div>';
+    }
+    h+='<div class="crisis-tip">Doğrulanmamış bilgiyi paylaşmadan önce resmî kaynaklardan kontrol et. Afetlerde eski fotoğraf ve videolar sık sık yeniden dolaşıma sokulur.</div>';
+    return h+'</section>';
+  }
+  // Sesli brifing: metni çekirdek hazırlar, Windows'un konuşma motoru okur.
+  let AUDIO_ON=false;
+  async function toggleAudioBrief(){
+    if(AUDIO_ON){ try{ await window.nnStopSpeech(); }catch(e){} AUDIO_ON=false; paintAudioBtn(); return; }
+    let b={};
+    try{ b=JSON.parse(await window.nnAudioBrief()); }catch(e){}
+    if(!b.text){ nnToast('Sesli brifing hazırlanamadı.'); return; }
+    try{
+      const r=await window.nnSpeak(b.text);
+      if(r==='off'){ nnToast('Bu bilgisayarda konuşma motoru bulunamadı.'); return; }
+      AUDIO_ON=true; paintAudioBtn();
+      // Yaklaşık süre sonunda düğmeyi geri al (dakikada ~150 sözcük).
+      clearTimeout(toggleAudioBrief._t);
+      toggleAudioBrief._t=setTimeout(()=>{ AUDIO_ON=false; paintAudioBtn(); }, Math.max(20000, b.text.split(/\s+/).length/150*60000));
+    }catch(e){ nnToast('Sesli brifing başlatılamadı.'); }
+  }
+  function paintAudioBtn(){ const b=document.getElementById('audioBriefBtn'); if(b){ b.classList.toggle('active',AUDIO_ON); b.textContent=AUDIO_ON?'■ Durdur':'🔊 Dinle'; } }
+  // Kolay okuma: büyük yazı, az ayrıntı.
+  function easyRead(){ return !!(CONFIG&&CONFIG.easyRead); }
+  function toggleEasyRead(){
+    CONFIG=CONFIG||{}; CONFIG.easyRead=!CONFIG.easyRead; applyGlass();
+    try{ window.nnSaveConfig(JSON.stringify(CONFIG)); }catch(e){}
+    loadOverview();
+  }
+  function pageShell(title, pill){
+    document.getElementById('overview').classList.add('hide');
+    const p=document.getElementById('catpage'); p.classList.remove('hide');
+    return {p, head:'<div class="page-head"><button class="btn" onclick="backToOverview()">← Geri</button><h1>'+title+'</h1>'+(pill?'<span class="pill">'+pill+'</span>':'')+'</div>'};
+  }
+  // Gündem takvimi
+  const AGENDA_KIND_IC={ekonomi:'💹',siyaset:'🗳️',spor:'⚽',bilim:'🔭'};
+  async function openAgenda(){
+    let list=[]; try{ list=JSON.parse(await window.nnAgenda())||[]; }catch(e){}
+    const {p,head}=pageShell('🗓️ Gündem takvimi',tf('{n} gün',{n:14}));
+    const dfmt=ts=>new Date(ts*1000).toLocaleDateString(uiLocale(),{weekday:'long',day:'numeric',month:'long'});
+    const tfmt=ts=>new Date(ts*1000).toLocaleTimeString(uiLocale(),{hour:'2-digit',minute:'2-digit'});
+    let h=head+'<div class="weekly-note">Önceden bilinen, gündemi belirleyecek olaylar. Saatler bilgisayarının saat dilimine göre.</div>';
+    if(!list.length) h+='<div class="empty">Önümüzdeki iki haftada kayıtlı bir olay yok.</div>';
+    let day='';
+    list.forEach(a=>{
+      const d=dfmt(a.ts);
+      if(d!==day){ if(day) h+='</div></section>'; day=d; h+='<section class="important agenda-day"><div class="imp-head">'+esc(d)+'</div><div class="imp-list">'; }
+      h+='<div class="item agenda-item"'+(a.link?' data-url="'+encodeURIComponent(a.link)+'"':'')+'><span class="title"'+(a.link?' data-act="browser"':'')+'><span class="agenda-time">'+(a.allDay?'—':tfmt(a.ts))+'</span><span class="ag-tx">'+(AGENDA_KIND_IC[a.kind]||'📌')+' '+esc(a.title)+'</span></span>'
+        +(a.note?'<div class="meta"><span>'+esc(a.note)+'</span></div>':'')+'</div>';
+    });
+    if(day) h+='</div></section>';
+    h+='<div class="cov-note" style="padding:8px 4px">Tarihler kurumların yayımladığı resmî takvimlerden derlenir; kurumlar tarihi değiştirebilir.</div>';
+    p.innerHTML=h; window.scrollTo(0,0); translateDOM();
+  }
+  // Okuma aynası
+  // Şablonlu çeviri: sözlükte yer tutuculu cümle aranır, sonra değerler yerleştirilir.
+  function tf(tpl, vars){
+    let s=tpl; try{ if(window.NexI18n) s=NexI18n.t(tpl); }catch(e){}
+    for(const k in (vars||{})) s=s.split('{'+k+'}').join(vars[k]);
+    return s;
+  }
+  function trList(csv){ return String(csv||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>{ try{ return window.NexI18n?NexI18n.t(x):x; }catch(e){ return x; } }).join(', '); }
+  const MIRROR_NOTE={
+    az:n=>tf('Okuma aynası için henüz yeterli okuma yok; birkaç gün kullandıktan sonra burada kendi haber alışkanlığını göreceksin.'),
+    tekKaynak:n=>tf('Okuduklarının %{p} kadarı tek kaynaktan: {n}. Aynı olayı farklı kaynaklardan okumak resmin tamamını görmeye yardımcı olur.',{p:n.pct,n:n.name}),
+    devlet:n=>tf('Sahipliği bilinen okumalarının %{p} kadarı devlet medyası ya da devlet fonlu kaynaklardan.',{p:n.pct}),
+    kategori:n=>tf('Okumalarının %{p} kadarı tek bir başlıkta: {n}.',{p:n.pct,n:trList(n.name)}),
+    bolgeYok:n=>tf('Son 30 günde hiç okumadığın bölgeler: {n}.',{n:trList(n.name)}),
+    cesitli:n=>tf('Kaynak çeşitliliğin yüksek: farklı kaynaklardan okuyorsun.')
+  };
+  function pctText(n){ n=Number(n||0); const l=(window.NexI18n&&NexI18n.lang)||'tr'; return l==='tr'?'%'+n:n+'%'; }
+  function mirrorBars(list, labelFn){
+    if(!list||!list.length) return '<div class="empty" style="padding:10px">—</div>';
+    const mx=Math.max(...list.map(r=>r.count));
+    return '<div class="weekly-regs">'+list.map(r=>'<div class="wr-row"><span>'+esc(labelFn?labelFn(r):r.name)+'</span><i style="width:'+Math.max(6,Math.round(r.count/mx*100))+'%"></i><b>'+pctText(r.pct)+'</b></div>').join('')+'</div>';
+  }
+  async function openMirror(){
+    let m={}; try{ m=JSON.parse(await window.nnMirror())||{}; }catch(e){}
+    const {p,head}=pageShell('🪞 Okuma aynan',tf('son {n} gün',{n:Number(m.days||30)}));
+    let h=head+'<div class="weekly-note">Bu sayfa yalnızca bu bilgisayardaki okuma geçmişinden hesaplanır; hiçbir yere gönderilmez. Amaç yargılamak değil, kendi haber alışkanlığını görmek.</div>';
+    h+='<div class="weekly-stats"><div><b>'+Number(m.total||0)+'</b><span>okunan haber</span></div><div><b>'+Number(m.sourceCount||0)+'</b><span>farklı kaynak</span></div><div><b>'+Number(m.diversity||0)+'</b><span>çeşitlilik (0–100)</span></div><div><b>'+(m.regions||[]).length+'</b><span>bölge</span></div></div>';
+    (m.notes||[]).forEach(n=>{ const f=MIRROR_NOTE[n.kind]; if(f) h+='<div class="mirror-note" data-noi18n>'+(n.kind==='cesitli'?'🌈 ':'💡 ')+esc(f(n))+'</div>'; });
+    if(Number(m.total||0)>0){
+      h+='<section class="important"><div class="imp-head">📰 En çok okuduğun kaynaklar</div>'+mirrorBars(m.sources)+'</section>';
+      h+='<section class="important"><div class="imp-head">🌍 Bölgeler</div>'+mirrorBars(m.regions)
+        +((m.silentRegions||[]).length?'<div class="cov-note" data-noi18n style="padding:0 16px 12px">'+esc(tf('Hiç okumadığın bölgeler: {n}',{n:trList(m.silentRegions.join(','))}))+'</div>':'')+'</section>';
+      h+='<section class="important"><div class="imp-head">🏛️ Kaynak sahipliği</div>'+mirrorBars(m.owners,r=>r.label||r.name)
+        +(Number(m.ownerUnknown||0)?'<div class="cov-note" data-noi18n style="padding:0 16px 12px">'+esc(tf('{n} okumanın kaynağının sahipliği katalogda yok.',{n:Number(m.ownerUnknown)}))+'</div>':'')+'</section>';
+      h+='<section class="important"><div class="imp-head">🗂️ Başlıklar</div>'+mirrorBars((m.cats||[]).slice(0,8))+'</section>';
+    }
+    p.innerHTML=h; window.scrollTo(0,0); translateDOM();
   }

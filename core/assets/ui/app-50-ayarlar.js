@@ -54,6 +54,11 @@
     fs.value=CONFIG.fontScale||100; fsv.textContent="%"+fs.value;
     lh.value=CONFIG.lineHeight||1.75; lhv.textContent=Number(lh.value).toFixed(2);
     rw.value=CONFIG.readerWidth||760; dys.checked=!!CONFIG.dyslexiaFont;
+    { const g=id=>document.getElementById(id); // RC97
+      if(g("optEasyRead")) g("optEasyRead").checked=!!CONFIG.easyRead;
+      if(g("optCalmHead")) g("optCalmHead").checked=!!CONFIG.calmHeadlines;
+      if(g("optCrisis")) g("optCrisis").checked=CONFIG.crisisMode!=="off";
+      if(g("optFactCheck")) g("optFactCheck").checked=!CONFIG.factCheckOff; }
     wo.value=(CONFIG.widgetOpacity!=null?CONFIG.widgetOpacity:78); wov.textContent="%"+wo.value;
     fs.oninput=()=>{ CONFIG.fontScale=+fs.value; fsv.textContent="%"+fs.value; applyGlass(); updateReadState(); };
     lh.oninput=()=>{ CONFIG.lineHeight=+lh.value; lhv.textContent=Number(lh.value).toFixed(2); applyGlass(); updateReadState(); };
@@ -220,6 +225,11 @@
     CONFIG.lineHeight = Math.max(1.4, Math.min(2.4, +document.getElementById("optLineHeight").value||1.75));
     CONFIG.readerWidth = Math.max(520, Math.min(980, +document.getElementById("optReaderWidth").value||760));
     CONFIG.dyslexiaFont = document.getElementById("optDyslexia").checked;
+    { const g=id=>document.getElementById(id); // RC97
+      if(g("optEasyRead")) CONFIG.easyRead=g("optEasyRead").checked;
+      if(g("optCalmHead")) CONFIG.calmHeadlines=g("optCalmHead").checked;
+      if(g("optCrisis")) CONFIG.crisisMode=g("optCrisis").checked?"":"off";
+      if(g("optFactCheck")) CONFIG.factCheckOff=!g("optFactCheck").checked; }
     { const v=parseInt(document.getElementById("optWidgetOpacity").value,10); CONFIG.widgetOpacity = isFinite(v)?Math.max(0,Math.min(100,v)):78; }
     CONFIG.widgetTint = Math.max(0, Math.min(100, parseInt(document.getElementById("optWTint").value,10)||0));
     CONFIG.widgetSingle = document.getElementById("optWSingle").checked;

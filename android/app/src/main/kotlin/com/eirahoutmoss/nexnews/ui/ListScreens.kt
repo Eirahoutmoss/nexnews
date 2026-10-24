@@ -2,6 +2,8 @@
 
 package com.eirahoutmoss.nexnews.ui
 
+import com.eirahoutmoss.nexnews.t
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -95,11 +97,11 @@ private fun ItemList(items: List<NewsItem>, nav: NexNav, bottomPad: PaddingValue
 fun CategoriesScreen(nav: NexNav, bottomPad: PaddingValues) {
     val ov by Core.overview.collectAsState()
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Kategoriler", fontWeight = FontWeight.Bold) }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)) },
+        topBar = { TopAppBar(title = { Text(t("Kategoriler"), fontWeight = FontWeight.Bold) }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)) },
         containerColor = MaterialTheme.colorScheme.background
     ) { pad ->
         val cats = ov?.categories.orEmpty()
-        if (cats.isEmpty()) { Box(Modifier.padding(pad)) { Empty("Henüz başlık yok.") }; return@Scaffold }
+        if (cats.isEmpty()) { Box(Modifier.padding(pad)) { Empty(t("Henüz başlık yok.")) }; return@Scaffold }
         LazyColumn(Modifier.fillMaxSize().padding(top = pad.calculateTopPadding()), contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 16.dp)) {
             items(cats, key = { it.name }) { c ->
                 Row(
@@ -107,7 +109,7 @@ fun CategoriesScreen(nav: NexNav, bottomPad: PaddingValues) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text(c.name, style = MaterialTheme.typography.titleMedium)
+                        Text(t(c.name), style = MaterialTheme.typography.titleMedium)
                         c.items.firstOrNull()?.let {
                             Text(it.title, maxLines = 1, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
@@ -131,7 +133,7 @@ fun CategoryScreen(name: String, nav: NexNav, bottomPad: PaddingValues) {
         val p = page
         when {
             p == null -> Box(Modifier.padding(pad)) { Loading() }
-            p.items.isEmpty() -> Box(Modifier.padding(pad)) { Empty("Bu kategoride başlık yok.") }
+            p.items.isEmpty() -> Box(Modifier.padding(pad)) { Empty(t("Bu kategoride başlık yok.")) }
             else -> ItemList(p.items, nav, bottomPad, pad)
         }
     }
@@ -146,12 +148,12 @@ fun SearchScreen(nav: NexNav, bottomPad: PaddingValues) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     val run = { scope.launch { busy = true; res = runCatching { Core.search(q) }.getOrNull(); busy = false } }
-    Scaffold(topBar = { BackBar("Ara", nav) }, containerColor = MaterialTheme.colorScheme.background) { pad ->
+    Scaffold(topBar = { BackBar(t("Ara"), nav) }, containerColor = MaterialTheme.colorScheme.background) { pad ->
         Column(Modifier.fillMaxSize().padding(top = pad.calculateTopPadding())) {
             OutlinedTextField(
                 value = q, onValueChange = { q = it },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).focusRequester(focus),
-                placeholder = { Text("deprem türkiye · son 24 saat") },
+                placeholder = { Text(t("deprem türkiye · son 24 saat")) },
                 singleLine = true,
                 trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = ""; res = null }) { Icon(Icons.Filled.Close, "Temizle") } },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -159,9 +161,9 @@ fun SearchScreen(nav: NexNav, bottomPad: PaddingValues) {
             )
             val r = res
             when {
-                busy -> Loading("Aranıyor…")
-                r == null -> Empty("Kelime yazın; \"son 24 saat\", \"bugün\", \"son 3 gün\" gibi ifadeler zaman aralığı olarak anlaşılır.")
-                r.items.isEmpty() -> Empty("Sonuç yok.")
+                busy -> Loading(t("Aranıyor…"))
+                r == null -> Empty(t("Kelime yazın; \"son 24 saat\", \"bugün\", \"son 3 gün\" gibi ifadeler zaman aralığı olarak anlaşılır."))
+                r.items.isEmpty() -> Empty(t("Sonuç yok."))
                 else -> {
                     Text(
                         "${r.total} olay · ${r.sourceCount} kaynak" + if (r.windowLabel.isNotBlank()) " · ${r.windowLabel}" else "",
@@ -193,7 +195,7 @@ fun SavedScreen(nav: NexNav, bottomPad: PaddingValues) {
                 actions = {
                     if (tab == 1 && !list.isNullOrEmpty()) IconButton(onClick = {
                         scope.launch { Core.clearHistory(); list = emptyList() }
-                    }) { Icon(Icons.Filled.DeleteSweep, "Geçmişi temizle") }
+                    }) { Icon(Icons.Filled.DeleteSweep, t("Geçmişi temizle")) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
@@ -202,15 +204,15 @@ fun SavedScreen(nav: NexNav, bottomPad: PaddingValues) {
     ) { pad ->
         Column(Modifier.fillMaxSize().padding(top = pad.calculateTopPadding())) {
             TabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.background) {
-                Tab(tab == 0, onClick = { tab = 0 }, text = { Text("Favoriler") })
-                Tab(tab == 1, onClick = { tab = 1 }, text = { Text("Okuma geçmişi") })
+                Tab(tab == 0, onClick = { tab = 0 }, text = { Text(t("Favoriler")) })
+                Tab(tab == 1, onClick = { tab = 1 }, text = { Text(t("Okuma geçmişi")) })
                 Tab(tab == 2, onClick = { tab = 2 }, text = { Text("Takip") })
             }
             val l = list
             val f = follows
             when {
                 tab == 2 && f == null -> Loading()
-                tab == 2 && f.isNullOrEmpty() -> Empty("Takip ettiğin olay yok. Bir olay sayfasında 🔔 simgesine dokun; olay büyüdükçe burada güncellenir ve bildirim alırsın.")
+                tab == 2 && f.isNullOrEmpty() -> Empty(t("Takip ettiğin olay yok. Bir olay sayfasında 🔔 simgesine dokun; olay büyüdükçe burada güncellenir ve bildirim alırsın."))
                 tab == 2 -> LazyColumn(contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 16.dp)) {
                     items(f.orEmpty(), key = { it.item.link + it.added }) { r ->
                         Row(
@@ -219,16 +221,16 @@ fun SavedScreen(nav: NexNav, bottomPad: PaddingValues) {
                         ) {
                             Column(Modifier.weight(1f)) {
                                 Text(r.item.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, maxLines = 3)
-                                Text(listOf(if (r.new > 0) "+${r.new} yeni haber" else "", if (!r.live) "akıştan düştü" else "", r.item.category, relTime(r.item.ts)).filter { it.isNotBlank() }.joinToString(" · "),
+                                Text(listOf(if (r.new > 0) "+${r.new} yeni haber" else "", if (!r.live) t("akıştan düştü") else "", r.item.category, relTime(r.item.ts)).filter { it.isNotBlank() }.joinToString(" · "),
                                     style = MaterialTheme.typography.labelSmall, color = if (r.new > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            IconButton(onClick = { scope.launch { Core.unfollow(r.item.link); follows = Core.followed() } }) { Icon(Icons.Filled.Close, "Takibi bırak") }
+                            IconButton(onClick = { scope.launch { Core.unfollow(r.item.link); follows = Core.followed() } }) { Icon(Icons.Filled.Close, t("Takibi bırak")) }
                         }
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
                 }
                 l == null -> Loading()
-                l.isEmpty() -> Empty(if (tab == 0) "Favori yok. Bir haberi sağa kaydırarak ekleyebilirsin." else "Okuma geçmişi boş.")
+                l.isEmpty() -> Empty(if (tab == 0) t("Favori yok. Bir haberi sağa kaydırarak ekleyebilirsin.") else t("Okuma geçmişi boş."))
                 else -> LazyColumn(contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 16.dp)) {
                     items(l, key = { it.link }) { s ->
                         Row(
@@ -240,7 +242,7 @@ fun SavedScreen(nav: NexNav, bottomPad: PaddingValues) {
                                 Text(listOf(s.source, s.cat, relTime(if (s.ts > 0) s.ts else s.added)).filter { it.isNotBlank() }.joinToString(" · "),
                                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            if (tab == 0) IconButton(onClick = { Core.toggleFavSaved(s) }) { Icon(Icons.Filled.Close, "Çıkar") }
+                            if (tab == 0) IconButton(onClick = { Core.toggleFavSaved(s) }) { Icon(Icons.Filled.Close, t("Çıkar")) }
                         }
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }

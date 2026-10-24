@@ -2,6 +2,8 @@
 
 package com.eirahoutmoss.nexnews.ui
 
+import com.eirahoutmoss.nexnews.t
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.speech.tts.TextToSpeech
@@ -54,7 +56,7 @@ fun ReaderScreen(link: String, nav: NexNav, bottomPad: androidx.compose.foundati
     var art by remember { mutableStateOf<Article?>(null) }
     var speaking by remember { mutableStateOf(false) }
     val tts = remember { mutableStateOf<TextToSpeech?>(null) }
-    LaunchedEffect(link) { art = runCatching { Core.article(link) }.getOrElse { Article(err = "Sayfaya ulaşılamadı.") } }
+    LaunchedEffect(link) { art = runCatching { Core.article(link) }.getOrElse { Article(err = t("Sayfaya ulaşılamadı.")) } }
     DisposableEffect(Unit) { onDispose { tts.value?.stop(); tts.value?.shutdown() } }
 
     val bg = cssColor(MaterialTheme.colorScheme.background)
@@ -66,7 +68,7 @@ fun ReaderScreen(link: String, nav: NexNav, bottomPad: androidx.compose.foundati
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(art?.title?.ifBlank { "Okuyucu" } ?: "Okuyucu", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = { Text(art?.title?.ifBlank { t("Okuyucu") } ?: t("Okuyucu"), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = { IconButton(onClick = { nav.back() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Geri") } },
                 actions = {
                     val a = art
@@ -76,8 +78,8 @@ fun ReaderScreen(link: String, nav: NexNav, bottomPad: androidx.compose.foundati
                             else speak(ctx, tts, a) { speaking = it }
                         }) { Icon(if (speaking) Icons.Filled.Stop else Icons.AutoMirrored.Filled.VolumeUp, if (speaking) "Durdur" else "Sesli oku") }
                     }
-                    IconButton(onClick = { shareText(ctx, art?.title ?: "", link) }) { Icon(Icons.Filled.Share, "Paylaş") }
-                    IconButton(onClick = { openInBrowser(ctx, link) }) { Icon(Icons.Filled.OpenInBrowser, "Tarayıcıda aç") }
+                    IconButton(onClick = { shareText(ctx, art?.title ?: "", link) }) { Icon(Icons.Filled.Share, t("Paylaş")) }
+                    IconButton(onClick = { openInBrowser(ctx, link) }) { Icon(Icons.Filled.OpenInBrowser, t("Tarayıcıda aç")) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )

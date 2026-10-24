@@ -1,5 +1,7 @@
 package com.eirahoutmoss.nexnews.widget
 
+import com.eirahoutmoss.nexnews.t
+
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
@@ -89,7 +91,7 @@ private fun WidgetBody(ctx: Context, items: List<NewsItem>, alpha: Float, update
         }
         Spacer(GlanceModifier.height(6.dp))
         if (items.isEmpty()) {
-            Text("Başlıklar yükleniyor… Uygulamayı bir kez açın.", style = TextStyle(color = faint, fontSize = 12.sp))
+            Text(t("Başlıklar yükleniyor… Uygulamayı bir kez açın."), style = TextStyle(color = faint, fontSize = 12.sp))
         } else {
             LazyColumn {
                 items(items) { item ->
@@ -116,10 +118,10 @@ private fun agoText(ts: Long): String {
     if (ts <= 0) return ""
     val d = System.currentTimeMillis() / 1000 - ts
     return when {
-        d < 60 -> "az önce"
-        d < 3600 -> "${d / 60} dk önce"
-        d < 86400 -> "${d / 3600} sa önce"
-        else -> "${d / 86400} gün önce"
+        d < 60 -> t("az önce")
+        d < 3600 -> "${d / 60} " + t("dk") + " " + t("önce")
+        d < 86400 -> "${d / 3600} " + t("sa") + " " + t("önce")
+        else -> "${d / 86400} " + t("gün") + " " + t("önce")
     }
 }
 

@@ -15,6 +15,7 @@ class NexNav(private val nav: NavController, private val ctx: Context) {
     fun search() = nav.navigate("search")
     fun player() = nav.navigate("player")
     fun sources() = nav.navigate("sources")
+    fun weekly() = nav.navigate("weekly")
 
     /** Çok kaynaklı haber → olay sayfası; tek kaynak → okuyucu ya da tarayıcı. */
     fun open(item: NewsItem) {

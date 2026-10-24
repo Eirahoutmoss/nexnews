@@ -76,7 +76,8 @@
     const r = document.documentElement;
     r.setAttribute("data-theme", theme);
     r.style.setProperty("--ga", (op/100).toFixed(2));
-    const fs = Math.max(0.8, Math.min(1.6, Number((CONFIG && CONFIG.fontScale) || 100)/100));
+    let fs = Math.max(0.8, Math.min(1.6, Number((CONFIG && CONFIG.fontScale) || 100)/100));
+    if(CONFIG && CONFIG.easyRead) fs = Math.max(fs, 1.25); // RC97: kolay okuma
     const lh = Math.max(1.4, Math.min(2.4, Number((CONFIG && CONFIG.lineHeight) || 1.75)));
     const rw = Math.max(520, Math.min(980, Number((CONFIG && CONFIG.readerWidth) || 760)));
     r.style.setProperty("--font-scale", fs.toFixed(2));
@@ -86,6 +87,7 @@
     r.classList.toggle("frost", premium);
     r.classList.toggle("dyslexia", !!(CONFIG && CONFIG.dyslexiaFont));
     r.classList.toggle("density-siki", !!(CONFIG && CONFIG.density==="siki"));
+    r.classList.toggle("easy-read", !!(CONFIG && CONFIG.easyRead)); // RC97
     if(typeof applyWidgetLookCSS==="function") applyWidgetLookCSS();
   }
 

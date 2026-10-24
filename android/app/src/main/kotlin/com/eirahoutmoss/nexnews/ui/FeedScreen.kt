@@ -74,6 +74,7 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     // Sakin görünüm (masaüstüyle aynı): günün birkaç önemli olayı ve "bugünlük bu kadar".
     var calm by remember { mutableStateOf(homeViewCalm()) }
+    var crisisOff by remember { mutableStateOf(Prefs.get(ctx).crisisDismissed) }
     androidx.compose.runtime.LaunchedEffect(ov) { if (ov != null) calm = homeViewCalm() }
     fun setCalm(v: Boolean) {
         calm = v
@@ -133,7 +134,9 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)
                     )
                 }
+                o.crisis?.let { c -> if (c.key != crisisOff) item(key = "crisis") { CrisisCard(c, nav, onDismiss = { crisisOff = c.key; Prefs.get(ctx).crisisDismissed = c.key }) } }
                 item { ViewToggle(calm) { setCalm(it) } }
+                item { ToolChips(nav, Core.configBool("easyRead", false)) }
                 if (calm) {
                     if (o.breaking.isNotEmpty()) item { BreakingStrip(o.breaking.take(1)) { nav.open(it) } }
                     val wd = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK)
@@ -152,10 +155,6 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
                 }
                 if (o.breaking.isNotEmpty()) {
                     item { BreakingStrip(o.breaking) { nav.open(it) } }
-                }
-                item {
-                    Text(t("📰 Haftanın özeti"), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.clickable { nav.weekly() }.padding(horizontal = 16.dp, vertical = 6.dp))
                 }
                 if (o.forYou.isNotEmpty()) {
                     item { SectionHeader(t("Senin için")) }
@@ -357,5 +356,70 @@ private fun CalmClosing(cats: List<Pair<String, Int>>, onCat: (String) -> Unit, 
         }
         Spacer(Modifier.height(10.dp))
         androidx.compose.material3.OutlinedButton(onClick = onFull) { Text(t("Tüm akışı göster")) }
+    }
+}
+
+/** RC97: sesli brifing, kolay okuma ve sayfa kısayolları. */
+@Composable
+private fun ToolChips(nav: NexNav, easy: Boolean) {
+    val ctx = LocalContext.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        item {
+            androidx.compose.material3.FilterChip(selected = Speaker.speaking, onClick = {
+                if (Speaker.speaking) Speaker.stop()
+                else scope.launch {
+                    val b = Core.audioBrief()
+                    if (b.text.isBlank()) android.widget.Toast.makeText(ctx, t("Sesli brifing hazırlanamadı."), android.widget.Toast.LENGTH_SHORT).show()
+                    else Speaker.speak(ctx, b.text)
+                }
+            }, label = { Text(if (Speaker.speaking) t("■ Durdur") else t("🔊 Dinle")) })
+        }
+        item {
+            androidx.compose.material3.FilterChip(selected = easy, onClick = {
+                scope.launch { Core.saveConfig { it["easyRead"] = JsonPrimitive(!easy) } }
+            }, label = { Text(t("Aa Kolay okuma")) })
+        }
+        item { androidx.compose.material3.AssistChip(onClick = { nav.weekly() }, label = { Text(t("📰 Haftanın özeti")) }) }
+        item { androidx.compose.material3.AssistChip(onClick = { nav.agenda() }, label = { Text(t("🗓️ Gündem takvimi")) }) }
+        item { androidx.compose.material3.AssistChip(onClick = { nav.mirror() }, label = { Text(t("🪞 Okuma aynan")) }) }
+    }
+}
+
+private val CRISIS_KIND = mapOf("deprem" to "Deprem", "tsunami" to "Tsunami", "sel" to "Sel", "yangın" to "Orman yangını",
+    "fırtına" to "Fırtına", "heyelan" to "Heyelan", "afet" to "Afet")
+
+/** RC97 kriz modu kartı: resmî / çok kaynaklı gelişmeler, acil numaralar, paylaşmadan önce doğrula. */
+@Composable
+private fun CrisisCard(c: com.eirahoutmoss.nexnews.CrisisInfo, nav: NexNav, onDismiss: () -> Unit) {
+    val ctx = LocalContext.current
+    val col = if (c.level == "red") androidx.compose.ui.graphics.Color(0xFFEF4444) else androidx.compose.ui.graphics.Color(0xFFF59E0B)
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).clip(RoundedCornerShape(14.dp))
+            .background(col.copy(alpha = 0.09f)).border(2.dp, col, RoundedCornerShape(14.dp)).padding(14.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(t("⚠ KRİZ MODU"), color = androidx.compose.ui.graphics.Color.White, fontWeight = FontWeight.Black, fontSize = 12.sp,
+                modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(col).padding(horizontal = 8.dp, vertical = 2.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(t(CRISIS_KIND[c.kind] ?: "Afet") + if (c.mag > 0) " · M " + String.format(java.util.Locale.US, "%.1f", c.mag) else "", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            androidx.compose.material3.TextButton(onClick = onDismiss) { Text(t("Kapat")) }
+        }
+        Text(c.title, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(vertical = 6.dp).clickable { if (c.link.isNotBlank()) nav.story(c.link) })
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            c.numbers.forEach { n ->
+                androidx.compose.material3.AssistChip(onClick = {
+                    runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_DIAL, android.net.Uri.parse("tel:" + n.number))) }
+                }, label = { Text(n.number + " " + n.label, fontWeight = FontWeight.Bold) })
+            }
+        }
+        if (c.stories.isNotEmpty()) {
+            Text(t("Resmî ya da en az 3 bağımsız kaynakla doğrulanmış gelişmeler"), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
+            c.stories.take(5).forEach { s ->
+                Text("• " + s.title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.fillMaxWidth().clickable { nav.open(s) }.padding(vertical = 5.dp))
+            }
+        }
+        Text(t("Doğrulanmamış bilgiyi paylaşmadan önce resmî kaynaklardan kontrol et. Afetlerde eski fotoğraf ve videolar sık sık yeniden dolaşıma sokulur."),
+            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
     }
 }

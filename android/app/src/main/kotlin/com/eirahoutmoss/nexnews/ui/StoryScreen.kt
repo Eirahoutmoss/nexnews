@@ -120,6 +120,11 @@ fun StoryScreen(link: String, nav: NexNav, bottomPad: PaddingValues) {
                     Pill(t("güven") + " ${st.confidence}")
                     if (st.category.isNotBlank()) Pill(st.category)
                 }
+                if (st.lastVisit > 0) {
+                    Spacer(Modifier.height(10.dp))
+                    Note(if (st.newSince > 0) "🕑 " + tfmt("Son baktığından beri ({t}) {n} yeni başlık — zaman çizelgesinde işaretli", "t" to relTime(st.lastVisit), "n" to "${st.newSince}")
+                        else "🕑 " + t("Son baktığından beri yeni başlık yok."))
+                }
                 if (st.relText.isNotBlank()) {
                     Spacer(Modifier.height(12.dp))
                     Note(st.relText + if (st.firstTs > 0) " · " + t("İlk görülme") + ": ${clock(st.firstTs)}" else "")
@@ -137,11 +142,15 @@ fun StoryScreen(link: String, nav: NexNav, bottomPad: PaddingValues) {
                 if (cv.covered.isNotEmpty() || cv.silent.isNotEmpty()) item(key = "coverage") { CoverageBlock(cv) { nav.article(it) } }
             }
             item(key = "ownership") { OwnershipBlock(st, own) }
+            if (st.factChecks.isNotEmpty()) item(key = "factchecks") { FactCheckBlock(st.factChecks) }
+            item(key = "context") { ContextBlock(link, nav) }
             if (st.headlines.size >= 2) {
                 item {
                     Spacer(Modifier.height(18.dp))
                     Text(t("Kim nasıl başlık attı?"), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                     Text(t("Yalnız o kaynağın kullandığı kelimeler işaretli"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (st.calmTitle.isNotBlank()) Text("🌿 " + t("En sakin başlık") + ": " + st.calmTitle + if (st.calmSource.isNotBlank()) " — " + st.calmSource else "",
+                        style = MaterialTheme.typography.labelMedium, color = androidx.compose.ui.graphics.Color(0xFF36C98F), modifier = Modifier.padding(top = 4.dp))
                     Spacer(Modifier.height(8.dp))
                 }
                 st.headlines.forEach { h -> item(key = "h" + h.link) { HeadlineCard(h) { nav.article(h.link) } } }
@@ -155,9 +164,10 @@ fun StoryScreen(link: String, nav: NexNav, bottomPad: PaddingValues) {
                 item(key = "t" + ti.link + ti.ts) {
                     Row(Modifier.fillMaxWidth().clickable { nav.article(ti.link) }.padding(vertical = 8.dp)) {
                         Text(clock(ti.ts), modifier = Modifier.width(52.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp))
-                        Box(Modifier.padding(top = 5.dp, end = 10.dp).size(8.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary))
+                        Box(Modifier.padding(top = 5.dp, end = 10.dp).size(if (ti.new) 10.dp else 8.dp).clip(CircleShape).background(if (ti.new) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary))
                         Column(Modifier.weight(1f)) {
-                            Text(ti.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                            if (ti.new) Text(t("yeni").uppercase(), color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.Black, fontSize = 10.sp)
+                            Text(ti.title, style = MaterialTheme.typography.bodyMedium, fontWeight = if (ti.new) FontWeight.Bold else FontWeight.Medium)
                             Text(ti.source, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
                         }
                     }
@@ -205,6 +215,7 @@ private fun HeadlineCard(h: Headline, onOpen: () -> Unit) {
         }
         Spacer(Modifier.height(4.dp))
         Text(text, style = MaterialTheme.typography.bodyMedium)
+        if (h.sens >= 40) Pill(t("⚠ Abartılı dil"), color = androidx.compose.ui.graphics.Color(0xFFE0A83A), modifier = Modifier.padding(top = 4.dp))
         if (h.translated.isNotBlank()) {
             Spacer(Modifier.height(2.dp))
             Text(t("Özgün: ") + h.title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -291,5 +302,74 @@ private fun OwnershipBlock(st: StoryDetail, cat: OwnershipCatalog) {
         Spacer(Modifier.height(4.dp))
         Text(t("Sahiplik bilgisi herkese açık kaynaklardan derlenmiştir ve bilgi amaçlıdır; zamanla değişmiş olabilir."),
             style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** Şablonlu çeviri: "{ad}" yer tutucuları çeviriden sonra doldurulur. */
+fun tfmt(tpl: String, vararg vars: Pair<String, String>): String {
+    var s = t(tpl)
+    for ((k, v) in vars) s = s.replace("{$k}", v)
+    return s
+}
+
+private val FC_VERDICT = mapOf("yanlis" to ("✗ " to "Yanlış"), "yaniltici" to ("! " to "Yanıltıcı / eksik"), "dogru" to ("✓ " to "Doğru"))
+
+@Composable
+private fun FactCheckBlock(list: List<com.eirahoutmoss.nexnews.FactCheck>) {
+    val ctx = LocalContext.current
+    Column(Modifier.padding(top = 18.dp)) {
+        Text(t("🔎 DOĞRULAMA YAZILARI"), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
+        Spacer(Modifier.height(6.dp))
+        list.forEach { f ->
+            val v = FC_VERDICT[f.verdict]
+            val col = when (f.verdict) { "yanlis" -> androidx.compose.ui.graphics.Color(0xFFEF4444); "yaniltici" -> androidx.compose.ui.graphics.Color(0xFFE0A83A); "dogru" -> androidx.compose.ui.graphics.Color(0xFF22C55E); else -> MaterialTheme.colorScheme.onSurfaceVariant }
+            Column(
+                Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                    .clickable { openInBrowser(ctx, f.link) }.padding(10.dp)
+            ) {
+                Pill(if (v != null) v.first + t(v.second) else t("İnceleme"), color = col)
+                Text(f.title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
+                Text(f.source + if (f.ts > 0) " · " + relTime(f.ts) else "", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        Text(t("Bu yazılar bağımsız doğrulama kuruluşlarına aittir ve olayla kelime benzerliğiyle eşleştirildi; NexNews kendisi doğru/yanlış hükmü vermez. Hükmü kuruluşun yazısından oku."),
+            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
+    }
+}
+
+/** Bağlam kartı: yalnızca dokununca Vikipedi'den indirilir. */
+@Composable
+private fun ContextBlock(link: String, nav: NexNav) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var state by remember(link) { mutableStateOf(0) } // 0 düğme, 1 yükleniyor, 2 hazır
+    var board by remember(link) { mutableStateOf(com.eirahoutmoss.nexnews.ContextBoard()) }
+    Column(Modifier.padding(top = 18.dp)) {
+        if (state != 2) {
+            androidx.compose.material3.OutlinedButton(enabled = state == 0, onClick = {
+                state = 1
+                scope.launch { board = Core.contextCard(link); state = 2 }
+            }) { Text(if (state == 1) t("Bağlam getiriliyor…") else t("📚 Bu konuya yeni misin? Bağlamı göster")) }
+            return@Column
+        }
+        Text(t("📚 BAĞLAM"), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
+        if (board.entities.isEmpty() && board.related.isEmpty()) Text(t("Bu olay için bağlam bulunamadı."), style = MaterialTheme.typography.bodySmall)
+        board.entities.forEach { e ->
+            Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                Text(e.title + if (e.desc.isNotBlank()) " · " + e.desc else "", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
+                Text(e.extract, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (e.url.isNotBlank()) Text(t("Vikipedi'de oku ↗"), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.clickable { openInBrowser(ctx, e.url) }.padding(vertical = 4.dp))
+            }
+        }
+        if (board.related.isNotEmpty()) {
+            Text(t("Bu konudaki önceki olaylar"), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 6.dp))
+            board.related.forEach { r ->
+                Text("• " + r.title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.fillMaxWidth().clickable { nav.story(r.link) }.padding(vertical = 4.dp))
+            }
+        }
+        Text(t("Özetler Vikipedi'nin herkese açık özetlerinden alınır (CC BY-SA); güncel olmayabilir."),
+            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
     }
 }

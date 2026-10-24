@@ -96,7 +96,12 @@ class MainActivity : ComponentActivity() {
             // Dil değişince (I18n.version) yeniden çizilir; Arapça sağdan sola.
             val lv = I18n.version
             val dir = remember(lv) { if (I18n.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr }
-            CompositionLocalProvider(LocalLayoutDirection provides dir) {
+            // RC97 kolay okuma: ayar açıksa tüm yazılar büyür.
+            val ov by Core.overview.collectAsState()
+            val easy = remember(ov) { Core.configBool("easyRead", false) }
+            val dens = androidx.compose.ui.platform.LocalDensity.current
+            val scaled = remember(dens, easy) { androidx.compose.ui.unit.Density(dens.density, dens.fontScale * (if (easy) 1.25f else 1f)) }
+            CompositionLocalProvider(LocalLayoutDirection provides dir, androidx.compose.ui.platform.LocalDensity provides scaled) {
                 NexTheme(theme) { AppRoot(pendingLink) }
             }
         }
@@ -172,6 +177,8 @@ private fun AppRoot(pendingLink: MutableStateFlow<String?>) {
             composable("sources") { SourcesScreen(nav, bottom) }
             composable("player") { PlayerScreen(nav) }
             composable("weekly") { WeeklyScreen(nav, bottom) }
+            composable("agenda") { com.eirahoutmoss.nexnews.ui.AgendaScreen(nav, bottom) }
+            composable("mirror") { com.eirahoutmoss.nexnews.ui.MirrorScreen(nav, bottom) }
             composable("category/{name}", arguments = listOf(navArgument("name") { type = NavType.StringType })) {
                 CategoryScreen(it.arguments?.getString("name") ?: "", nav, bottom)
             }

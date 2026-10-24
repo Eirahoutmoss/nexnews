@@ -132,6 +132,19 @@ fun Pill(text: String, modifier: Modifier = Modifier, color: Color = MaterialThe
     }
 }
 
+/** RC97: son bakıştan beri yeni başlık, doğrulama yazısı, abartılı dil / sakin başlık. */
+@Composable
+fun Rc97Badges(item: NewsItem) {
+    val any = item.upd > 0 || item.fc > 0 || item.calmFrom.isNotBlank() || item.sens >= 40
+    if (!any) return
+    Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (item.upd > 0) Pill("+${item.upd} " + t("yeni"), color = MaterialTheme.colorScheme.primary)
+        if (item.fc > 0) Pill(t("🔎 Doğrulama"), color = Color(0xFF5B8CFF))
+        if (item.calmFrom.isNotBlank()) Pill("🌿 " + item.calmFrom, color = Color(0xFF36C98F))
+        else if (item.sens >= 40) Pill(t("⚠ Abartılı dil"), color = Color(0xFFE0A83A))
+    }
+}
+
 /** Tek sinyal: son dakika ya da bağımsız kaynak sayısı (masaüstüyle aynı kural). */
 @Composable
 fun SignalPill(item: NewsItem) {
@@ -177,7 +190,7 @@ fun NewsRow(
             ) {
                 Icon(if (toFav) Icons.Filled.Star else Icons.Filled.Done, null, tint = if (toFav) Color(0xFFFFC94A) else MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(8.dp))
-                Text(if (toFav) (if (fav) t("Favoriden çıkar") else "Favorilere ekle") else "Okundu", style = MaterialTheme.typography.labelSmall)
+                Text(if (toFav) (if (fav) t("Favoriden çıkar") else t("Favorilere ekle")) else t("Okundu"), style = MaterialTheme.typography.labelSmall)
             }
         }
     ) {
@@ -222,6 +235,7 @@ private fun NewsRowBody(item: NewsItem, read: Boolean, fav: Boolean, dense: Bool
                     Text("· " + relTime(item.ts), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), maxLines = 1)
                     if (!dense) SignalPill(item) else if (item.breaking) SignalPill(item)
                 }
+                Rc97Badges(item)
             }
             if (!dense && images && item.image.isNotBlank()) {
                 Spacer(Modifier.width(12.dp))

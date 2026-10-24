@@ -26,7 +26,11 @@ var (
 	procGetClassNameW   = user32.NewProc("GetClassNameW")
 )
 
+// diagf yalnızca NEXNEWS_TESHIS=1 ortam değişkeni varsa yazar.
 func diagf(format string, a ...any) {
+	if os.Getenv("NEXNEWS_TESHIS") != "1" {
+		return
+	}
 	diagMu.Lock()
 	diagLines = append(diagLines, time.Now().Format("15:04:05.000")+" "+fmt.Sprintf(format, a...))
 	if len(diagLines) > 400 {
@@ -52,6 +56,9 @@ func className(hwnd uintptr) string {
 
 // diagWindow: pencere ve tüm alt pencerelerin sınıf/stil bilgisi.
 func diagWindow(tag string, hwnd uintptr) {
+	if os.Getenv("NEXNEWS_TESHIS") != "1" {
+		return
+	}
 	defer func() { _ = recover() }()
 	host := nativeHostWindow(hwnd)
 	gwlStyle, gwlEx := int32(-16), int32(-20)
@@ -66,6 +73,9 @@ func diagWindow(tag string, hwnd uintptr) {
 
 // diagBackground: WebView2 arka planını okur.
 func diagBackground(tag string, w webview2.WebView) {
+	if os.Getenv("NEXNEWS_TESHIS") != "1" {
+		return
+	}
 	defer func() {
 		if r := recover(); r != nil {
 			diagf("[%s] arka plan okunamadı: %v", tag, r)

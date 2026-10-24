@@ -1,6 +1,6 @@
 {
- "seq": 2,
- "issued": "2026-10-24T06:54:37Z",
+ "seq": 3,
+ "issued": "2026-10-24T07:02:23Z",
  "files": {
   "i18n.json": {
    "sha256": "86f78ac67f7529f7bcef4fc164f365f8d7f8042291cd1e0267b64f83366698e2",
@@ -17,7 +17,7 @@
  },
  "app": {
   "version": "1.0.0-rc94",
-  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0-rc94/NexNews.exe",
+  "url": "https://github.com/Eirahoutmoss/nexnews/releases/download/v1.0.0.-rc94/NexNews-rc94.exe",
   "sha256": "5f6794658d8a73299cbb8c4794af4f87a648291a0307e8a92fbec10523de425d",
   "size": 10443776,
   "notes": "Radyo: bulunduğun ülkenin yüzlerce istasyonu ayrı Yerel sekmesinde, dünyadan 110+ ülke (ülke başına 40 istasyon), istasyon/ülke/tür araması, açılışta anında gelen önbellek."

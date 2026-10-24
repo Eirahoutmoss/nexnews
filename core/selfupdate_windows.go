@@ -54,6 +54,15 @@ func installAppUpdate(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
 	b, err := updGet(ctx, a.URL, a.Size)
+	if err != nil || int64(len(b)) != a.Size || sha256hex(b) != a.SHA256 {
+		// Adres yanlış yazılmış olabilir (etiket/dosya adı): yayınlar arasında
+		// özeti tutan dosyayı ara. Güvenlik özet doğrulamasındadır, addan değil.
+		if alt, aerr := findReleaseAsset(ctx, *a); aerr == nil {
+			b, err = alt, nil
+		} else if err == nil {
+			err = aerr
+		}
+	}
 	if err != nil {
 		return "", errors.New("İndirilemedi: " + err.Error())
 	}

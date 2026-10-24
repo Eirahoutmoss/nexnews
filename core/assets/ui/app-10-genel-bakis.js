@@ -48,12 +48,12 @@
     renderPulseChip(data);
     updateNavCounts(data);
     if(homeView()==='sakin'){
-      el.innerHTML = crisisHTML(data.crisis) + calmHTML(data);
+      el.innerHTML = crisisHTML(data.crisis) + todayStripHTML(data.today) + calmHTML(data);
       if(KBD_IDX>=0) KBD_IDX=-1;
       translateDOM();
       return;
     }
-    let html = crisisHTML(data.crisis) + viewToggleHTML() + breakingBandHTML(data.breaking) + forYouHTML(data.forYou) + importantHTML(data.important) + discoverHTML(data) + '<div class="grid">';
+    let html = crisisHTML(data.crisis) + todayStripHTML(data.today) + viewToggleHTML() + breakingBandHTML(data.breaking) + forYouHTML(data.forYou) + importantHTML(data.important) + discoverHTML(data) + '<div class="grid">';
     const personalized = !!String(data.countryCode||'').trim();
     for(const c of data.categories){
       if(personalized && Number(c.total||0)===0) continue;
@@ -300,7 +300,7 @@
       +(c.mag?'<span class="pill">M '+Number(c.mag).toFixed(1)+'</span>':'')+'<span class="crisis-time">'+relTime(c.ts)+'</span>'
       +'<button class="mini" onclick="dismissCrisis(\''+esc(c.key)+'\')" title="Bu afet için kartı gizle">Kapat</button></div>';
     h+='<div class="crisis-title" data-url="'+encodeURIComponent(c.link||'')+'" data-act="'+(list.length?'event':'open')+'"><span class="t-tx">'+esc(c.title||'')+'</span></div>';
-    h+='<div class="crisis-nums">'+(c.numbers||[]).map(n=>'<span class="crisis-num"><b>'+esc(n.number)+'</b> '+esc(n.label)+'</span>').join('')+'</div>';
+    h+='<div class="crisis-nums">'+(c.numbers||[]).map(n=>'<span class="crisis-num" data-noi18n><b>'+esc(n.number)+'</b> '+esc(tf(n.label))+'</span>').join('')+'</div>';
     if(list.length){
       h+='<div class="crisis-sub">Resmî ya da en az 3 bağımsız kaynakla doğrulanmış gelişmeler</div><div class="imp-list">'+list.map(it=>itemHTML(it)).join('')+'</div>';
     }
@@ -337,20 +337,27 @@
     return {p, head:'<div class="page-head"><button class="btn" onclick="backToOverview()">← Geri</button><h1>'+title+'</h1>'+(pill?'<span class="pill">'+pill+'</span>':'')+'</div>'};
   }
   // Gündem takvimi
-  const AGENDA_KIND_IC={ekonomi:'💹',siyaset:'🗳️',spor:'⚽',bilim:'🔭'};
+  const AGENDA_KIND_IC={ekonomi:'💹',siyaset:'🗳️',spor:'⚽',bilim:'🔭',bayram:'🎉',anma:'🕯️',dunya:'🌍'};
+  function agendaIcon(a){ return a.flag||AGENDA_KIND_IC[a.kind]||'📌'; }
+  // RC98: bugün bayram / anma / dünya günü varsa akışın üstünde ince şerit.
+  function todayStripHTML(list){
+    if(!list||!list.length) return '';
+    return '<div class="today-strip">'+list.map(a=>'<span class="today-day td-'+esc(a.kind)+'"'+(a.local?' data-noi18n':'')+'>'+agendaIcon(a)+' <b>'+esc(a.local?a.title:tf(a.title))+'</b></span>').join('')
+      +'<span class="today-more" onclick="openAgenda()">Gündem takvimi →</span></div>';
+  }
   async function openAgenda(){
     let list=[]; try{ list=JSON.parse(await window.nnAgenda())||[]; }catch(e){}
-    const {p,head}=pageShell('🗓️ Gündem takvimi',tf('{n} gün',{n:14}));
+    const {p,head}=pageShell('🗓️ Gündem takvimi',tf('{n} gün',{n:30}));
     const dfmt=ts=>new Date(ts*1000).toLocaleDateString(uiLocale(),{weekday:'long',day:'numeric',month:'long'});
     const tfmt=ts=>new Date(ts*1000).toLocaleTimeString(uiLocale(),{hour:'2-digit',minute:'2-digit'});
-    let h=head+'<div class="weekly-note">Önceden bilinen, gündemi belirleyecek olaylar. Saatler bilgisayarının saat dilimine göre.</div>';
-    if(!list.length) h+='<div class="empty">Önümüzdeki iki haftada kayıtlı bir olay yok.</div>';
+    let h=head+'<div class="weekly-note">Bayramlar, anma ve dünya günleri ile gündemi belirleyecek önceden bilinen olaylar. Saatler bilgisayarının saat dilimine göre.</div>';
+    if(!list.length) h+='<div class="empty">Önümüzdeki 30 günde kayıtlı bir olay yok.</div>';
     let day='';
     list.forEach(a=>{
       const d=dfmt(a.ts);
       if(d!==day){ if(day) h+='</div></section>'; day=d; h+='<section class="important agenda-day"><div class="imp-head">'+esc(d)+'</div><div class="imp-list">'; }
-      h+='<div class="item agenda-item"'+(a.link?' data-url="'+encodeURIComponent(a.link)+'"':'')+'><span class="title"'+(a.link?' data-act="browser"':'')+'><span class="agenda-time">'+(a.allDay?'—':tfmt(a.ts))+'</span><span class="ag-tx">'+(AGENDA_KIND_IC[a.kind]||'📌')+' '+esc(a.title)+'</span></span>'
-        +(a.note?'<div class="meta"><span>'+esc(a.note)+'</span></div>':'')+'</div>';
+      h+='<div class="item agenda-item"'+(a.link?' data-url="'+encodeURIComponent(a.link)+'"':'')+'><span class="title"'+(a.link?' data-act="browser"':'')+'><span class="agenda-time">'+(a.allDay?'<small>'+esc(tf('tüm gün'))+'</small>':tfmt(a.ts))+'</span><span class="ag-tx"'+(a.local?' data-noi18n':'')+'>'+agendaIcon(a)+' '+esc(a.local?a.title:tf(a.title))+'</span></span>'
+        +(a.note?'<div class="meta"><span>'+esc(tf(a.note))+'</span></div>':'')+'</div>';
     });
     if(day) h+='</div></section>';
     h+='<div class="cov-note" style="padding:8px 4px">Tarihler kurumların yayımladığı resmî takvimlerden derlenir; kurumlar tarihi değiştirebilir.</div>';

@@ -566,7 +566,7 @@ func bindAll() {
 	}))
 	// RC97: okuma aynası, bağlam kartı, gündem takvimi, sesli brifing.
 	must(ui.Bind("nnMirror", func() (string, error) { b, err := readingMirrorJSON(); return string(b), err }))
-	must(ui.Bind("nnAgenda", func() (string, error) { b, err := agendaJSON(14); return string(b), err }))
+	must(ui.Bind("nnAgenda", func() (string, error) { b, err := agendaJSON(30); return string(b), err }))
 	must(ui.Bind("nnAudioBrief", func() (string, error) { b, err := store.audioBriefJSON(); return string(b), err }))
 	must(ui.Bind("nnContext", func(ticket, link string) (string, error) {
 		go func() {

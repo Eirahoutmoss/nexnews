@@ -1164,3 +1164,10 @@
   html.easy-read .item .thumb,html.easy-read .item .actions,html.easy-read .item .sig:not(.brk),html.easy-read .pulse-chip,html.easy-read .calm-sub{display:none!important}
   html.easy-read .item{padding-block:14px}
   html.easy-read .imp-head{font-size:18px}
+
+  /* ---- RC98: bugünün özel günleri ---- */
+  .today-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+  .today-day{font-size:13px}
+  .today-day.td-bayram b{color:var(--accent)}
+  .today-more{margin-inline-start:auto;font-size:12px;color:var(--accent);cursor:pointer;font-weight:700}
+  .agenda-time small{font-weight:600;color:var(--txt-faint);font-size:11px}

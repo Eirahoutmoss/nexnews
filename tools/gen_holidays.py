@@ -7,8 +7,14 @@ core/assets/holidays.json'a yazar. Uygulama bu dosyayı gömülü taşır; ağ g
 
 Kullanım: pip install holidays && python3 tools/gen_holidays.py 2026 2028
 """
-import json, sys, datetime
+import json, re, sys, datetime
 import holidays
+
+# "Dünyada bugün" için ulusal günler: bağımsızlık, cumhuriyet, kuruluş, kurtuluş…
+# (İngilizce adlara göre; ertelenmiş "(observed)" günler hariç.)
+NATIONAL = re.compile(r"independence|national day|republic day|liberation|unification|revolution day|"
+                      r"constitution day|statehood|union day|day of the republic|sovereignty|founding|"
+                      r"freedom day|victory day|restoration of independence", re.I)
 
 UI = ["tr", "en", "ar", "de", "fr", "es", "ru"]
 
@@ -34,6 +40,7 @@ def main():
         per = {}
         for ui, l in langmap.items():
             per[ui] = holidays.country_holidays(code, years=years, language=l)
+        en = per.get("en", base)
         names, idx, days = [], {}, []
         for d, n in sorted(base.items()):
             rec = {"_": n}
@@ -46,7 +53,9 @@ def main():
             if key not in idx:
                 idx[key] = len(names)
                 names.append(rec)
-            days.append([d.isoformat(), idx[key]])
+            en_name = en.get(d) or n
+            nat = 1 if NATIONAL.search(en_name) and "observed" not in en_name.lower() else 0
+            days.append([d.isoformat(), idx[key], nat] if nat else [d.isoformat(), idx[key]])
         if days:
             out["c"][code] = {"n": names, "d": days}
     json.dump(out, open("core/assets/holidays.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))

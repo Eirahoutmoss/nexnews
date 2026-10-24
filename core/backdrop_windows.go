@@ -136,6 +136,11 @@ func applyWidgetBackdrop(hwnd uintptr, mode string, tint int, light bool) {
 	// ton + açık yüzey üst üste binince okunaksız gri bir kutu oluşuyordu;
 	// beyaz yazı + koyu ton her masaüstü arka planında okunur kalır.
 	light = false
+	// RC87: "saydam" Windows 11'de accent politikasıyla gerçekten saydam
+	// olmuyor (pencere düz gri boyanıyordu). Boş bölgeli blur-behind,
+	// pencerenin piksel başına saydamlığını açar: WebView2'nin saydam
+	// arka planı doğrudan masaüstünü gösterir. Diğer modlarda kapatılır.
+	setPerPixelAlpha(hwnd, mode == "saydam")
 	switch mode {
 	case "opak":
 		setAccent(hwnd, accentDisabled, 0)
@@ -145,7 +150,7 @@ func applyWidgetBackdrop(hwnd uintptr, mode string, tint int, light bool) {
 		}
 	case "saydam":
 		// Fully clear unless a tint is requested.
-		setAccent(hwnd, accentTransparentGradient, tintColor(tint*6/10, light))
+		setAccent(hwnd, accentDisabled, 0) // ton CSS'te çiziliyor (Yüzey + Ton)
 	default: // "cam"
 		c := tintColor(tint, light)
 		if c>>24 == 0 {
@@ -167,3 +172,36 @@ func clearWidgetBackdrop(hwnd uintptr) {
 // rounded corners instead of a clipping region (a region disables DWM effects
 // such as blur and the drop shadow on some builds).
 func useNativeRoundCorners() bool { return isWin11() }
+
+var (
+	procDwmEnableBlurBehindWindow = dwmapi.NewProc("DwmEnableBlurBehindWindow")
+	procCreateRectRgn             = gdi32.NewProc("CreateRectRgn")
+)
+
+type dwmBlurBehind struct {
+	Flags                 uint32
+	Enable                int32
+	RgnBlur               uintptr
+	TransitionOnMaximized int32
+}
+
+// setPerPixelAlpha: boş bir bölgeyle blur-behind açmak bulanıklık eklemez ama
+// DWM'nin pencere içeriğinin alfa kanalını kullanmasını sağlar.
+func setPerPixelAlpha(hwnd uintptr, on bool) {
+	defer func() { _ = recover() }()
+	if hwnd == 0 || procDwmEnableBlurBehindWindow.Find() != nil {
+		return
+	}
+	bb := dwmBlurBehind{Flags: 0x1} // DWM_BB_ENABLE
+	if on {
+		rgn, _, _ := procCreateRectRgn.Call(0, 0, ^uintptr(0), ^uintptr(0)) // (0,0,-1,-1): boş bölge
+		bb.Flags |= 0x2                                                     // DWM_BB_BLURREGION
+		bb.Enable, bb.RgnBlur = 1, rgn
+		procDwmEnableBlurBehindWindow.Call(hwnd, uintptr(unsafe.Pointer(&bb)))
+		if rgn != 0 {
+			procDeleteObject.Call(rgn)
+		}
+		return
+	}
+	procDwmEnableBlurBehindWindow.Call(hwnd, uintptr(unsafe.Pointer(&bb)))
+}

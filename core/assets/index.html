@@ -451,7 +451,7 @@
   /* RC41: tek pencere / tek yüzey. Native host ile WebView2 aynı ölçüdedir.
      Widget modunda dışarıda ikinci bir siyah/beyaz host alanı bırakılmaz. */
   html,body{background:transparent}
-  body.widget,html:has(body.widget){margin:0!important;padding:0!important;width:100%!important;height:100%!important;overflow:hidden!important;scrollbar-gutter:auto!important}
+  body.widget,html:has(body.widget){background:transparent!important;margin:0!important;padding:0!important;width:100%!important;height:100%!important;overflow:hidden!important;scrollbar-gutter:auto!important}
   body.widget{overflow:hidden;background:transparent!important;user-select:none}
   body.widget .topbar,body.widget .wrap,body.widget .reader,body.widget .reader-overlay,body.widget .modal-overlay{display:none!important}
   body.widget::before{display:none!important}
@@ -1047,6 +1047,15 @@
   .la-tab{font:inherit;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--inset);color:var(--txt);cursor:pointer}
   .la-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
   .la-pane.hide{display:none}
+  .ll-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
+  .ll-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .ll-info small{font-size:11px;color:var(--txt-faint)}
+  .ll-src{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+  .ll-act{display:flex;gap:6px;flex-shrink:0}
+  .ll-h{font-size:13px;margin:14px 0 2px}
+  .ll-or{font-size:12px;color:var(--txt-dim);display:flex;align-items:center;gap:8px}
+  .ll-builtin{flex-direction:row!important;align-items:center;gap:8px!important;font-size:13px!important;color:var(--txt)!important}
+  .ll-list{max-height:220px;overflow:auto}
   .la-note{font-size:11px;color:var(--txt-faint)}
   .la-status{font-size:12px;color:var(--accent);min-height:16px}
   .follow-card-head{display:flex;align-items:center;gap:8px}
@@ -2797,7 +2806,7 @@
   }
   // ---- RC83: kategori, arama, favori, otomatik gizleme ----
   const LIVE_KINDS=[['all','Tümü'],['haber','Haber'],['ekonomi','Ekonomi'],['spor','Spor'],['belgesel','Belgesel'],['kultur','Kültür'],['genel','Genel'],['muzik','Müzik'],['cocuk','Çocuk / Eğitim']];
-  let LIVE_KIND='all', LIVE_ONLY_OK=true, LIVE_Q='', LIVE_FAVS=[], LIVE_HIDDEN=[], LIVE_CUSTOM=[], LIVE_CHECK='ask', LIVE_STATE_READY=false;
+  let LIVE_KIND='all', LIVE_ONLY_OK=true, LIVE_Q='', LIVE_FAVS=[], LIVE_HIDDEN=[], LIVE_CUSTOM=[], LIVE_CHECK='ask', LIVE_STATE_READY=false, LIVE_LISTS=[], LIVE_BUILTIN_OFF=false;
   async function loadLiveState(){
     if(LIVE_STATE_READY) return;
     try{
@@ -2808,7 +2817,109 @@
     }catch(e){}
     // Kendi kanallarım ortak listeye katılır (tek oynatıcı / denetim yolu).
     LIVE_CUSTOM.forEach(c=>{ c.custom=true; c.continent='Kendi kanallarım'; if(!LIVE_TV_CHANNELS.some(x=>x.id===c.id)) LIVE_TV_CHANNELS.push(c); });
+    await loadLiveLists();
     LIVE_STATE_READY=true;
+  }
+  // ---- RC87: kullanıcının kendi listeleri ----
+  function guessLiveKind(g){
+    g=String(g||'').toLowerCase();
+    if(/news|haber|info|noticias|nachrichten|أخبار/.test(g)) return 'haber';
+    if(/sport|spor|deport/.test(g)) return 'spor';
+    if(/doc|belgesel/.test(g)) return 'belgesel';
+    if(/music|müzik|musique/.test(g)) return 'muzik';
+    if(/kid|child|çocuk|cocuk|anim|educ|eğitim/.test(g)) return 'cocuk';
+    if(/business|econom|finans|ekonomi/.test(g)) return 'ekonomi';
+    if(/cult|kültür|kultur|relig/.test(g)) return 'kultur';
+    return 'genel';
+  }
+  function liveListGroupName(l){ return '📋 '+l.name; }
+  async function loadLiveLists(){
+    // önce eski liste kanallarını çıkar (yeniden yüklemede çift olmasın)
+    for(let i=LIVE_TV_CHANNELS.length-1;i>=0;i--) if(LIVE_TV_CHANNELS[i].listId) LIVE_TV_CHANNELS.splice(i,1);
+    let d={};
+    try{ d=JSON.parse(await window.nnLiveLists())||{}; }catch(e){ d={}; }
+    LIVE_BUILTIN_OFF=!!d.builtinOff; LIVE_LISTS=Array.isArray(d.lists)?d.lists:[];
+    LIVE_LISTS.forEach(l=>(l.channels||[]).forEach(ch=>{
+      const kind=guessLiveKind(ch.group);
+      LIVE_TV_CHANNELS.push({id:ch.id,name:ch.name,listId:l.id,continent:liveListGroupName(l),country:ch.country||l.name,kind,
+        meta:(ch.country||l.name)+' · '+(ch.group||((LIVE_KINDS.find(k=>k[0]===kind)||[])[1])||'Genel'),urls:ch.urls||[]});
+    }));
+  }
+  function openLiveLists(){
+    const old=document.getElementById('liveLists'); if(old) old.remove();
+    const m=document.createElement('div'); m.className='modal-overlay open'; m.id='liveLists';
+    m.onclick=e=>{ if(e.target===m) m.remove(); };
+    const fmt=ts=>ts?new Date(ts*1000).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+    const rows=LIVE_LISTS.length?LIVE_LISTS.map(l=>'<div class="ll-row"><div class="ll-info"><b>'+esc(l.name)+'</b><small>'+(l.channels||[]).length+' kanal · son güncelleme: '+fmt(l.updated)+'</small><small class="ll-src">'+(l.url?esc(l.url):'Dosyadan / yapıştırarak eklendi')+'</small></div>'
+      +'<div class="ll-act">'+(l.url?'<button class="mini" onclick="refreshLiveList(\''+esc(l.id)+'\',this)" title="Listeyi kaynağından şimdi yeniden indir">⟳ Güncelle</button>':'')
+      +'<button class="mini" onclick="renameLiveList(\''+esc(l.id)+'\')">✎</button><button class="mini" onclick="deleteLiveList(\''+esc(l.id)+'\')" title="Listeyi ve kanallarını sil">🗑 Sil</button></div></div>').join('')
+      :'<p class="la-note">Henüz liste eklemedin.</p>';
+    m.innerHTML='<div class="modal live-add"><div class="modal-head"><h2>📋 Kanal listelerim</h2><button class="btn" onclick="document.getElementById(\'liveLists\').remove()">Kapat</button></div><div class="live-ask-body">'
+      +'<label class="ll-builtin"><input type="checkbox" '+(LIVE_BUILTIN_OFF?'':'checked')+' onchange="setLiveBuiltin(this.checked)"> NexNews hazır kanal listesini göster</label>'
+      +'<div class="ll-list">'+rows+'</div>'
+      +'<h3 class="ll-h">Yeni liste ekle</h3>'
+      +'<label>Liste adı<input id="llName" placeholder="Örn. Katar kanalları"></label>'
+      +'<label>Liste adresi (M3U / M3U8)<input id="llUrl" placeholder="https://…/liste.m3u"></label>'
+      +'<div class="ll-or">ya da <button class="mini" onclick="document.getElementById(\'llFile\').click()">📂 Bilgisayardan dosya seç</button><input type="file" id="llFile" accept=".m3u,.m3u8,.txt" class="hide" onchange="pickLiveListFile(this)"> <span id="llFileName"></span></div>'
+      +'<p class="la-note">Listeyi sen seçersin ve yalnızca sen “Güncelle” dediğinde yenilenir; NexNews arka planda liste indirmez. Listedeki yayınların herkese açık ve yasal olmasından liste sahibi ve sen sorumlusunuz. Çalışmayan kanalları 🩺 denetimiyle ayıklayabilir, ✕ ile kaldırabilirsin.</p>'
+      +'<div id="llStatus" class="la-status"></div></div>'
+      +'<div class="modal-foot"><button class="btn primary" id="llSave" onclick="addLiveList()">Listeyi ekle</button></div></div>';
+    document.body.appendChild(m);
+  }
+  let LL_FILE_TEXT='';
+  function pickLiveListFile(inp){
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    if(f.size>8*1024*1024){ nnToast('Dosya çok büyük (en çok 8 MB)'); return; }
+    const r=new FileReader();
+    r.onload=()=>{ LL_FILE_TEXT=String(r.result||''); document.getElementById('llFileName').textContent=f.name; const n=document.getElementById('llName'); if(n&&!n.value) n.value=f.name.replace(/\.(m3u8?|txt)$/i,''); };
+    r.readAsText(f);
+  }
+  async function afterLiveListsChange(msg){
+    await loadLiveLists(); rerenderLiveGroups(); openLiveLists(); if(msg) nnToast(msg);
+  }
+  async function addLiveList(){
+    const st=document.getElementById('llStatus'), btn=document.getElementById('llSave');
+    const name=document.getElementById('llName').value.trim(), url=document.getElementById('llUrl').value.trim();
+    if(!url && !LL_FILE_TEXT){ st.textContent='Bir liste adresi yaz ya da dosya seç.'; return; }
+    btn.disabled=true; st.textContent=url?'Liste indiriliyor…':'Liste okunuyor…';
+    try{
+      const l=JSON.parse(await nnAsync('nnLiveListAdd',name,url,url?'':LL_FILE_TEXT));
+      LL_FILE_TEXT='';
+      await afterLiveListsChange((l.channels||[]).length+' kanallık “'+l.name+'” listesi eklendi');
+      selectLiveContinent(liveListGroupName(l));
+    }catch(e){ st.textContent=String(e&&e.message||e); btn.disabled=false; }
+  }
+  async function refreshLiveList(id,b){
+    if(b){ b.disabled=true; b.textContent='⟳ …'; }
+    try{ const l=JSON.parse(await nnAsync('nnLiveListRefresh',id)); await afterLiveListsChange('“'+l.name+'” güncellendi · '+(l.channels||[]).length+' kanal'); }
+    catch(e){ nnToast(String(e&&e.message||e)); if(b){ b.disabled=false; b.textContent='⟳ Güncelle'; } }
+  }
+  async function deleteLiveList(id){
+    const l=LIVE_LISTS.find(x=>x.id===id); if(!l) return;
+    if(!confirmInline('“'+l.name+'” listesi ve '+(l.channels||[]).length+' kanalı silinsin mi?')) return;
+    try{ await window.nnLiveListDelete(id); }catch(e){}
+    await afterLiveListsChange('Liste silindi');
+  }
+  async function renameLiveList(id){
+    const l=LIVE_LISTS.find(x=>x.id===id); if(!l) return;
+    const row=[...document.querySelectorAll('#liveLists .ll-row')][LIVE_LISTS.indexOf(l)]; if(!row) return;
+    const b=row.querySelector('.ll-info b');
+    b.innerHTML='<input class="ll-rename" value="'+esc(l.name)+'" maxlength="40">';
+    const inp=b.querySelector('input'); inp.focus(); inp.select();
+    const done=async ok=>{ const v=inp.value.trim(); if(ok&&v&&v!==l.name){ try{ await window.nnLiveListRename(id,v); }catch(e){} await afterLiveListsChange('Liste adı değişti'); } else openLiveLists(); };
+    inp.onkeydown=e=>{ e.stopPropagation(); if(e.key==='Enter') done(true); if(e.key==='Escape') done(false); };
+    inp.onblur=()=>done(true);
+  }
+  async function setLiveBuiltin(on){
+    LIVE_BUILTIN_OFF=!on; try{ await window.nnLiveBuiltin(!!on); }catch(e){}
+    rerenderLiveGroups(); nnToast(on?'Hazır kanal listesi gösteriliyor':'Hazır kanal listesi gizlendi — yalnızca senin kanalların ve listelerin görünür');
+  }
+  // Tarayıcı confirm() diyaloğu WebView'i kilitleyebildiği için iki adımlı onay.
+  const CONFIRM_ARM={};
+  function confirmInline(msg){
+    const now=Date.now();
+    if(CONFIRM_ARM[msg] && now-CONFIRM_ARM[msg]<5000){ delete CONFIRM_ARM[msg]; return true; }
+    CONFIRM_ARM[msg]=now; nnToast(msg+' Onaylamak için 5 sn içinde yeniden bas.'); return false;
   }
   function saveLiveState(){
     const st={favs:LIVE_FAVS,last:(window._liveTVCurrent||{}).id||window._liveLastId||'',hidden:LIVE_HIDDEN,check:LIVE_CHECK,
@@ -2999,10 +3110,11 @@
   }
   const LIVE_TV_REGIONS=[['Türkiye','🇹🇷'],['Avrupa','🇪🇺'],['Orta Doğu','🕌'],['Asya','🌏'],['Afrika','🌍'],['Kuzey Amerika','🇺🇸'],['Güney Amerika','🌎'],['Okyanusya','🇦🇺'],['Rusya','🇷🇺'],['Belgesel & Spor','🎬']];
   function liveGroups(){
-    const vis=LIVE_TV_CHANNELS.filter(c=>!LIVE_HIDDEN.includes(c.id));
+    const vis=LIVE_TV_CHANNELS.filter(c=>!LIVE_HIDDEN.includes(c.id) && !(LIVE_BUILTIN_OFF && !c.custom && !c.listId));
     const g=LIVE_TV_REGIONS.map(([n,i])=>({name:n,icon:i,items:vis.filter(c=>c.continent===n)})).filter(x=>x.items.length);
     g.unshift({name:'Favoriler',icon:'⭐',items:LIVE_FAVS.map(id=>vis.find(c=>c.id===id)).filter(Boolean)});
     g.splice(1,0,{name:'Kendi kanallarım',icon:'📌',items:vis.filter(c=>c.custom)});
+    LIVE_LISTS.forEach((l,k)=>g.splice(2+k,0,{name:liveListGroupName(l),icon:'',items:vis.filter(c=>c.listId===l.id)}));
     g.push({name:'Tüm dünya',icon:'🌐',items:vis});
     if(LIVE_HIDDEN.length) g.push({name:'Gizlenenler',icon:'🚫',items:LIVE_HIDDEN.map(id=>LIVE_TV_CHANNELS.find(c=>c.id===id)).filter(Boolean)});
     return g;
@@ -3027,7 +3139,8 @@
     await loadLiveState();
     const groups=liveGroups();
     const startName=LIVE_FAVS.filter(id=>!LIVE_HIDDEN.includes(id)).length?'Favoriler':'Türkiye';
-    const startIdx=groups.findIndex(g=>g.name===startName);
+    let startIdx=groups.findIndex(g=>g.name===startName);
+    if(startIdx<0) startIdx=Math.max(0,groups.findIndex(g=>g.items.length));
     document.getElementById('overview').classList.add('hide');
     const p=document.getElementById('catpage'); p.classList.remove('hide');
     p.innerHTML='<div class="page-head"><button class="btn" onclick="backToOverview()">← Geri</button><h1>📺 Canlı TV</h1><span class="pill">'+LIVE_TV_CHANNELS.length+' kanal · '+(groups.length-2)+' bölge</span></div>'+
@@ -3036,7 +3149,7 @@
       '<div class="live-tv-tools">'+LIVE_KINDS.map(k=>'<button class="live-kind'+(LIVE_KIND===k[0]?' active':'')+'" data-kind="'+k[0]+'" onclick="liveFilter(\''+k[0]+'\')">'+k[1]+'</button>').join('')+
       '<input class="live-search" type="search" placeholder="Kanal veya ülke ara…" value="'+esc(LIVE_Q)+'" oninput="liveSearch(this.value)" onkeydown="event.stopPropagation()">'+
       '</div><div class="live-tv-tools2"><label class="live-okonly"><input type="checkbox" '+(LIVE_ONLY_OK?'checked':'')+' onchange="toggleLiveOnlyOk(this.checked)"> Yalnızca bu bağlantıdan izlenebilenler</label><span id="liveHiddenNote" class="live-hidden-note"></span>'+
-      '<button class="mini" onclick="copyLiveReport()" title="Çalışmayan kanalları, nedenlerini ve denenen adresleri panoya kopyalar">📋 Sorun raporu</button><button class="mini" id="liveScanBtn" onclick="scanLiveChannels()" title="Bu bölgedeki kanalları şimdi dene (arka planda)">🩺 Bu bölgeyi denetle</button><button class="mini" onclick="openAddChannel()" title="Kendi yayın adresini ya da M3U listeni ekle">＋ Kanal ekle</button></div>'+
+      '<button class="mini" onclick="copyLiveReport()" title="Çalışmayan kanalları, nedenlerini ve denenen adresleri panoya kopyalar">📋 Sorun raporu</button><button class="mini" id="liveScanBtn" onclick="scanLiveChannels()" title="Bu bölgedeki kanalları şimdi dene (arka planda)">🩺 Bu bölgeyi denetle</button><button class="mini" onclick="openAddChannel()" title="Kendi yayın adresini ekle">＋ Kanal ekle</button><button class="mini" onclick="openLiveLists()" title="Açık kaynak M3U listelerini adresle ya da dosyadan ekle, güncelle, sil">📋 Listelerim</button></div>'+
       '<div class="live-tv-layout"><aside class="live-tv-side"><div class="live-tv-slot" id="liveTVSlot"></div>'+
       '<div class="live-tv-note">Yalnızca yayıncıların kendi ya da lisanslı ücretsiz platformların (Samsung TV Plus, Pluto, Xumo, Rakuten…) yayınları oynatılır. İstersen NexNews kanalları senin bağlantından kısaca dener ve izlenemeyenleri (ör. yalnızca kendi ülkesinde açık olanlar) gizler. ☆ favori · ✕ listeden kaldır · ＋ kendi kanalını ekle.</div></aside>'+
       '<div id="liveGroupsHost">'+groups.map((g,i)=>renderLiveTVGroup(g,i===startIdx?0:1)).join('')+'</div></div></div>';
@@ -3104,7 +3217,7 @@
   }
   function rerenderLiveGroups(){
     const act=((document.querySelector('.live-tv-continent-tab.active')||{}).dataset||{}).continent;
-    const groups=liveGroups(); const cur=groups.some(g=>g.name===act)?act:'Türkiye';
+    const groups=liveGroups(); const cur=groups.some(g=>g.name===act)?act:((groups.find(g=>g.name==='Türkiye')||groups.find(g=>g.items.length)||groups[0]||{}).name);
     const nav=document.querySelector('.live-tv-nav'); const host=document.getElementById('liveGroupsHost');
     if(!nav||!host) return;
     nav.innerHTML=groups.map(g=>'<button class="live-tv-continent-tab '+(g.name===cur?'active':'')+'" data-continent="'+esc(g.name)+'" onclick="selectLiveContinent(\''+esc(g.name)+'\')">'+g.icon+' '+esc(g.name)+' <span>'+g.items.length+'</span></button>').join('');
@@ -4086,7 +4199,10 @@
     // farklı bir aralıkta çalışır: cam → buzlu panel, bulanık → hafif koyu
     // bulanık, saydam → neredeyse çıplak (yalnızca yazı gölgesi).
     const k = mode==='opak' ? 0 : mode==='cam' ? .55 : mode==='bulanik' ? .45 : .28;
-    document.documentElement.style.setProperty('--wa', mode==='opak' ? '1' : (op/100*k).toFixed(3));
+    const tn=Math.max(0,Math.min(100,Number(CONFIG&&CONFIG.widgetTint!=null?CONFIG.widgetTint:45)))/100;
+    // Saydam modda Windows tonu kullanılmıyor; Ton kaydırıcısı CSS yüzeyine eklenir.
+    const wa = mode==='opak' ? 1 : mode==='saydam' ? Math.min(.85, op/100*k + tn*.3) : op/100*k;
+    document.documentElement.style.setProperty('--wa', wa.toFixed(3));
     updateWidgetPreview();
   }
   function updateWidgetPreview(){

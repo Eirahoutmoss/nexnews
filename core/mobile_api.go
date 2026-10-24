@@ -409,7 +409,7 @@ func MobileInQuietHours() bool { return mobileReady() && cfg.inQuietHours(time.N
 // ---- boards that need the network --------------------------------------------
 
 func MobileRadio() string {
-	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	b, err := radioJSON(ctx)
 	return jsonOr(b, err, `{"stations":[],"error":"Radyo dizinine ulaşılamadı."}`)

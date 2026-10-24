@@ -102,14 +102,23 @@ private fun RadioTab(bp: PaddingValues) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var board by remember { mutableStateOf<RadioBoard?>(null) }
-    var filter by rememberSaveable { mutableStateOf("") }
+    var filter by rememberSaveable { mutableStateOf("Yerel") }
+    var query by rememberSaveable { mutableStateOf("") }
     LaunchedEffect(Unit) { board = runCatching { Core.radio() }.getOrElse { RadioBoard(error = "Radyo dizinine ulaşılamadı.") } }
     val b = board
     if (b == null) { Loading("İstasyonlar yükleniyor…"); return }
     if (b.stations.isEmpty()) { Empty(b.error.ifBlank { "İstasyon bulunamadı." }); return }
     val groups = b.stations.map { it.continent.ifBlank { "Dünya" } }.distinct()
-    val shown = b.stations.filter { filter.isBlank() || it.continent.ifBlank { "Dünya" } == filter }
+    val q = query.trim().lowercase()
+    val shown = if (q.isNotEmpty())
+        b.stations.filter { "${it.name} ${it.country} ${it.tags} ${it.language}".lowercase().contains(q) }.take(400)
+    else b.stations.filter { val f = if (filter in groups) filter else ""; f.isBlank() || it.continent.ifBlank { "Dünya" } == f }
     LazyColumn(contentPadding = bp) {
+        item {
+            OutlinedTextField(value = query, onValueChange = { query = it }, singleLine = true,
+                placeholder = { Text("İstasyon, ülke ya da tür ara (ör. jazz, haber)") },
+                modifier = Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 8.dp))
+        }
         item {
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected = filter.isBlank(), onClick = { filter = "" }, label = { Text("Tümü") })

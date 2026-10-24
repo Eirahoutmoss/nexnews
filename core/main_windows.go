@@ -425,6 +425,8 @@ func bindAll() {
 				// builds, so finish with one deterministic controller resize.
 				syncWebViewClient(host)
 				setTopmost(host, top)
+				diagWindow("widget açıldı", host)
+				diagBackground("widget açıldı", ui)
 			} else {
 				setTopmost(host, false)
 				setWidgetRegion(host, false)
@@ -460,6 +462,8 @@ func bindAll() {
 				host := nativeHostWindow(hwnd)
 				applyWidgetBackdrop(host, mode, tint, light)
 				forceRedraw(host)
+				diagWindow("görünüm değişti", host)
+				diagBackground("görünüm değişti", ui)
 			})
 		}
 		return mode, nil

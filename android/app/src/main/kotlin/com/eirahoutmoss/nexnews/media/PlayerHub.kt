@@ -1,5 +1,7 @@
 package com.eirahoutmoss.nexnews.media
 
+import com.eirahoutmoss.nexnews.t
+
 import android.content.ComponentName
 import android.content.Context
 import android.net.Uri
@@ -50,7 +52,7 @@ object PlayerHub {
                     tvChannel?.let { ch -> setItem(c, next, ch.id, ch.name, ch.meta, "", hls = true) }
                     c.prepare(); c.play()
                 } else {
-                    update { it.copy(playing = false, buffering = false, error = "Yayın şu anda açılamıyor") }
+                    update { it.copy(playing = false, buffering = false, error = t("Yayın şu anda açılamıyor")) }
                 }
             }
         })
@@ -82,7 +84,7 @@ object PlayerHub {
         val c = controller(ctx)
         val streams = ch.streams
         if (streams.isEmpty()) {
-            _now.value = NowPlaying("tv", ch.name, ch.meta, error = "Bu kanal için uygulama içi yayın yok")
+            _now.value = NowPlaying("tv", ch.name, ch.meta, error = t("Bu kanal için uygulama içi yayın yok"))
             return
         }
         tvChannel = ch

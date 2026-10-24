@@ -33,10 +33,10 @@ object ShareCard {
         val i = Intent(Intent.ACTION_SEND).apply {
             type = "image/png"
             putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_TEXT, s.title + (if (first.isNotBlank()) "\n$first" else "") + "\n— NexNews ile karşılaştırıldı")
+            putExtra(Intent.EXTRA_TEXT, s.title + (if (first.isNotBlank()) "\n$first" else "") + t("\n— NexNews ile karşılaştırıldı"))
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        ctx.startActivity(Intent.createChooser(i, "Karşılaştırmayı paylaş").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        ctx.startActivity(Intent.createChooser(i, t("Karşılaştırmayı paylaş")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     private fun layout(text: CharSequence, paint: TextPaint, width: Int): StaticLayout =
@@ -65,9 +65,9 @@ object ShareCard {
             Pair(layout(src, srcP, inner), layout(text, headP, inner))
         }
         val foot = layout(
-            "${s.independentSources} bağımsız kaynak · ${s.sourceCount} kaynak" +
+            "${s.independentSources} " + t("bağımsız kaynak") + " · ${s.sourceCount} " + t("kaynak") +
                 (if (s.evidence.syndicated > 0) " · ${s.evidence.syndicated} kaynak ajans metni" else "") +
-                "\nİşaretli kelimeler yalnız o kaynağın başlığında geçiyor.  —  NexNews",
+                t("\nİşaretli kelimeler yalnız o kaynağın başlığında geçiyor.  —  NexNews"),
             faintP, inner
         )
         var h = PAD + 40 + 20 + title.height + 40
@@ -78,7 +78,7 @@ object ShareCard {
         c.drawColor(Color.parseColor("#0E1320"))
         val card = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#141B2B") }
         var y = PAD
-        c.save(); c.translate(PAD, y); layout("KİM NASIL BAŞLIK ATTI?", labelP, inner).draw(c); c.restore()
+        c.save(); c.translate(PAD, y); layout(t("KİM NASIL BAŞLIK ATTI?"), labelP, inner).draw(c); c.restore()
         y += 60
         c.save(); c.translate(PAD, y); title.draw(c); c.restore()
         y += title.height + 40

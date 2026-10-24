@@ -134,7 +134,49 @@ data class StoryDetail(
     val evidence: Evidence = Evidence(),
     val followed: Boolean = false,
     val headlines: List<Headline> = emptyList(),
+    val coverage: Coverage? = null,
 )
+
+/** Bölgelere göre kapsama: olayı hangi bölgelerin kaynakları yazdı, hangileri sustu. */
+@Serializable
+data class Coverage(val covered: List<RegionCov> = emptyList(), val silent: List<String> = emptyList())
+
+@Serializable
+data class RegionCov(val region: String = "", val sources: Int = 0, val title: String = "", val link: String = "")
+
+/** Haftanın özeti (son 7 gün). */
+@Serializable
+data class WeeklySummary(
+    val from: Long = 0, val to: Long = 0, val days: Int = 0, val total: Int = 0,
+    val top: List<WeekEntry> = emptyList(), val regions: List<WeekRegion> = emptyList(),
+    val breaking: Int = 0, val follows: List<WeekFollow> = emptyList(),
+)
+
+@Serializable
+data class WeekEntry(
+    val id: String = "", val title: String = "", val link: String = "", val category: String = "",
+    val score: Int = 0, val sources: Int = 0, val breaking: Boolean = false, val first: Long = 0, val last: Long = 0,
+)
+
+@Serializable
+data class WeekRegion(val name: String = "", val count: Int = 0)
+
+@Serializable
+data class WeekFollow(val title: String = "", val link: String = "", val sources: Int = 0, val count: Int = 0, val new: Int = 0, val lastSeen: Long = 0)
+
+/** Kullanıcının kendi M3U kanal listeleri. */
+@Serializable
+data class UserLists(val builtinOff: Boolean = false, val lists: List<UserList> = emptyList())
+
+@Serializable
+data class UserList(val id: String = "", val name: String = "", val url: String = "", val updated: Long = 0, val channels: List<UserListChannel> = emptyList())
+
+@Serializable
+data class UserListChannel(val id: String = "", val name: String = "", val group: String = "", val country: String = "", val urls: List<JsonElement> = emptyList())
+
+/** Kaynak sahipliği kataloğu: types (tür → ad), d (alan adı → [tür, sahip, ülke]). */
+@Serializable
+data class OwnershipCatalog(val types: Map<String, String> = emptyMap(), val d: Map<String, List<String>> = emptyMap())
 
 @Serializable
 data class SearchResult(
@@ -221,6 +263,8 @@ data class TvChannel(
     val tvg: String = "",
     val rep: String = "",
     val custom: Boolean = false,
+    /** Kullanıcı listesinden geldiyse listenin kimliği (kaydedilmez, ekranda doldurulur). */
+    val listId: String = "",
 ) {
     val candidates: List<LiveCandidate>
         get() = (if (urls.isNotEmpty()) urls.mapNotNull { e ->

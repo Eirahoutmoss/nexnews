@@ -2,6 +2,8 @@
 
 package com.eirahoutmoss.nexnews.ui
 
+import com.eirahoutmoss.nexnews.t
+
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
@@ -136,8 +138,8 @@ private fun TextSetting(title: String, value: String, hint: String, onSave: (Str
         onDismissRequest = { open = false },
         title = { Text(title) },
         text = { OutlinedTextField(v, { v = it }, placeholder = { Text(hint) }) },
-        confirmButton = { TextButton(onClick = { onSave(v); open = false }) { Text("Kaydet") } },
-        dismissButton = { TextButton(onClick = { open = false }) { Text("Vazgeç") } }
+        confirmButton = { TextButton(onClick = { onSave(v); open = false }) { Text(t("Kaydet")) } },
+        dismissButton = { TextButton(onClick = { open = false }) { Text(t("Vazgeç")) } }
     )
 }
 
@@ -158,100 +160,107 @@ fun SettingsScreen(nav: NexNav, bottomPad: PaddingValues) {
     LaunchedEffect(usageV) { usage = runCatching { Core.usage() }.getOrNull() }
     LaunchedEffect(Unit) {
         val r = NetMeter.sample()
-        net = "Bu oturumda NexNews ${fmtBytes(r.appSession)} indirdi · son 5 dk ${fmtBytes(r.app5m)}"
+        net = t("Bu oturumda NexNews") + " ${fmtBytes(r.appSession)} " + t("indirdi") + " · " + t("son 5 dk") + " ${fmtBytes(r.app5m)}"
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Ayarlar", fontWeight = FontWeight.Bold) }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)) },
+        topBar = { TopAppBar(title = { Text(t("Ayarlar"), fontWeight = FontWeight.Bold) }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)) },
         containerColor = MaterialTheme.colorScheme.background
     ) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(top = pad.calculateTopPadding()), contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 32.dp)) {
             item {
-                Group("Görünüm")
-                ChoiceRow("Tema", listOf("sistem" to "Sistem", "koyu" to "Koyu", "acik" to "Açık"), prefs.theme) { prefs.theme = it }
-                ChoiceRow("Liste", listOf("siki" to "Sıkı", "rahat" to "Rahat (görselli)"), prefs.density) { prefs.density = it }
-                SwitchRow("Görselleri yalnızca Wi-Fi'de yükle", "Mobil veride küçük resimler indirilmez", prefs.imagesWifiOnly) { prefs.imagesWifiOnly = it }
+                Group(t("Görünüm"))
+                ChoiceRow(t("Arayüz dili"), UI_LANGS.map { (k, v) -> k to (if (k.isEmpty()) t(v) else v) }, cfg["uiLang"].str("")) { v ->
+                    if (v != cfg["uiLang"].str("")) scope.launch {
+                        Core.saveConfig { it["uiLang"] = JsonPrimitive(v) }
+                        com.eirahoutmoss.nexnews.I18n.load()
+                        restartApp(ctx)
+                    }
+                }
+                ChoiceRow(t("Tema"), listOf("sistem" to t("Sistem"), "koyu" to t("Koyu"), "acik" to t("Açık")), prefs.theme) { prefs.theme = it }
+                ChoiceRow(t("Liste"), listOf("siki" to t("Sıkı"), "rahat" to t("Rahat (görselli)")), prefs.density) { prefs.density = it }
+                SwitchRow(t("Görselleri yalnızca Wi-Fi'de yükle"), t("Mobil veride küçük resimler indirilmez"), prefs.imagesWifiOnly) { prefs.imagesWifiOnly = it }
             }
             item {
-                Group("Yenileme ve veri")
-                ChoiceRow("Arka planda yenile", listOf("30" to "30 dk", "60" to "1 saat", "120" to "2 saat", "240" to "4 saat"), prefs.refreshMinutes.toString()) {
+                Group(t("Yenileme ve veri"))
+                ChoiceRow(t("Arka planda yenile"), listOf("30" to "30 " + t("dk"), "60" to "1 " + t("saat"), "120" to "2 " + t("saat"), "240" to "4 " + t("saat")), prefs.refreshMinutes.toString()) {
                     prefs.refreshMinutes = it.toInt(); Scheduler.apply(ctx)
                 }
-                SwitchRow("Yalnızca Wi-Fi'de yenile", "Arka plan yenilemesi mobil veride çalışmaz", prefs.wifiOnly) { prefs.wifiOnly = it; Scheduler.apply(ctx) }
+                SwitchRow(t("Yalnızca Wi-Fi'de yenile"), t("Arka plan yenilemesi mobil veride çalışmaz"), prefs.wifiOnly) { prefs.wifiOnly = it; Scheduler.apply(ctx) }
                 Text(net, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
             }
             item {
-                Group("Veri akışı")
+                Group(t("Veri akışı"))
                 val u = usage
                 val mode = u?.mode ?: "tam"
-                ChoiceRow("Mod", listOf("tam" to "⚡ Tam veri", "sinirli" to "🐢 Sınırlı veri"), mode) { m ->
+                ChoiceRow(t("Mod"), listOf("tam" to t("⚡ Tam veri"), "sinirli" to t("🐢 Sınırlı veri")), mode) { m ->
                     scope.launch { Core.setDataMode(m, u?.limitKBps ?: 256, u?.quotaMB ?: 0); usageV++ }
                 }
-                Text("Sınırlı modda NexNews'in indirme hızı sınırlanır, canlı TV en çok 480p oynar, otomatik yenileme seyrekleşir.",
+                Text(t("Sınırlı modda NexNews'in indirme hızı sınırlanır, canlı TV en çok 480p oynar, otomatik yenileme seyrekleşir."),
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp))
-                ChoiceRow("Sınırlı modda en yüksek hız", listOf("128" to "128 KB/s", "256" to "256 KB/s", "512" to "512 KB/s", "1024" to "1 MB/s"), (u?.limitKBps ?: 256).toString()) { v ->
+                ChoiceRow(t("Sınırlı modda en yüksek hız"), listOf("128" to "128 KB/s", "256" to "256 KB/s", "512" to "512 KB/s", "1024" to "1 MB/s"), (u?.limitKBps ?: 256).toString()) { v ->
                     scope.launch { Core.setDataMode(mode, v.toInt(), u?.quotaMB ?: 0); usageV++ }
                 }
-                TextSetting("Aylık kota (MB)", if ((u?.quotaMB ?: 0) > 0) "${u?.quotaMB} MB" else "", "0 = yok · dolunca sınırlı moda geçer") { v ->
+                TextSetting(t("Aylık kota (MB)"), if ((u?.quotaMB ?: 0) > 0) "${u?.quotaMB} MB" else "", t("0 = yok · dolunca sınırlı moda geçer")) { v ->
                     scope.launch { Core.setDataMode(mode, u?.limitKBps ?: 256, v.filter { it.isDigit() }.toIntOrNull() ?: 0); usageV++ }
                 }
                 if (u != null) {
                     Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                        fun line(label: String, p: com.eirahoutmoss.nexnews.UsagePeriod) = "$label: ⇣ ${fmtBytes(p.down)}  ⇡ ${fmtBytes(p.up)}" + if (p.secs > 0) "  · ${p.secs / 3600} sa ${(p.secs % 3600) / 60} dk açık" else ""
-                        listOf("Bu oturum" to u.session, "Bugün" to u.today, "Bu hafta" to u.week, "Bu ay" to u.month, "Son 30 gün" to u.last30, "Toplam" to u.all)
+                        fun line(label: String, p: com.eirahoutmoss.nexnews.UsagePeriod) = "$label: ⇣ ${fmtBytes(p.down)}  ⇡ ${fmtBytes(p.up)}" + if (p.secs > 0) "  · ${p.secs / 3600} " + t("sa") + " ${(p.secs % 3600) / 60} " + t("dk") + " " + t("açık") else ""
+                        listOf(t("Bu oturum") to u.session, t("Bugün") to u.today, t("Bu hafta") to u.week, t("Bu ay") to u.month, t("Son 30 gün") to u.last30, t("Toplam") to u.all)
                             .forEach { (k, v) -> Text(line(k, v), style = MaterialTheme.typography.bodySmall) }
-                        if (u.quotaMB > 0) Text("Bu ay kotanın %${(u.quotaUsed * 100).toInt()} kısmı kullanıldı" + if (u.autoLimited) " · kota dolduğu için sınırlı moda geçildi" else "",
+                        if (u.quotaMB > 0) Text(t("Bu ay kotanın %") + "${(u.quotaUsed * 100).toInt()} " + t("kısmı kullanıldı") + if (u.autoLimited) t(" · kota dolduğu için sınırlı moda geçildi") else "",
                             style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                        TextButton(onClick = { scope.launch { Core.resetUsage(); usageV++ } }) { Text("Sayaçları sıfırla") }
+                        TextButton(onClick = { scope.launch { Core.resetUsage(); usageV++ } }) { Text(t("Sayaçları sıfırla")) }
                     }
                 }
             }
             item {
-                Group("Haberler")
-                TextSetting("İlgi alanların", cfg["interests"].strList().joinToString(", "), "yapay zeka, deprem, uzay") { v -> save { it["interests"] = strArray(csv(v)) } }
-                TextSetting("Gizlenecek konular", cfg["hideWords"].strList().joinToString(", "), "magazin, transfer") { v -> save { it["hideWords"] = strArray(csv(v)) } }
-                SwitchRow("Başlıkları cihaz diline çevir", "Farklı dillerdeki aynı haberler de birleşir", cfg["translate"].bool(true)) { b -> save { it["translate"] = JsonPrimitive(b) } }
-                SwitchRow("Haberleri uygulama içinde aç", "Kapalıysa tek kaynaklı haberler tarayıcıda açılır", cfg["openInApp"].bool(true)) { b -> save { it["openInApp"] = JsonPrimitive(b) } }
-                ChoiceRow("Kategori başına başlık", listOf("3" to "3", "5" to "5", "8" to "8", "12" to "12"), cfg["maxPerCategory"].int(5).toString()) { v -> save { it["maxPerCategory"] = JsonPrimitive(v.toInt()) } }
-                NavRow("Kaynaklar", "Kategoriler, feed'ler ve kaynak sağlığı") { nav.sources() }
+                Group(t("Haberler"))
+                TextSetting(t("İlgi alanların"), cfg["interests"].strList().joinToString(", "), "yapay zeka, deprem, uzay") { v -> save { it["interests"] = strArray(csv(v)) } }
+                TextSetting(t("Gizlenecek konular"), cfg["hideWords"].strList().joinToString(", "), "magazin, transfer") { v -> save { it["hideWords"] = strArray(csv(v)) } }
+                SwitchRow(t("Başlıkları cihaz diline çevir"), t("Farklı dillerdeki aynı haberler de birleşir"), cfg["translate"].bool(true)) { b -> save { it["translate"] = JsonPrimitive(b) } }
+                SwitchRow(t("Haberleri uygulama içinde aç"), t("Kapalıysa tek kaynaklı haberler tarayıcıda açılır"), cfg["openInApp"].bool(true)) { b -> save { it["openInApp"] = JsonPrimitive(b) } }
+                ChoiceRow(t("Kategori başına başlık"), listOf("3" to "3", "5" to "5", "8" to "8", "12" to "12"), cfg["maxPerCategory"].int(5).toString()) { v -> save { it["maxPerCategory"] = JsonPrimitive(v.toInt()) } }
+                NavRow(t("Kaynaklar"), t("Kategoriler, feed'ler ve kaynak sağlığı")) { nav.sources() }
             }
             item {
-                Group("Bildirimler")
-                SwitchRow("Önemli gelişmeleri bildir", "Son dakika ve önem eşiğini geçen olaylar", cfg["notify"].bool(true)) { b -> save { it["notify"] = JsonPrimitive(b) } }
+                Group(t("Bildirimler"))
+                SwitchRow(t("Önemli gelişmeleri bildir"), t("Son dakika ve önem eşiğini geçen olaylar"), cfg["notify"].bool(true)) { b -> save { it["notify"] = JsonPrimitive(b) } }
                 var thr by remember(cfgV) { mutableFloatStateOf(cfg["notifyMinScore"].int(75).toFloat()) }
                 Column(Modifier.padding(horizontal = 16.dp)) {
-                    Text("Önem eşiği: ${thr.toInt()}", style = MaterialTheme.typography.bodyMedium)
+                    Text(t("Önem eşiği") + ": ${thr.toInt()}", style = MaterialTheme.typography.bodyMedium)
                     Slider(value = thr, onValueChange = { thr = it }, valueRange = 40f..100f, onValueChangeFinished = { save { it["notifyMinScore"] = JsonPrimitive(thr.toInt()) } })
                 }
-                SwitchRow("Sessiz saatler", "${cfg["quietFrom"].str("23:00")} – ${cfg["quietTo"].str("07:00")} arası bildirim yok", cfg["quietHours"].bool(false)) { b -> save { it["quietHours"] = JsonPrimitive(b) } }
-                ChoiceRow("Sessizlik başlangıcı", listOf("21:00", "22:00", "23:00", "00:00").map { it to it }, cfg["quietFrom"].str("23:00")) { v -> save { it["quietFrom"] = JsonPrimitive(v) } }
-                ChoiceRow("Sessizlik bitişi", listOf("06:00", "07:00", "08:00", "09:00").map { it to it }, cfg["quietTo"].str("07:00")) { v -> save { it["quietTo"] = JsonPrimitive(v) } }
-                SwitchRow("Sabah ve akşam özeti", "${prefs.digestMorning}:00 ve ${prefs.digestEvening}:00 civarı", prefs.digestOn) { prefs.digestOn = it; Scheduler.apply(ctx) }
-                if (Build.VERSION.SDK_INT >= 26) NavRow("Bildirim kanalları", "Son dakika / önemli / özet ayrı ayrı") {
+                SwitchRow(t("Sessiz saatler"), "${cfg["quietFrom"].str("23:00")} – ${cfg["quietTo"].str("07:00")} " + t("arası bildirim yok"), cfg["quietHours"].bool(false)) { b -> save { it["quietHours"] = JsonPrimitive(b) } }
+                ChoiceRow(t("Sessizlik başlangıcı"), listOf("21:00", "22:00", "23:00", "00:00").map { it to it }, cfg["quietFrom"].str("23:00")) { v -> save { it["quietFrom"] = JsonPrimitive(v) } }
+                ChoiceRow(t("Sessizlik bitişi"), listOf("06:00", "07:00", "08:00", "09:00").map { it to it }, cfg["quietTo"].str("07:00")) { v -> save { it["quietTo"] = JsonPrimitive(v) } }
+                SwitchRow(t("Sabah ve akşam özeti"), "${prefs.digestMorning}:00 · ${prefs.digestEvening}:00", prefs.digestOn) { prefs.digestOn = it; Scheduler.apply(ctx) }
+                if (Build.VERSION.SDK_INT >= 26) NavRow(t("Bildirim kanalları"), t("Son dakika / önemli / özet ayrı ayrı")) {
                     ctx.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, ctx.packageName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 }
             }
             item {
-                Group("Widget")
+                Group(t("Widget"))
                 var wo by remember { mutableFloatStateOf(prefs.widgetOpacity.toFloat()) }
                 Column(Modifier.padding(horizontal = 16.dp)) {
-                    Text("Zemin opaklığı: %${wo.toInt()}" + if (wo.toInt() == 0) " (saydam)" else "", style = MaterialTheme.typography.bodyMedium)
+                    Text(t("Zemin opaklığı") + ": %${wo.toInt()}" + if (wo.toInt() == 0) " (" + t("saydam") + ")" else "", style = MaterialTheme.typography.bodyMedium)
                     Slider(value = wo, onValueChange = { wo = it }, valueRange = 0f..100f, onValueChangeFinished = {
                         prefs.widgetOpacity = wo.toInt(); scope.launch { runCatching { NewsWidget.refreshAll(ctx) } }
                     })
-                    Text("Ana ekrana eklemek için: ana ekranda boş bir yere basılı tut → Widget'lar → NexNews.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(t("Ana ekrana eklemek için: ana ekranda boş bir yere basılı tut → Widget'lar → NexNews."), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             item {
-                Group("Hakkında")
-                Text("NexNews ${BuildConfig.VERSION_NAME} · çekirdek ${Core.coreVersion()}", modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
-                Text("Dünyanın nabzı, tek akışta. Haberleri, olay takibini ve dünyanın canlı yayınlarını tek pencerede, kullanıcıyı yormadan bir araya getiren, dil ve kaynak bağımsız haber radarı.",
+                Group(t("Hakkında"))
+                Text("NexNews ${BuildConfig.VERSION_NAME} · " + t("çekirdek") + " ${Core.coreVersion()}", modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
+                Text(t("Dünyanın nabzı, tek akışta. Haberleri, olay takibini ve dünyanın canlı yayınlarını tek pencerede, kullanıcıyı yormadan bir araya getiren, dil ve kaynak bağımsız haber radarı."),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-                Text("Geliştirici: Hasan Güler", style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+                Text(t("Geliştirici: Hasan Güler"), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
                 NavRow("YouTube", "@bakis_acisi") { openInBrowser(ctx, "https://www.youtube.com/@bakis_acisi") }
                 NavRow("Instagram", "@elem_ya") { openInBrowser(ctx, "https://www.instagram.com/elem_ya") }
                 NavRow("GitHub", "github.com/Eirahoutmoss") { openInBrowser(ctx, "https://github.com/Eirahoutmoss") }
-                Text("Haber başlıkları, içerikler ve yayınlar ilgili kaynaklara aittir; NexNews yalnızca derler, bağlantı verir ve yayıncıların herkese açık akışlarını oynatır.",
+                Text(t("Haber başlıkları, içerikler ve yayınlar ilgili kaynaklara aittir; NexNews yalnızca derler, bağlantı verir ve yayıncıların herkese açık akışlarını oynatır."),
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
             }
         }
@@ -288,7 +297,7 @@ fun SourcesScreen(nav: NexNav, bottomPad: PaddingValues) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kaynaklar", fontWeight = FontWeight.Bold) },
+                title = { Text(t("Kaynaklar"), fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = { nav.back() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Geri") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
@@ -298,14 +307,14 @@ fun SourcesScreen(nav: NexNav, bottomPad: PaddingValues) {
         LazyColumn(Modifier.fillMaxSize().padding(top = pad.calculateTopPadding()), contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 32.dp)) {
             item {
                 val total = cats.sumOf { it.sources.size }
-                Text("$total kaynak · telefonda mobil veriyi korumak için her kategoride birkaç kaynakla başlanır.",
+                Text("$total " + t("kaynak") + " · " + t("telefonda mobil veriyi korumak için her kategoride birkaç kaynakla başlanır."),
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
                 Row(Modifier.padding(horizontal = 8.dp)) {
-                    TextButton(onClick = { scope.launch { val n = Core.restoreAllSources(); info = "$n kaynak eklendi"; reload() } }) { Text("Tüm hazır kaynakları ekle") }
+                    TextButton(onClick = { scope.launch { val n = Core.restoreAllSources(); info = "$n kaynak eklendi"; reload() } }) { Text(t("Tüm hazır kaynakları ekle")) }
                 }
                 if (info.isNotBlank()) Text(info, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(horizontal = 16.dp))
                 Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    listOf(Color(0xFF38C172) to "çalışıyor", Color(0xFFE0A83A) to "yavaş/eski", Color(0xFFE2566A) to "hata", MaterialTheme.colorScheme.outline to "denenmedi").forEach { (c, l) ->
+                    listOf(Color(0xFF38C172) to t("çalışıyor"), Color(0xFFE0A83A) to t("yavaş/eski"), Color(0xFFE2566A) to "hata", MaterialTheme.colorScheme.outline to "denenmedi").forEach { (c, l) ->
                         Row(verticalAlignment = Alignment.CenterVertically) { Box(Modifier.size(8.dp).clip(CircleShape).background(c)); Spacer(Modifier.width(5.dp)); Text(l, style = MaterialTheme.typography.labelSmall) }
                     }
                 }
@@ -334,7 +343,7 @@ fun SourcesScreen(nav: NexNav, bottomPad: PaddingValues) {
                                 }
                                 IconButton(onClick = {
                                     persist(cats.map { c -> if (c.name == cat.name) c.copy(sources = c.sources.filter { it.url != src.url }) else c })
-                                }) { Icon(Icons.Filled.Delete, "Kaldır", tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                }) { Icon(Icons.Filled.Delete, t("Kaldır"), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
                             }
                         }
                         TextButton(onClick = { addTo = cat.name }, modifier = Modifier.padding(start = 16.dp)) {
@@ -366,10 +375,10 @@ private fun AddSourceDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Un
         title = { Text("Kaynak ekle") },
         text = {
             Column {
-                Text("Site adresi ya da RSS adresi yazın; NexNews feed'i kendisi bulur.", style = MaterialTheme.typography.bodyMedium)
+                Text(t("Site adresi ya da RSS adresi yazın; NexNews feed'i kendisi bulur."), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(site, { site = it }, singleLine = true, placeholder = { Text("ör. ntv.com.tr") })
-                if (busy) Text("Aranıyor…", modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(site, { site = it }, singleLine = true, placeholder = { Text(t("ör. ntv.com.tr")) })
+                if (busy) Text(t("Aranıyor…"), modifier = Modifier.padding(top = 8.dp))
                 if (msg.isNotBlank()) Text(msg, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
                 found.forEach { (title, url) ->
                     Row(Modifier.fillMaxWidth().clickable { onAdd(title, url) }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -387,10 +396,24 @@ private fun AddSourceDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Un
                     val r = runCatching { Core.discover(site) }.getOrNull()
                     busy = false
                     found = r?.feeds?.map { it.title to it.url }.orEmpty()
-                    if (found.isEmpty()) msg = r?.err?.ifBlank { null } ?: "Feed bulunamadı."
+                    if (found.isEmpty()) msg = r?.err?.ifBlank { null } ?: t("Feed bulunamadı.")
                 }
             }) { Text("Bul") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Kapat") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(t("Kapat")) } }
     )
+}
+
+/** Arayüz dilleri: "" = cihaz dili. Dil adları kendi dillerinde yazılır. */
+private val UI_LANGS = listOf(
+    "" to "Cihaz dili", "tr" to "Türkçe", "en" to "English", "ar" to "العربية",
+    "de" to "Deutsch", "fr" to "Français", "es" to "Español", "ru" to "Русский",
+)
+
+/** Dil değişince tüm metinler (sabit listeler dahil) yeni dille kurulsun diye uygulamayı yeniden başlatır. */
+private fun restartApp(ctx: android.content.Context) {
+    val i = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName) ?: return
+    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    ctx.startActivity(i)
+    Runtime.getRuntime().exit(0)
 }

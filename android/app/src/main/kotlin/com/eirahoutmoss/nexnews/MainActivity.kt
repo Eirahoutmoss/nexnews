@@ -53,6 +53,10 @@ import com.eirahoutmoss.nexnews.ui.SearchScreen
 import com.eirahoutmoss.nexnews.ui.SettingsScreen
 import com.eirahoutmoss.nexnews.ui.SourcesScreen
 import com.eirahoutmoss.nexnews.ui.StoryScreen
+import com.eirahoutmoss.nexnews.ui.WeeklyScreen
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -89,7 +93,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             val pv by prefs.version.collectAsState()
             val theme = remember(pv) { prefs.theme }
-            NexTheme(theme) { AppRoot(pendingLink) }
+            // Dil değişince (I18n.version) yeniden çizilir; Arapça sağdan sola.
+            val lv = I18n.version
+            val dir = remember(lv) { if (I18n.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr }
+            CompositionLocalProvider(LocalLayoutDirection provides dir) {
+                NexTheme(theme) { AppRoot(pendingLink) }
+            }
         }
     }
 
@@ -132,18 +141,18 @@ private fun AppRoot(pendingLink: MutableStateFlow<String?>) {
             Column {
                 if (route != "player") MiniPlayer(onOpenVideo = { nav.player() })
                 if (showBottom) NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                    tabs.forEach { t ->
+                    tabs.forEach { tb ->
                         NavigationBarItem(
-                            selected = route == t.route,
+                            selected = route == tb.route,
                             onClick = {
-                                navController.navigate(t.route) {
+                                navController.navigate(tb.route) {
                                     popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
                             },
-                            icon = { Icon(t.icon, t.label) },
-                            label = { Text(t.label, maxLines = 1) }
+                            icon = { Icon(tb.icon, t(tb.label)) },
+                            label = { Text(t(tb.label), maxLines = 1) }
                         )
                     }
                 }
@@ -162,6 +171,7 @@ private fun AppRoot(pendingLink: MutableStateFlow<String?>) {
             composable("search") { SearchScreen(nav, bottom) }
             composable("sources") { SourcesScreen(nav, bottom) }
             composable("player") { PlayerScreen(nav) }
+            composable("weekly") { WeeklyScreen(nav, bottom) }
             composable("category/{name}", arguments = listOf(navArgument("name") { type = NavType.StringType })) {
                 CategoryScreen(it.arguments?.getString("name") ?: "", nav, bottom)
             }

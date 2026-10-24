@@ -1,5 +1,7 @@
 package com.eirahoutmoss.nexnews.notify
 
+import com.eirahoutmoss.nexnews.t
+
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -26,14 +28,14 @@ object Notifier {
     fun createChannels(ctx: Context) {
         if (Build.VERSION.SDK_INT < 26) return
         val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
-        nm.createNotificationChannel(NotificationChannel(CH_BREAKING, "Son dakika", NotificationManager.IMPORTANCE_HIGH).apply {
-            description = "Birden çok kaynağın doğruladığı son dakika gelişmeleri"
+        nm.createNotificationChannel(NotificationChannel(CH_BREAKING, t("Son dakika"), NotificationManager.IMPORTANCE_HIGH).apply {
+            description = t("Birden çok kaynağın doğruladığı son dakika gelişmeleri")
         })
-        nm.createNotificationChannel(NotificationChannel(CH_IMPORTANT, "Önemli gelişmeler", NotificationManager.IMPORTANCE_DEFAULT).apply {
-            description = "Önem eşiğini geçen yeni olaylar"
+        nm.createNotificationChannel(NotificationChannel(CH_IMPORTANT, t("Önemli gelişmeler"), NotificationManager.IMPORTANCE_DEFAULT).apply {
+            description = t("Önem eşiğini geçen yeni olaylar")
         })
-        nm.createNotificationChannel(NotificationChannel(CH_DIGEST, "Günlük özet", NotificationManager.IMPORTANCE_LOW).apply {
-            description = "Sabah ve akşam brifingi"
+        nm.createNotificationChannel(NotificationChannel(CH_DIGEST, t("Günlük özet"), NotificationManager.IMPORTANCE_LOW).apply {
+            description = t("Sabah ve akşam brifingi")
         })
     }
 
@@ -58,12 +60,12 @@ object Notifier {
             val id = a.link.hashCode()
             val sub = buildString {
                 append(a.source)
-                if (a.sources > 1) append(" · ${a.sources} bağımsız kaynak")
+                if (a.sources > 1) append(" · ${a.sources} " + t("bağımsız kaynak"))
                 if (a.category.isNotBlank()) append(" · ${a.category}")
             }
             val n = NotificationCompat.Builder(ctx, ch)
                 .setSmallIcon(R.drawable.ic_stat_news)
-                .setContentTitle(if (a.followed) "Takip ettiğin olay" else if (a.breaking) "Son dakika" else "Önemli gelişme")
+                .setContentTitle(if (a.followed) t("Takip ettiğin olay") else if (a.breaking) t("Son dakika") else t("Önemli gelişme"))
                 .setContentText(a.title)
                 .setSubText(sub)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(a.title + "\n" + sub))
@@ -82,7 +84,7 @@ object Notifier {
         val lines = b.items.take(5).joinToString("\n") { "${it.rank}. ${it.title}" }
         val n = NotificationCompat.Builder(ctx, CH_DIGEST)
             .setSmallIcon(R.drawable.ic_stat_news)
-            .setContentTitle(b.windowLabel.ifBlank { "Günün özeti" })
+            .setContentTitle(b.windowLabel.ifBlank { t("Günün özeti") })
             .setContentText(b.headline)
             .setStyle(NotificationCompat.BigTextStyle().bigText(lines))
             .setContentIntent(openIntent(ctx, null, 7001))

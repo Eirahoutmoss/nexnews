@@ -2,6 +2,8 @@
 
 package com.eirahoutmoss.nexnews.ui
 
+import com.eirahoutmoss.nexnews.t
+
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -56,15 +58,15 @@ fun relTime(ts: Long): String {
     if (ts <= 0) return ""
     val d = (System.currentTimeMillis() / 1000 - ts).coerceAtLeast(0)
     return when {
-        d < 60 -> "az önce"
+        d < 60 -> t("az önce")
         d < 3600 -> "${d / 60} dk"
         d < 86400 -> "${d / 3600} sa"
-        d < 604800 -> "${d / 86400} gün"
+        d < 604800 -> "${d / 86400} " + t("gün")
         else -> java.text.SimpleDateFormat("d MMM", java.util.Locale("tr")).format(java.util.Date(ts * 1000))
     }
 }
 
-fun agoText(ts: Long): String = relTime(ts).let { if (it.isEmpty() || it == "az önce") it else "$it önce" }
+fun agoText(ts: Long): String = relTime(ts).let { if (it.isEmpty() || it == t("az önce")) it else "$it " + t("önce") }
 
 fun clock(ts: Long): String =
     if (ts <= 0) "" else java.text.SimpleDateFormat("HH:mm", java.util.Locale("tr")).format(java.util.Date(ts * 1000))
@@ -88,7 +90,7 @@ fun shareText(ctx: Context, title: String, link: String) {
         putExtra(Intent.EXTRA_SUBJECT, title)
         putExtra(Intent.EXTRA_TEXT, "$title\n$link")
     }
-    ctx.startActivity(Intent.createChooser(i, "Paylaş").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    ctx.startActivity(Intent.createChooser(i, t("Paylaş")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }
 
 @Composable
@@ -135,8 +137,8 @@ fun Pill(text: String, modifier: Modifier = Modifier, color: Color = MaterialThe
 fun SignalPill(item: NewsItem) {
     val nex = LocalNex.current
     when {
-        item.breaking -> Pill("Son dakika", filled = nex.breaking)
-        item.independentSources > 1 -> Pill("${item.independentSources} bağımsız kaynak")
+        item.breaking -> Pill(t("Son dakika"), filled = nex.breaking)
+        item.independentSources > 1 -> Pill("${item.independentSources} " + t("bağımsız kaynak"))
     }
 }
 
@@ -175,7 +177,7 @@ fun NewsRow(
             ) {
                 Icon(if (toFav) Icons.Filled.Star else Icons.Filled.Done, null, tint = if (toFav) Color(0xFFFFC94A) else MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(8.dp))
-                Text(if (toFav) (if (fav) "Favoriden çıkar" else "Favorilere ekle") else "Okundu", style = MaterialTheme.typography.labelSmall)
+                Text(if (toFav) (if (fav) t("Favoriden çıkar") else "Favorilere ekle") else "Okundu", style = MaterialTheme.typography.labelSmall)
             }
         }
     ) {
@@ -236,7 +238,7 @@ private fun NewsRowBody(item: NewsItem, read: Boolean, fav: Boolean, dense: Bool
 }
 
 @Composable
-fun Loading(text: String = "Yükleniyor…") {
+fun Loading(text: String = t("Yükleniyor…")) {
     Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator(strokeWidth = 3.dp)

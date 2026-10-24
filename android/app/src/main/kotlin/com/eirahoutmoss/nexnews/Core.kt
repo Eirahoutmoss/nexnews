@@ -46,6 +46,7 @@ object Core {
                 val dir = context.applicationContext.filesDir.absolutePath
                 runCatching { Nexcore.setCountry(Locale.getDefault().country) }
                 Nexcore.init(dir, Locale.getDefault().language)
+                runCatching { I18n.load() }
                 ready = true
                 reloadLocal()
                 startTrafficSync()
@@ -191,6 +192,19 @@ object Core {
     }
 
     // ---- yapılandırma (Go config.json, alan kaybetmeden düzenlenir) ----------
+
+    // ---- RC96: haftanın özeti, kanal listeleri, sahiplik ----
+    suspend fun weekly(): WeeklySummary = io { NexJson.decodeFromString<WeeklySummary>(Nexcore.weekly()) }
+    suspend fun liveLists(): UserLists = io { runCatching { NexJson.decodeFromString<UserLists>(Nexcore.liveLists()) }.getOrDefault(UserLists()) }
+    suspend fun liveListAdd(name: String, url: String, text: String): UserList = io { NexJson.decodeFromString<UserList>(Nexcore.liveListAdd(name, url, text)) }
+    suspend fun liveListRefresh(id: String): UserList = io { NexJson.decodeFromString<UserList>(Nexcore.liveListRefresh(id)) }
+    suspend fun liveListDelete(id: String) = io { Nexcore.liveListDelete(id) }
+    suspend fun liveListRename(id: String, name: String) = io { Nexcore.liveListRename(id, name) }
+    suspend fun liveBuiltin(on: Boolean) = io { Nexcore.liveBuiltin(on) }
+    @Volatile private var ownershipCache: OwnershipCatalog? = null
+    suspend fun ownership(): OwnershipCatalog = ownershipCache ?: io {
+        runCatching { NexJson.decodeFromString<OwnershipCatalog>(Nexcore.ownership()) }.getOrDefault(OwnershipCatalog())
+    }.also { if (it.d.isNotEmpty()) ownershipCache = it }
 
     fun config(): JsonObject =
         runCatching { NexJson.parseToJsonElement(Nexcore.config()).jsonObject }.getOrDefault(JsonObject(emptyMap()))

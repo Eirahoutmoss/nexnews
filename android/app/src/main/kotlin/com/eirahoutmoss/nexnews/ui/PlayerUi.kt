@@ -2,6 +2,8 @@
 
 package com.eirahoutmoss.nexnews.ui
 
+import com.eirahoutmoss.nexnews.t
+
 import androidx.annotation.OptIn as AndroidOptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,9 +58,9 @@ fun PlayerScreen(nav: NexNav) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(now?.title ?: "Canlı yayın", maxLines = 1) },
+                title = { Text(now?.title ?: t("Canlı yayın"), maxLines = 1) },
                 navigationIcon = { IconButton(onClick = { nav.back() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Geri") } },
-                actions = { IconButton(onClick = { PlayerHub.stop(); nav.back() }) { Icon(Icons.Filled.Close, "Yayını kapat") } },
+                actions = { IconButton(onClick = { PlayerHub.stop(); nav.back() }) { Icon(Icons.Filled.Close, t("Yayını kapat")) } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
             )
         },
@@ -100,14 +102,14 @@ fun MiniPlayer(onOpenVideo: () -> Unit) {
             Text(
                 when {
                     n.error.isNotBlank() -> n.error
-                    n.buffering -> "Bağlanıyor…"
-                    else -> n.subtitle.ifBlank { if (n.kind == "tv") "Canlı TV" else "Canlı radyo" }
+                    n.buffering -> t("Bağlanıyor…")
+                    else -> n.subtitle.ifBlank { if (n.kind == "tv") t("Canlı TV") else t("Canlı radyo") }
                 },
                 style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1
             )
         }
         if (n.buffering) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-        IconButton(onClick = { PlayerHub.toggle() }) { Icon(if (n.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (n.playing) "Duraklat" else "Çal") }
-        IconButton(onClick = { PlayerHub.stop() }) { Icon(Icons.Filled.Close, "Kapat") }
+        IconButton(onClick = { PlayerHub.toggle() }) { Icon(if (n.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (n.playing) "Duraklat" else t("Çal")) }
+        IconButton(onClick = { PlayerHub.stop() }) { Icon(Icons.Filled.Close, t("Kapat")) }
     }
 }

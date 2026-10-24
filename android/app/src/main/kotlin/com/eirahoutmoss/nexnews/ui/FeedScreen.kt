@@ -2,6 +2,8 @@
 
 package com.eirahoutmoss.nexnews.ui
 
+import com.eirahoutmoss.nexnews.t
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -54,6 +56,9 @@ import androidx.compose.ui.unit.sp
 import com.eirahoutmoss.nexnews.Core
 import com.eirahoutmoss.nexnews.NewsItem
 import com.eirahoutmoss.nexnews.Prefs
+import com.eirahoutmoss.nexnews.Overview
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonPrimitive
 
 @Composable
 fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
@@ -66,6 +71,14 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
     val dense = remember(prefsV) { Prefs.get(ctx).density == "siki" }
     val images = showImages()
     var sheetItem by remember { mutableStateOf<NewsItem?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    // Sakin görünüm (masaüstüyle aynı): günün birkaç önemli olayı ve "bugünlük bu kadar".
+    var calm by remember { mutableStateOf(homeViewCalm()) }
+    androidx.compose.runtime.LaunchedEffect(ov) { if (ov != null) calm = homeViewCalm() }
+    fun setCalm(v: Boolean) {
+        calm = v
+        scope.launch { runCatching { Core.saveConfig { it["homeView"] = JsonPrimitive(if (v) "sakin" else "tam") } } }
+    }
 
     Scaffold(
         topBar = {
@@ -77,8 +90,8 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { nav.search() }) { Icon(Icons.Filled.Search, "Ara") }
-                    IconButton(onClick = { Core.refreshAsync(ctx) }) { Icon(Icons.Filled.Refresh, "Yenile") }
+                    IconButton(onClick = { nav.search() }) { Icon(Icons.Filled.Search, t("Ara")) }
+                    IconButton(onClick = { Core.refreshAsync(ctx) }) { Icon(Icons.Filled.Refresh, t("Yenile")) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
@@ -94,7 +107,7 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
             val empty = o == null || o.categories.all { it.items.isEmpty() }
             if (empty && (refreshing || o == null || o.updatedTs == 0L)) {
                 Column(Modifier.fillMaxSize()) {
-                    Loading(if (refreshing) "Başlıklar indiriliyor… İlk açılış biraz sürebilir." else "Hazırlanıyor…")
+                    Loading(if (refreshing) t("Başlıklar indiriliyor… İlk açılış biraz sürebilir.") else t("Hazırlanıyor…"))
                 }
                 return@PullToRefreshBox
             }
@@ -113,35 +126,56 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = bottomPad.calculateBottomPadding() + 24.dp)) {
                 item {
                     Text(
-                        (if (o.updatedTs > 0) "Güncellendi: " + agoText(o.updatedTs) else "") +
-                            (if (o.totalUnread > 0) " · ${o.totalUnread} okunmamış" else ""),
+                        (if (o.updatedTs > 0) t("Güncellendi: ") + agoText(o.updatedTs) else "") +
+                            (if (o.totalUnread > 0) " · ${o.totalUnread} " + t("okunmamış") else ""),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)
                     )
                 }
+                item { ViewToggle(calm) { setCalm(it) } }
+                if (calm) {
+                    if (o.breaking.isNotEmpty()) item { BreakingStrip(o.breaking.take(1)) { nav.open(it) } }
+                    val wd = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK)
+                    if (wd == java.util.Calendar.SUNDAY || wd == java.util.Calendar.MONDAY) item { WeeklyCta { nav.weekly() } }
+                    val picks = calmPicks(o)
+                    item {
+                        SectionHeader(t("🌿 Bugün bilmen gerekenler"), sub = t("Önem, bağımsız kaynak sayısı ve güncelliğe göre seçilen") + " ${picks.size} " + t("olay"))
+                    }
+                    items(picks, key = { "calm" + it.link }) { row(it) }
+                    o.discover?.let { d ->
+                        item { SectionHeader(t("Farklı bir pencere"), sub = o.discoverReason) }
+                        item(key = "cdisc" + d.link) { row(d) }
+                    }
+                    item { CalmClosing(o.categories.filter { it.total > 0 }.map { it.name to it.unread }, onCat = { nav.category(it) }, onFull = { setCalm(false) }) }
+                    return@LazyColumn
+                }
                 if (o.breaking.isNotEmpty()) {
                     item { BreakingStrip(o.breaking) { nav.open(it) } }
                 }
+                item {
+                    Text(t("📰 Haftanın özeti"), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.clickable { nav.weekly() }.padding(horizontal = 16.dp, vertical = 6.dp))
+                }
                 if (o.forYou.isNotEmpty()) {
-                    item { SectionHeader("Senin için") }
+                    item { SectionHeader(t("Senin için")) }
                     items(o.forYou, key = { "fy" + it.link }) { row(it) }
                 }
                 if (o.important.isNotEmpty()) {
-                    item { SectionHeader("Şu anda önemli") }
+                    item { SectionHeader(t("Şu anda önemli")) }
                     items(o.important, key = { "im" + it.link }) { row(it) }
                 }
                 o.discover?.let { d ->
-                    item { SectionHeader("Farklı bir pencere", sub = o.discoverReason) }
+                    item { SectionHeader(t("Farklı bir pencere"), sub = o.discoverReason) }
                     item(key = "disc" + d.link) { row(d) }
                 }
                 for (c in o.categories) {
                     if (c.items.isEmpty()) continue
                     item(key = "h" + c.name) {
                         SectionHeader(
-                            c.name,
-                            sub = if (c.unread > 0) "${c.unread} okunmamış · ${c.total} başlık" else "${c.total} başlık",
-                            action = "Tümü",
+                            t(c.name),
+                            sub = if (c.unread > 0) "${c.unread} " + t("okunmamış") + " · ${c.total} " + t("başlık") else "${c.total} " + t("başlık"),
+                            action = t("Tümü"),
                             onAction = { nav.category(c.name) }
                         )
                     }
@@ -162,7 +196,7 @@ private fun NoNewsState(onRetry: () -> Unit) {
         val h = runCatching { Core.sourceHealth() }.getOrDefault(emptyList())
         val bad = h.count { it.status != "healthy" }
         val err = h.firstOrNull { it.lastError.isNotBlank() }?.lastError ?: ""
-        info = if (h.isEmpty()) "" else "${h.size} kaynaktan $bad tanesine ulaşılamadı." + if (err.isNotBlank()) "\nÖrnek hata: $err" else ""
+        info = if (h.isEmpty()) "" else "$bad/${h.size} " + t("kaynağa ulaşılamadı.") + if (err.isNotBlank()) "\n" + t("Örnek hata") + ": $err" else ""
     }
     androidx.compose.foundation.rememberScrollState().let { sc ->
         Column(
@@ -170,16 +204,16 @@ private fun NoNewsState(onRetry: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(60.dp))
-            Text("Başlık alınamadı", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(t("Başlık alınamadı"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
-            Text("İnternet bağlantını kontrol edip yeniden dene. Uygulama bir süre sonra kendisi de yeniden deneyecek.",
+            Text(t("İnternet bağlantını kontrol edip yeniden dene. Uygulama bir süre sonra kendisi de yeniden deneyecek."),
                 textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (info.isNotBlank()) {
                 Spacer(Modifier.height(10.dp))
                 Text(info, textAlign = TextAlign.Center, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.height(16.dp))
-            androidx.compose.material3.Button(onClick = onRetry) { Text("Yeniden dene") }
+            androidx.compose.material3.Button(onClick = onRetry) { Text(t("Yeniden dene")) }
         }
     }
 }
@@ -191,7 +225,7 @@ private fun BreakingStrip(list: List<NewsItem>, onOpen: (NewsItem) -> Unit) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(8.dp).clip(CircleShape).background(nex.breaking))
             Spacer(Modifier.width(8.dp))
-            Text("SON DAKİKA", color = nex.breaking, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 0.8.sp)
+            Text(t("SON DAKİKA"), color = nex.breaking, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 0.8.sp)
         }
         LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             items(list, key = { it.link }) { it ->
@@ -204,7 +238,7 @@ private fun BreakingStrip(list: List<NewsItem>, onOpen: (NewsItem) -> Unit) {
                     Text(it.title, maxLines = 3, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        it.source + (if (it.independentSources > 1) " · ${it.independentSources} kaynak" else "") + " · " + relTime(it.ts),
+                        it.source + (if (it.independentSources > 1) " · ${it.independentSources} " + t("kaynak") else "") + " · " + relTime(it.ts),
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1
                     )
                 }
@@ -224,10 +258,10 @@ private fun ClosingCard(unread: Int) {
     ) {
         Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(30.dp))
         Spacer(Modifier.height(8.dp))
-        Text("Önemli gelişmelerin hepsini gördün", fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Text(t("Önemli gelişmelerin hepsini gördün"), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         Spacer(Modifier.height(4.dp))
         Text(
-            if (unread > 0) "Kategorilerde $unread okunmamış başlık var; istersen göz at, istersen burada bırak." else "Şimdilik yeni bir şey yok.",
+            if (unread > 0) t("Kategorilerde") + " $unread " + t("okunmamış başlık var; istersen göz atabilir ya da burada bırakabilirsin.") else t("Şimdilik yeni bir şey yok."),
             color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium
         )
     }
@@ -247,13 +281,81 @@ fun ItemActionsSheet(item: NewsItem, nav: NexNav, onDismiss: () -> Unit) {
             val act: @Composable (String, () -> Unit) -> Unit = { label, f ->
                 Text(label, modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable { f(); onDismiss() }.padding(vertical = 13.dp, horizontal = 6.dp))
             }
-            if (item.count > 1) act("Olay ayrıntısı ve başlık karşılaştırması") { Core.markRead(item); nav.story(item.link) }
-            act("Uygulamada oku") { Core.markRead(item); nav.reader(item.link) }
-            act("Tarayıcıda aç") { Core.markRead(item); openInBrowser(ctx, item.link) }
-            act(if (item.link in favs) "Favorilerden çıkar" else "Favorilere ekle") { Core.toggleFav(item) }
-            act("Okundu olarak işaretle") { Core.markRead(item) }
-            act("Paylaş") { shareText(ctx, item.title, item.link) }
+            if (item.count > 1) act(t("Olay ayrıntısı ve başlık karşılaştırması")) { Core.markRead(item); nav.story(item.link) }
+            act(t("Uygulamada oku")) { Core.markRead(item); nav.reader(item.link) }
+            act(t("Tarayıcıda aç")) { Core.markRead(item); openInBrowser(ctx, item.link) }
+            act(if (item.link in favs) t("Favorilerden çıkar") else t("Favorilere ekle")) { Core.toggleFav(item) }
+            act(t("Okundu olarak işaretle")) { Core.markRead(item) }
+            act(t("Paylaş")) { shareText(ctx, item.title, item.link) }
         }
     }
 }
 
+
+private const val CALM_MAX = 7
+
+private fun homeViewCalm(): Boolean =
+    runCatching { (Core.config()["homeView"] as? JsonPrimitive)?.content != "tam" }.getOrDefault(true)
+
+/** Önce "şu anda önemli", eksik kalırsa en yüksek puanlı başlıklar; en çok 7 olay. */
+private fun calmPicks(o: Overview): List<NewsItem> {
+    val seen = HashSet<String>()
+    val out = ArrayList<NewsItem>()
+    fun push(it: NewsItem) { if (it.link.isNotBlank() && seen.add(it.link)) out.add(it) }
+    o.important.forEach(::push)
+    if (out.size < CALM_MAX) {
+        o.categories.flatMap { it.items }.sortedWith(compareByDescending<NewsItem> { it.score }.thenByDescending { it.ts }).forEach(::push)
+    }
+    return out.take(CALM_MAX)
+}
+
+@Composable
+private fun ViewToggle(calm: Boolean, onChange: (Boolean) -> Unit) {
+    Row(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        androidx.compose.material3.FilterChip(selected = calm, onClick = { onChange(true) }, label = { Text(t("🌿 Sakin")) })
+        androidx.compose.material3.FilterChip(selected = !calm, onClick = { onChange(false) }, label = { Text(t("Tam akış")) })
+    }
+}
+
+@Composable
+private fun WeeklyCta(onOpen: () -> Unit) {
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f), RoundedCornerShape(14.dp))
+            .clickable(onClick = onOpen).padding(14.dp)
+    ) {
+        Text("📰 " + t("Haftanın özeti hazır"), fontWeight = FontWeight.Bold)
+        Text(t("Son 7 günün en önemli olayları ve takip ettiklerin, tek sayfada →"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun CalmClosing(cats: List<Pair<String, Int>>, onCat: (String) -> Unit, onFull: () -> Unit) {
+    Column(
+        Modifier.fillMaxWidth().padding(16.dp).clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+            .padding(22.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(30.dp))
+        Spacer(Modifier.height(8.dp))
+        Text(t("Bugünlük bu kadar"), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(4.dp))
+        Text(t("Dünyada önemli bir şey olursa burada ve bildirimlerde görürsün. Merak ettiğin bir konu varsa:"),
+            color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(10.dp))
+        androidx.compose.foundation.layout.FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            cats.forEach { (name, unread) ->
+                androidx.compose.material3.AssistChip(onClick = { onCat(name) }, label = { Text(if (unread > 0) t(name) + " $unread" else t(name)) })
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        androidx.compose.material3.OutlinedButton(onClick = onFull) { Text(t("Tüm akışı göster")) }
+    }
+}

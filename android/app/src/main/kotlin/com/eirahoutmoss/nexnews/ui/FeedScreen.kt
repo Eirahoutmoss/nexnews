@@ -136,6 +136,7 @@ fun FeedScreen(nav: NexNav, bottomPad: PaddingValues) {
                 }
                 o.crisis?.let { c -> if (c.key != crisisOff) item(key = "crisis") { CrisisCard(c, nav, onDismiss = { crisisOff = c.key; Prefs.get(ctx).crisisDismissed = c.key }) } }
                 if (o.today.isNotEmpty()) item(key = "today") { TodayStrip(o.today) { nav.agenda() } }
+                if (o.world.isNotEmpty()) item(key = "world") { WorldToday(o.world) }
                 item { ViewToggle(calm) { setCalm(it) } }
                 item { ToolChips(nav, Core.configBool("easyRead", false)) }
                 if (calm) {
@@ -360,22 +361,12 @@ private fun CalmClosing(cats: List<Pair<String, Int>>, onCat: (String) -> Unit, 
     }
 }
 
-/** RC97: sesli brifing, kolay okuma ve sayfa kısayolları. */
+/** RC97: kolay okuma ve sayfa kısayolları. */
 @Composable
 private fun ToolChips(nav: NexNav, easy: Boolean) {
     val ctx = LocalContext.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            androidx.compose.material3.FilterChip(selected = Speaker.speaking, onClick = {
-                if (Speaker.speaking) Speaker.stop()
-                else scope.launch {
-                    val b = Core.audioBrief()
-                    if (b.text.isBlank()) android.widget.Toast.makeText(ctx, t("Sesli brifing hazırlanamadı."), android.widget.Toast.LENGTH_SHORT).show()
-                    else Speaker.speak(ctx, b.text)
-                }
-            }, label = { Text(if (Speaker.speaking) t("■ Durdur") else t("🔊 Dinle")) })
-        }
         item {
             androidx.compose.material3.FilterChip(selected = easy, onClick = {
                 scope.launch { Core.saveConfig { it["easyRead"] = JsonPrimitive(!easy) } }
@@ -438,5 +429,25 @@ private fun TodayStrip(list: List<com.eirahoutmoss.nexnews.AgendaItem>, onMore: 
                 color = if (a.kind == "bayram") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium)
         }
+    }
+}
+
+/** RC98: Dünyada bugün — bugün ulusal günü olan ülkeler (ülke adı cihaz dilinde). */
+@Composable
+private fun WorldToday(list: List<com.eirahoutmoss.nexnews.WorldDay>) {
+    var open by remember { mutableStateOf(false) }
+    val loc = remember(com.eirahoutmoss.nexnews.I18n.lang) { java.util.Locale.forLanguageTag(com.eirahoutmoss.nexnews.I18n.lang) }
+    val shown = if (open) list else list.take(4)
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).clip(RoundedCornerShape(12.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+            .clickable { open = !open }.padding(10.dp)
+    ) {
+        Text(t("🌍 Dünyada bugün"), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+        shown.forEach { w ->
+            val name = java.util.Locale("", w.country).getDisplayCountry(loc).ifBlank { w.country }
+            Text(w.flag + " " + name + " · " + w.title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (!open && list.size > 4) Text("+${list.size - 4}", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
     }
 }

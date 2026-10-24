@@ -48,12 +48,12 @@
     renderPulseChip(data);
     updateNavCounts(data);
     if(homeView()==='sakin'){
-      el.innerHTML = crisisHTML(data.crisis) + todayStripHTML(data.today) + calmHTML(data);
+      el.innerHTML = crisisHTML(data.crisis) + todayStripHTML(data.today) + worldTodayHTML(data.world) + calmHTML(data);
       if(KBD_IDX>=0) KBD_IDX=-1;
       translateDOM();
       return;
     }
-    let html = crisisHTML(data.crisis) + todayStripHTML(data.today) + viewToggleHTML() + breakingBandHTML(data.breaking) + forYouHTML(data.forYou) + importantHTML(data.important) + discoverHTML(data) + '<div class="grid">';
+    let html = crisisHTML(data.crisis) + todayStripHTML(data.today) + worldTodayHTML(data.world) + viewToggleHTML() + breakingBandHTML(data.breaking) + forYouHTML(data.forYou) + importantHTML(data.important) + discoverHTML(data) + '<div class="grid">';
     const personalized = !!String(data.countryCode||'').trim();
     for(const c of data.categories){
       if(personalized && Number(c.total||0)===0) continue;
@@ -168,7 +168,7 @@
     const v=homeView();
     return '<div class="view-toggle" role="tablist"><button class="'+(v==='sakin'?'active':'')+'" onclick="setHomeView(\'sakin\')" title="Günün önemli olayları, sonu belli kısa bir özet">🌿 Sakin</button>'
       + '<button class="'+(v==='tam'?'active':'')+'" onclick="setHomeView(\'tam\')" title="Tüm kategoriler ve başlıklar">Tam akış</button>'
-      + '<span class="vt-sep"></span><button id="audioBriefBtn" class="'+(AUDIO_ON?'active':'')+'" onclick="toggleAudioBrief()" title="Günün özetini sesli dinle">'+(AUDIO_ON?'■ Durdur':'🔊 Dinle')+'</button>'
+      + '<span class="vt-sep"></span>'
       + '<button class="'+(easyRead()?'active':'')+'" onclick="toggleEasyRead()" title="Büyük yazı, sade görünüm">Aa Kolay okuma</button></div>';
   }
   function calmPicks(data){
@@ -307,23 +307,6 @@
     h+='<div class="crisis-tip">Doğrulanmamış bilgiyi paylaşmadan önce resmî kaynaklardan kontrol et. Afetlerde eski fotoğraf ve videolar sık sık yeniden dolaşıma sokulur.</div>';
     return h+'</section>';
   }
-  // Sesli brifing: metni çekirdek hazırlar, Windows'un konuşma motoru okur.
-  let AUDIO_ON=false;
-  async function toggleAudioBrief(){
-    if(AUDIO_ON){ try{ await window.nnStopSpeech(); }catch(e){} AUDIO_ON=false; paintAudioBtn(); return; }
-    let b={};
-    try{ b=JSON.parse(await window.nnAudioBrief()); }catch(e){}
-    if(!b.text){ nnToast('Sesli brifing hazırlanamadı.'); return; }
-    try{
-      const r=await window.nnSpeak(b.text);
-      if(r==='off'){ nnToast('Bu bilgisayarda konuşma motoru bulunamadı.'); return; }
-      AUDIO_ON=true; paintAudioBtn();
-      // Yaklaşık süre sonunda düğmeyi geri al (dakikada ~150 sözcük).
-      clearTimeout(toggleAudioBrief._t);
-      toggleAudioBrief._t=setTimeout(()=>{ AUDIO_ON=false; paintAudioBtn(); }, Math.max(20000, b.text.split(/\s+/).length/150*60000));
-    }catch(e){ nnToast('Sesli brifing başlatılamadı.'); }
-  }
-  function paintAudioBtn(){ const b=document.getElementById('audioBriefBtn'); if(b){ b.classList.toggle('active',AUDIO_ON); b.textContent=AUDIO_ON?'■ Durdur':'🔊 Dinle'; } }
   // Kolay okuma: büyük yazı, az ayrıntı.
   function easyRead(){ return !!(CONFIG&&CONFIG.easyRead); }
   function toggleEasyRead(){
@@ -344,6 +327,17 @@
     if(!list||!list.length) return '';
     return '<div class="today-strip">'+list.map(a=>'<span class="today-day td-'+esc(a.kind)+'"'+(a.local?' data-noi18n':'')+'>'+agendaIcon(a)+' <b>'+esc(a.local?a.title:tf(a.title))+'</b></span>').join('')
       +'<span class="today-more" onclick="openAgenda()">Gündem takvimi →</span></div>';
+  }
+  // RC98: Dünyada bugün — bugün ulusal günü olan ülkeler.
+  function countryLabel(code){
+    try{ return new Intl.DisplayNames([(window.NexI18n&&NexI18n.lang)||'tr'],{type:'region'}).of(code)||code; }catch(e){ return code; }
+  }
+  function worldTodayHTML(list){
+    if(!list||!list.length) return '';
+    const max=6, more=list.length-max;
+    return '<div class="world-today"><span class="wt-head">🌍 Dünyada bugün</span>'
+      +list.slice(0,max).map(w=>'<span class="wt-item" data-noi18n title="'+esc(w.title)+'">'+esc(w.flag)+' <b>'+esc(countryLabel(w.country))+'</b> · '+esc(w.title)+'</span>').join('')
+      +(more>0?'<span class="wt-more" data-noi18n title="'+esc(list.slice(max).map(w=>countryLabel(w.country)+' — '+w.title).join('\n'))+'">+'+more+'</span>':'')+'</div>';
   }
   async function openAgenda(){
     let list=[]; try{ list=JSON.parse(await window.nnAgenda())||[]; }catch(e){}

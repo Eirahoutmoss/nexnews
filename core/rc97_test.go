@@ -147,3 +147,23 @@ func TestHolidaysAndRules(t *testing.T) {
 		t.Error("bayrak")
 	}
 }
+
+func TestWorldTodayNationalFlag(t *testing.T) {
+	nat := 0
+	for _, h := range countryHolidays("MR") {
+		if h.Date == "2026-11-28" && h.National {
+			nat++
+		}
+	}
+	if nat != 1 {
+		t.Error("Moritanya bağımsızlık günü ulusal gün olarak işaretli değil")
+	}
+	_ = worldToday()
+}
+
+func TestPickNameFallback(t *testing.T) {
+	n := map[string]string{"_": "Independence Day"}
+	if pickName(n, "tr") != "Bağımsızlık Günü" || pickName(n, "en") != "Independence Day" {
+		t.Error("ulusal gün adı çevrilmedi")
+	}
+}

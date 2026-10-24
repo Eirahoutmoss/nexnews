@@ -94,7 +94,11 @@ data class Overview(
     val totalUnread: Int = 0,
     val crisis: CrisisInfo? = null,
     val today: List<AgendaItem> = emptyList(),
+    val world: List<WorldDay> = emptyList(),
 )
+
+@Serializable
+data class WorldDay(val country: String = "", val flag: String = "", val title: String = "")
 
 @Serializable
 data class CategoryPage(

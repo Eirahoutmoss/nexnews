@@ -68,6 +68,11 @@ func RunDesktop() {
 	follows = newFollowStore()
 	speech = newSpeechProvider()
 
+	// RC88: WebView2'nin arka planı oluşturulurken saydam başlamalı. Sonradan
+	// verilen saydam renk (PutDefaultBackgroundColor) bazı sürümlerde etkisiz
+	// kalıyor ve widget'ın altı beyaz görünüyordu. Bu değişken yalnızca bu
+	// işlem için geçerlidir; sayfanın kendi arka planı CSS'te çizilir.
+	_ = os.Setenv("WEBVIEW2_DEFAULT_BACKGROUND_COLOR", "0")
 	ui = webview2.NewWithOptions(webview2.WebViewOptions{
 		Debug:     false,
 		AutoFocus: true,

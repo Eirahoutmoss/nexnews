@@ -90,7 +90,10 @@ object PlayerHub {
         // Sınırlı veri modunda en çok 480p.
         val lim = com.eirahoutmoss.nexnews.Core.dataLimited()
         c.trackSelectionParameters = c.trackSelectionParameters.buildUpon()
-            .setMaxVideoSize(if (lim) 854 else Int.MAX_VALUE, if (lim) 480 else Int.MAX_VALUE).build()
+            .setMaxVideoSize(if (lim) 854 else Int.MAX_VALUE, if (lim) 480 else Int.MAX_VALUE)
+            // Tam modda en düşük katlara inme (bu katlarda ses 32–64 kbps, boğuk duyuluyor).
+            .setMinVideoBitrate(if (lim) 0 else 600_000)
+            .build()
         _now.value = NowPlaying("tv", ch.name, ch.meta, buffering = true)
         setItem(c, streams.first(), "tv:" + ch.id, ch.name, ch.meta, "", hls = true)
         c.prepare(); c.play()

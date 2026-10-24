@@ -53,12 +53,13 @@ type Config struct {
 	LineHeight     float64    `json:"lineHeight"`     // reading line height
 	ReaderWidth    int        `json:"readerWidth"`    // reader text measure in px
 	DyslexiaFont   bool       `json:"dyslexiaFont"`
-	MarketWatch    []string   `json:"marketWatch"`  // BIST/FX/commodity symbols, e.g. THYAO, USDTRY=X, GC=F
-	SportsWatch    []string   `json:"sportsWatch"`  // sports leagues: futbol, premier, ucl, nba, euroleague, nfl
-	SportsTeams    []string   `json:"sportsTeams"`  // favorite teams, matched against returned team names
-	NewsCountry    string     `json:"newsCountry"`  // ISO-3166 country code; empty = all world
-	CountryScope   string     `json:"countryScope"` // strict or related
-	SchemaV        int        `json:"schemaV"`      // config migration version
+	MarketWatch    []string   `json:"marketWatch"`            // BIST/FX/commodity symbols, e.g. THYAO, USDTRY=X, GC=F
+	SportsWatch    []string   `json:"sportsWatch"`            // sports leagues: futbol, premier, ucl, nba, euroleague, nfl
+	SportsTeams    []string   `json:"sportsTeams"`            // favorite teams, matched against returned team names
+	NewsCountry    string     `json:"newsCountry"`            // ISO-3166 country code; empty = all world
+	CountryScope   string     `json:"countryScope"`           // strict or related
+	LocalCountry   string     `json:"localCountry,omitempty"` // country the "📍" local category was built for
+	SchemaV        int        `json:"schemaV"`                // config migration version
 
 	// v11 (RC81)
 	WidgetMode   string `json:"widgetMode"`   // opak / cam (acrylic) / bulanik (blur) / saydam (clear)

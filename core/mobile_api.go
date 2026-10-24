@@ -91,8 +91,12 @@ func MobileRefresh() {
 	if !mobileReady() {
 		return
 	}
+	ensureLocalCategory(context.Background())
 	store.Refresh(context.Background())
 }
+
+// MobileSetCountry tells the core the device's region (Locale country, ISO-3166).
+func MobileSetCountry(code string) { sysCountryOverride = strings.ToUpper(strings.TrimSpace(code)) }
 
 // MobileTranslate translates up to max titles (most important first) and
 // re-clusters so cross-language duplicates merge. Blocking, bounded by secs.
